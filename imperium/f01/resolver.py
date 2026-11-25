@@ -76,11 +76,14 @@ class Observation:
 
 
 class F01:
-    def __init__(self, seed, variant="open", *, mirrored=False, formations=None):
+    def __init__(self, seed, variant="open", *, mirrored=False, formations=None, inactive_groups=()):
         if type(seed) is not int or seed < 0 or 10000 <= seed <= 14095 or 30000 <= seed <= 31023:
             raise ValueError("invalid or reserved F01 seed")
         self.seed, self.variant, self.mirrored = seed, variant, mirrored
         self.terrain = TERRAINS[variant]
+        self.inactive_groups = frozenset(inactive_groups)
+        if not self.inactive_groups <= {(group.logical_side, group.name) for group in initial_groups()}:
+            raise ValueError("unknown F01 command group")
         roster = tuple(deepcopy(formations)) if formations is not None else initial_formations(mirrored)
         self.units = {u.identity.id: u for u in sorted(roster, key=lambda unit: unit.identity.id)}
         if len(self.units) != len(roster):
@@ -297,6 +300,10 @@ class F01:
         members = order.members
         if order != Order(order.kind, members, turn=order.turn) or tuple(sorted(set(members))) != members:
             raise ValueError("invalid group order fields")
+        if not any(group.logical_side == self.side
+                   and (group.logical_side, group.name) not in self.inactive_groups
+                   and set(members) <= set(group.members) for group in initial_groups()):
+            raise ValueError("group has no standing authority")
         if order.kind == "group-move":
             moves = group_translation(self.side, members, order.turn, self.units, self.terrain,
                                       frozenset(self.ready), self.effort,
@@ -849,6 +856,8 @@ class F01:
                  "ledgers": [sorted(x) for x in (self.ready, self.used_members, self.responded,
                                                  self.forced, self.displaced, self.resting,
                                                  self.incoming, self.safe_interval)]}
+        if self.inactive_groups:
+            state["inactive_groups"] = sorted(self.inactive_groups)
         return sha256(canonical_json(state).encode()).hexdigest()
 
     def check_invariants(self):

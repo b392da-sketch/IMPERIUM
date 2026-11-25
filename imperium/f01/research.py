@@ -10,7 +10,7 @@ from statistics import mean
 from ..events import canonical_json
 from ..execution import Journal, load_journal
 from ..geometry import OBJECTIVE, distance, front, step
-from ..reporting import describe
+from ..reporting import describe, paired_continuous
 from .fixture import FIXTURE_VERSION, PROFILE_VERSION
 from .resolver import F01, TERRAINS, Order, Reaction
 
@@ -130,6 +130,34 @@ def simulate(config, expected=None, on_failure=None):
     return summary(config, battle, counts), battle.events
 
 
+def replay_orders(battle, events):
+    """Replay arbitrary accepted principal orders and explicit response decisions."""
+    if not events or canonical_json(battle.events[0]) != canonical_json(events[0]):
+        raise ValueError("F01 scripted initial state mismatch")
+    for event in events[1:]:
+        fields = dict(event["order"])
+        fields["members"] = tuple(fields["members"])
+        fields["path"] = tuple(battle.norm(tuple(cell)) for cell in fields["path"])
+        if fields["kind"] == "group-move" and battle.mirrored:
+            if type(fields["turn"]) is not int:
+                raise ValueError("invalid recorded group direction")
+            fields["turn"] = (fields["turn"] + 3) % 6
+        decisions = [s["decision"] for s in event["stages"] if s["kind"] == "reaction"]
+
+        def select(view, options):
+            if not decisions:
+                raise ValueError("missing scripted reaction decision")
+            decision = decisions.pop(0)
+            return Reaction(**decision) if decision is not None else None
+
+        battle.resolve(Order(**fields), select)
+        if decisions or canonical_json(battle.events[-1]) != canonical_json(event):
+            raise ValueError(f"F01 scripted replay mismatch at root {battle.root}")
+    if not battle.terminal:
+        raise ValueError("incomplete F01 scripted replay")
+    return battle.terminal
+
+
 def get_plan(header):
     if header.get("schema") != EXECUTION_SCHEMA or header.get("matrix") != "development":
         raise ValueError("unknown F01 execution journal")
@@ -209,6 +237,16 @@ def aggregate(execution):
             "terminal_reasons": dict(Counter(row["terminal"]["reason"] for row in group)),
             "winners": dict(Counter(str(row["terminal"]["winner"]) for row in group)),
             "objective_classification": dict(Counter(row["objective"]["classification"] for row in group)),
+            "objective_security_flags": {key: sum(row["objective"].get(key, False) for row in group)
+                                        for key in ("condition", "contact", "threat")},
+            "round_three_exhaustion": [
+                describe(numerator / denominator for row in group
+                         if row["round_three_exhaustion"] is not None
+                         for numerator, denominator in [row["round_three_exhaustion"][side]]
+                         if denominator)
+                for side in (0, 1)
+            ],
+            "secure_closures": [describe(row["secure_closures"][side] for row in group) for side in (0, 1)],
             "mean_rounds": mean(row["rounds"] for row in group),
             "metrics": {metric: sum(row["metrics"].get(metric, 0) for row in group)
                         for metric in sorted({key for row in group for key in row["metrics"]})},
@@ -218,6 +256,15 @@ def aggregate(execution):
             "mean_legal_choices": mean(value[0] for row in group for value in row["choices"]),
             "mean_preferred_choices": mean(value[1] for row in group for value in row["choices"]),
         }
+    rows = {(row["run"]["variant"], row["run"]["seed"]): row
+            for row in execution.observations() if not row["run"]["mirrored"]}
+    result["paired_losses_against_open"] = {
+        variant: paired_continuous(
+            sum(rows[variant, seed][key] - rows["open", seed][key] for key in ("killed", "wounded"))
+            for seed in range(22000, 22016)
+        )
+        for variant in ("rough", "barrier")
+    }
     return result
 
 

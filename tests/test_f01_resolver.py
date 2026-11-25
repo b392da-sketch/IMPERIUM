@@ -145,3 +145,167 @@ class ResolverTests(unittest.TestCase):
         self.assertFalse(hasattr(view, "seed"))
         self.assertFalse(hasattr(view.formations[1], "losses"))
         self.assertEqual(tuple(i for i, _ in view.own_effort), (0,))
+
+    def test_response_after_spent_principal_and_condition_cap(self):
+        units = fixture((0, (4, 6), 4), (1, (0, 6), 4), (14, (4, 3), 1))
+        units[0].cohesion = 1
+        battle = F01(22000, formations=units)
+        battle.resolve(Order("hold", (1,)))
+        battle.resolve(Order("hold", (14,)))
+        with patch("imperium.f01.resolver.packet", return_value=Packet(Casualties(0, 0), 1, 0)):
+            battle.resolve(Order("move", (0,), path=((4, 5), (4, 4))),
+                           lambda view, choices: Reaction("missile", 14, 0))
+        self.assertEqual(battle.units[0].position, (4, 5))
+        self.assertEqual(battle.units[0].cohesion, 2)
+        self.assertEqual(battle.effort[0], 2)
+        self.assertIn(14, battle.responded)
+
+    def test_shock_is_deduplicated_across_rout_waves(self):
+        units = fixture((0, (4, 6), 4), (1, (3, 6), 4), (2, (3, 7), 4), (8, (4, 5), 1))
+        units[0].cohesion = units[0].morale = 1
+        units[1].cohesion, units[1].morale = 2, 1
+        battle = F01(22000, formations=units)
+        with patch("imperium.f01.resolver.packet", side_effect=(
+            Packet(Casualties(0, 0)), Packet(Casualties(0, 0), 1, 1)
+        )):
+            battle.resolve(Order("assault", (0,), target=8))
+        self.assertEqual(battle.units[1].disposition, "routing")
+        self.assertEqual(battle.units[2].morale, 1)
+        waves = [s["recipients"] for s in battle.events[-1]["stages"] if s["kind"] == "shock"]
+        self.assertEqual(waves, [[1, 2]])
+
+    def test_zero_allocation_and_controlled_disengagement(self):
+        units = fixture((0, (4, 6), 4), (8, (4, 5), 3), (9, (5, 5), 1))
+        units[0].record_losses("fixture", Casualties(239, 0))
+        battle = F01(22000, formations=units)
+        battle.contacts.add((0, 8))
+        with patch("imperium.f01.resolver.packet", return_value=Packet(Casualties(0, 0))):
+            battle.resolve(Order("assault", (0,), target=9))
+        packets = next(s for s in battle.events[-1]["stages"] if s["kind"] == "packets")
+        self.assertEqual(packets["allocations"][0], (0, 9, 0))
+        battle.resolve(Order("pass"))
+        battle.resolve(Order("pass"))
+        battle.resolve(Order("pass"))
+        battle.resolve(Order("withdraw", (0,), path=((4, 7),)))
+        self.assertFalse(battle.contacts)
+        self.assertEqual(battle.units[0].available, 1)
+
+    def test_captured_wounds_preserve_field_location_and_lineage(self):
+        units = fixture((0, (1, 8), 4), (7, (2, 7), 4), (8, (9, 1), 1))
+        units[0].record_losses("fixture", Casualties(5, 7))
+        battle = F01(22000, formations=units)
+        battle.resolve(Order("evacuate", (0,)))
+        battle.resolve(Order("pass"))
+        battle.resolve(Order("capitulate"))
+        self.assertEqual(battle.exits[0].available, 228)
+        self.assertEqual(battle.units[0].losses[0].casualties.wounded, 7)
+        self.assertEqual(battle.wound_custody[0], 1)
+        self.assertEqual(battle.custody[7].mounts, 80)
+        battle.check_invariants()
+
+    def test_invalid_precision_type_and_packets_fail_closed(self):
+        battle = F01(22000, formations=fixture((0, (4, 6), 4), (8, (4, 5), 1)))
+        before = battle.digest()
+        with self.assertRaisesRegex(ValueError, "field type"):
+            battle.resolve(Order("hold", (False,)))
+        self.assertEqual(battle.digest(), before)
+        with patch("imperium.f01.resolver.packet", return_value=Packet(Casualties(25, 0))):
+            with self.assertRaisesRegex(AssertionError, "directed packet"):
+                battle.resolve(Order("assault", (0,), target=8))
+        with self.assertRaisesRegex(ValueError, "faulted"):
+            battle.resolve(Order("pass"))
+
+    def test_disabled_group_authority_preserves_local_control(self):
+        battle = F01(22000, inactive_groups=((0, "G1"),))
+        with self.assertRaisesRegex(ValueError, "authority"):
+            battle.resolve(Order("group-move", (0, 1, 4), turn=4))
+        battle.resolve(Order("move", (0,), path=((2, 5),)))
+        self.assertEqual(battle.units[0].position, (2, 5))
+
+    def test_interrupt_rest_with_safe_range_two_fire(self):
+        units = fixture((0, (4, 6), 4), (14, (4, 4), 1))
+        units[0].fatigue = 2
+        battle = F01(22000, formations=units)
+        battle.resolve(Order("rest", (0,)))
+        with patch("imperium.f01.resolver.packet", return_value=Packet(Casualties(0, 0))):
+            battle.resolve(Order("missile", (14,), target=0))
+        battle.resolve(Order("pass"))
+        battle.resolve(Order("pass"))
+        self.assertEqual(battle.units[0].fatigue, 2)
+        self.assertEqual(battle.metrics["rest_interrupted"], 1)
+
+    def test_reciprocal_depletion_preserves_assets(self):
+        units = fixture((7, (4, 6), 4), (15, (4, 5), 1))
+        for unit in units:
+            unit.record_losses("fixture", Casualties(79, 0))
+        battle = F01(22000, formations=units)
+        with patch("imperium.f01.resolver.packet", return_value=Packet(Casualties(1, 0))):
+            battle.resolve(Order("assault", (7,), target=15))
+        self.assertEqual(battle.terminal["reason"], "mutual")
+        self.assertEqual(battle.elapsed, 10)
+        self.assertEqual(sum(stock.mounts for stock in battle.removed_assets.values()), 160)
+        battle.check_invariants()
+
+    def test_orderly_departure_and_mutual_abandonment(self):
+        for mutual in (False, True):
+            with self.subTest(mutual=mutual):
+                units = fixture((0, (2, 8), 4), (8, (8, 1), 1))
+                battle = F01(22000, formations=units)
+                battle.resolve(Order("hold", (0,)))
+                battle.resolve(Order("declare-withdrawal") if mutual else Order("pass"))
+                battle.resolve(Order("pass"))
+                if mutual:
+                    battle.resolve(Order("pass"))
+                if battle.side == 1:
+                    battle.resolve(Order("pass"))
+                battle.resolve(Order("evacuate", (0,)))
+                self.assertEqual(battle.terminal["reason"], "mutual_abandonment" if mutual else "military")
+                self.assertEqual(battle.terminal["defeat"][0], "orderly_departure")
+                self.assertEqual(battle.elapsed, 20)
+                battle.check_invariants()
+
+    def test_safe_refuge_reformer_gates_and_later_rally(self):
+        units = fixture((0, (2, 6), 4), (1, (3, 6), 4), (8, (8, 2), 1))
+        units[0].disposition = "routing"
+        units[0].cohesion = units[0].morale = 2
+        battle = F01(22000, formations=units)
+        battle.resolve(Order("pass"))
+        battle.resolve(Order("pass"))
+        self.assertEqual(battle.units[0].disposition, "reforming")
+        battle.resolve(Order("pass"))
+        legal = {order.kind for order in battle.legal_orders() if order.members == (0,)}
+        self.assertEqual(legal, {"rally", "hold"})
+        battle.resolve(Order("rally", (0,)))
+        battle.resolve(Order("pass"))
+        self.assertEqual(battle.units[0].disposition, "organized")
+        self.assertEqual((battle.units[0].cohesion, battle.units[0].morale), (1, 1))
+
+    def test_withdrawal_posture_costs_opportunity_and_precedes_o0(self):
+        units = fixture((0, (5, 4), 4), (8, (9, 1), 1))
+        battle = F01(22000, formations=units)
+        battle.resolve(Order("declare-withdrawal"))
+        self.assertEqual(battle.used, [1, 0])
+        self.assertEqual(battle.units[0].position, (5, 4))
+        battle.resolve(Order("pass"))
+        self.assertFalse(any(order.kind in ("assault", "missile") for order in battle.legal_orders()))
+        with self.assertRaisesRegex(ValueError, "progress"):
+            battle.resolve(Order("move", (0,), path=((5, 3),)))
+        while not battle.terminal:
+            battle.resolve(Order("pass"))
+        self.assertEqual(battle.objective()["secure"], 0)
+        self.assertEqual(battle.terminal["winner"], 1)
+        self.assertEqual(battle.terminal["reason"], "abandonment")
+        self.assertEqual(battle.elapsed, 120)
+
+    def test_voluntary_exit_requires_designated_edge_and_safety(self):
+        cases = (
+            ((3, 7), (9, 1)),
+            ((3, 8), (4, 7)),
+        )
+        for friendly, enemy in cases:
+            with self.subTest(friendly=friendly, enemy=enemy):
+                battle = F01(22000, formations=fixture((0, friendly, 4), (8, enemy, 1)))
+                before = battle.digest()
+                with self.assertRaisesRegex(ValueError, "illegal principal"):
+                    battle.resolve(Order("evacuate", (0,)))
+                self.assertEqual(battle.digest(), before)

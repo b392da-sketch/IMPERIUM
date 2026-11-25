@@ -56,3 +56,27 @@ class ResearchTests(unittest.TestCase):
         battle.resolve(Order("capitulate"))
         self.assertEqual(battle.units[0].fatigue, 2)
         self.assertEqual(battle.elapsed, 10)
+
+    def test_scripted_replay_reexecutes_normalized_group_and_passes(self):
+        from imperium.f01.research import replay_orders
+
+        battle = F01(22000)
+        battle.resolve(Order("group-move", (0, 1, 4), turn=4))
+        while not battle.terminal:
+            battle.resolve(Order("pass"))
+        archive = json.loads(canonical_json(battle.events))
+        target = F01(22000, mirrored=True)
+        self.assertEqual(replay_orders(target, archive), battle.terminal)
+        self.assertEqual(target.digest(), battle.digest())
+
+    def test_replay_initial_terminal_without_an_action_root(self):
+        from imperium.f01.research import replay_orders
+
+        units = fixture((0, (2, 6), 4), (8, (8, 2), 1))
+        units[1].disposition = "routing"
+        original = F01(22000, formations=units)
+        archived = json.loads(canonical_json(original.events))
+        self.assertEqual(len(archived), 1)
+        replay = F01(22000, formations=units)
+        self.assertEqual(replay_orders(replay, archived), original.terminal)
+        self.assertEqual(replay.elapsed, 0)
