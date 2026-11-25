@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from fractions import Fraction
+from functools import lru_cache
 from itertools import combinations
 
 from ..geometry import DIRECTIONS, HEIGHT, WIDTH, Hex, distance, front, in_bounds, mirror
@@ -43,10 +44,7 @@ class Terrain:
     def line_of_sight(self, source: Hex, target: Hex, occupied: frozenset[Hex]) -> bool:
         if not in_bounds(source) or not in_bounds(target) or source == target:
             return False
-        intersections = {
-            cell: interval for cell in CELLS
-            if (interval := clip_hex(source, target, cell)) is not None
-        }
+        intersections = ray_intersections(source, target)
         covered = Fraction(0)
         for start, end in sorted(intersections.values()):
             if start > covered:
@@ -73,6 +71,12 @@ class Terrain:
                     if direction in opaque_pairs:
                         return False
         return True
+
+
+@lru_cache(maxsize=2048)
+def ray_intersections(source, target):
+    return {cell: interval for cell in CELLS
+            if (interval := clip_hex(source, target, cell)) is not None}
 
 
 def projections(q, r):
