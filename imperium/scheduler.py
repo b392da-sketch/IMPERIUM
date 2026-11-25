@@ -25,7 +25,7 @@ class Action:
 
 class Battle:
     def __init__(self, profile: Profile, seed: int, mirrored: bool = False,
-                 *, encounter: Encounter | None = None, journal: bool = True, legacy=False):
+                 *, encounter: Encounter | None = None, journal: bool = True, legacy: bool = False):
         self.profile, self.seed, self.mirrored = profile, seed, mirrored
         self.encounter = encounter if encounter is not None else initial_encounter(profile, mirrored)
         self.units = {f.identity.formation_id: f for f in self.encounter.formations}
@@ -38,6 +38,7 @@ class Battle:
         self.root = 0
         self.events = []
         self.actions = []
+        self.rejections = []
         self.details = []
         self.journal, self.legacy = journal, legacy
         self.metrics = Counter()
@@ -123,11 +124,12 @@ class Battle:
                 continue
             directions = tuple((d + 3 * side) % 6 for d in (1, 2, 0, 3, 4, 5))
             cells = (step(position, d) for d in directions if routing or d in rear(unit.facing))
-            valid = field.destinations(side, tuple(cells))
+            threats = field.threatened_by_side[1 - side]
+            valid = tuple(cell for cell in cells if in_bounds(cell) and cell not in threats)
             if routing:
                 valid = tuple(cell for cell in valid if self.exit_distance(side, cell) < remaining)
             candidates[identifier] = tuple(sorted(valid, key=lambda cell: self.exit_distance(side, cell)))
-        arbitration = arbitrate(field.occupied, candidates)
+        arbitration = arbitrate(self.arbitration_occupancy(field, exits), candidates)
         for identifier, destination in arbitration.assignments:
             unit = self.units[identifier]
             unit.position = destination
@@ -154,6 +156,9 @@ class Battle:
             })
         self.checkpoint()
         return arbitration
+
+    def arbitration_occupancy(self, field, exits):
+        return field.occupied
 
     def incoming(self, i):
         unit = self.units[i]
@@ -337,7 +342,12 @@ class Battle:
         }, mirrored=self.mirrored)
 
     def resolve(self, action):
-        cost = self.cost(action)
+        try:
+            cost = self.cost(action)
+        except ValueError as error:
+            self.rejections.append({"round": self.round, "side": self.side,
+                                    "order": asdict(action), "reason": str(error)})
+            raise
         observation_start = len(self.objectives)
         before = self.digest() if self.journal else ""
         stage_round = self.round

@@ -8,7 +8,7 @@ import os
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
-from statistics import mean, median
+from statistics import mean, median, stdev
 
 from .events import canonical_json, jsonl
 from .experiments import CONFIRMATION, MIRROR, POLICY, SCREENING, Run
@@ -17,8 +17,13 @@ from .profiles import PROFILES
 from .scheduler import Action, Battle
 
 
-def simulate(config, *, legacy=False, scripted=None):
-    battle = Battle(PROFILES[config.profile], config.seed, config.mirrored, legacy=legacy)
+def simulate(config, *, legacy=False, scripted=None, early_exit=False):
+    profile = PROFILES[config.profile]
+    if early_exit:
+        from .legacy_displacement import EarlyExitBattle
+        battle = EarlyExitBattle(profile, config.seed, config.mirrored)
+    else:
+        battle = Battle(profile, config.seed, config.mirrored, legacy=legacy)
     release = [False, False]
     counts = []
     if scripted is not None:
@@ -74,6 +79,15 @@ def run_task(task):
         raise RuntimeError(f"failed run {config!r}, legacy={legacy}") from exc
 
 
+def legacy_displacement_task(config):
+    results = []
+    for early_exit in (False, True):
+        battle, counts = simulate(config, legacy=True, early_exit=early_exit)
+        trace = jsonl(battle.events)
+        results.append(summarize(config, battle, counts, trace))
+    return {"seed": config.seed, "frozen": results[0], "early_exit": results[1]}
+
+
 def mirror_task(pair):
     original, transformed = pair
     left, _ = simulate(original)
@@ -113,6 +127,7 @@ def report(rows):
         metrics = sorted(set().union(*(row["metrics"].keys() for row in group)) - {"first_rout"})
         fatigue = [[row["round_three_exhaustion"][s]
                     for row in group if row["round_three_exhaustion"] is not None] for s in (0, 1)]
+        fatigue_fractions = [[num / den for num, den in side if den] for side in fatigue]
         casualty_counts = [row["personnel"]["killed"] + row["personnel"]["wounded"] for row in group]
         rout_rounds = [row["metrics"]["first_rout"] for row in group if "first_rout" in row["metrics"]]
         choice_counts = [value for row in group for value in row["preferred_choices"]]
@@ -131,13 +146,41 @@ def report(rows):
             "median_first_rout_round": median(rout_rounds) if rout_rounds else None,
             "mean_preferred_choices": mean(choice_counts),
             "mean_metrics": {key: mean(row["metrics"].get(key, 0) for row in group) for key in metrics},
-            "mean_round_three_exhaustion": [
-                mean([num / den for num, den in side if den]) if any(den for _, den in side) else None
-                for side in fatigue
-            ],
+            "mean_round_three_exhaustion": [mean(side) if side else None for side in fatigue_fractions],
+            "median_round_three_exhaustion": [median(side) if side else None for side in fatigue_fractions],
+            "round_three_exhaustion_gt_half": [sum(value > .5 for value in side)
+                                               for side in fatigue_fractions],
             "round_three_defined_runs": [sum(den > 0 for _, den in side) for side in fatigue],
         }
     return result
+
+
+def paired_report(rows, baseline):
+    profiles = {}
+    for row in rows:
+        config = row["run"]
+        profiles.setdefault(config["profile"], {})[(config["seed"], tuple(config["policies"]))] = row
+    reference = profiles[baseline]
+    result = {}
+    for profile, sample in profiles.items():
+        if profile == baseline:
+            continue
+        keys = sorted(sample.keys() & reference.keys())
+        if len(keys) < 2:
+            continue
+        changes = {
+            "unresolved": [int(sample[k]["reason"] == "unresolved")
+                           - int(reference[k]["reason"] == "unresolved") for k in keys],
+            "casualties": [sum(sample[k]["personnel"][kind] - reference[k]["personnel"][kind]
+                               for kind in ("killed", "wounded")) for k in keys],
+        }
+        result[profile] = {"matched_runs": len(keys)}
+        for metric, differences in changes.items():
+            average = mean(differences)
+            margin = 1.959963984540054 * stdev(differences) / len(keys)**0.5
+            result[profile][metric] = {"mean_difference": average,
+                                      "normal_approximation_95": [average-margin, average+margin]}
+    return {"baseline": baseline, "profiles": result}
 
 
 def main():
@@ -153,12 +196,13 @@ def main():
     replay = commands.add_parser("replay")
     replay.add_argument("directory", type=Path)
     matrix = commands.add_parser("matrix")
-    matrix.add_argument("name", choices=("screening", "confirmation", "policy", "mirror"))
+    matrix.add_argument("name", choices=("screening", "confirmation", "policy", "mirror", "legacy-displacement"))
     matrix.add_argument("output", type=Path)
     matrix.add_argument("--legacy", action="store_true")
     matrix.add_argument("--jobs", type=int, default=min(4, os.cpu_count() or 1))
     aggregate = commands.add_parser("report")
     aggregate.add_argument("input", type=Path)
+    aggregate.add_argument("--paired-baseline", choices=PROFILES)
     args = parser.parse_args()
 
     if args.command == "run":
@@ -186,12 +230,18 @@ def main():
         if args.name == "mirror" and args.legacy:
             parser.error("the mirror matrix uses EP08")
         with concurrent.futures.ProcessPoolExecutor(args.jobs) as pool:
-            rows = (pool.map(mirror_task, MIRROR, chunksize=4) if args.name == "mirror"
-                    else pool.map(run_task, [(c, args.legacy) for c in matrices[args.name]], chunksize=4))
+            if args.name == "mirror":
+                rows = pool.map(mirror_task, MIRROR, chunksize=4)
+            elif args.name == "legacy-displacement":
+                rows = pool.map(legacy_displacement_task,
+                                [c for c in SCREENING if c.profile == "F6"], chunksize=4)
+            else:
+                rows = pool.map(run_task, [(c, args.legacy) for c in matrices[args.name]], chunksize=4)
             dump_rows(args.output, rows)
     else:
         rows = map(json.loads, args.input.read_text().splitlines())
-        print(json.dumps(report(rows), indent=2, sort_keys=True))
+        result = paired_report(rows, args.paired_baseline) if args.paired_baseline else report(rows)
+        print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

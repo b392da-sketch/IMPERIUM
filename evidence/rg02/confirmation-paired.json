@@ -1,0 +1,56 @@
+{
+  "baseline": "F6",
+  "profiles": {
+    "CJON": {
+      "casualties": {
+        "mean_difference": 1.380859375,
+        "normal_approximation_95": [
+          -0.749485263225929,
+          3.511204013225929
+        ]
+      },
+      "matched_runs": 512,
+      "unresolved": {
+        "mean_difference": -0.015625,
+        "normal_approximation_95": [
+          -0.0655671684710173,
+          0.034317168471017304
+        ]
+      }
+    },
+    "LOW": {
+      "casualties": {
+        "mean_difference": 50.15234375,
+        "normal_approximation_95": [
+          47.79092937234841,
+          52.51375812765159
+        ]
+      },
+      "matched_runs": 512,
+      "unresolved": {
+        "mean_difference": 0.06640625,
+        "normal_approximation_95": [
+          0.01889470113951905,
+          0.11391779886048095
+        ]
+      }
+    },
+    "R0": {
+      "casualties": {
+        "mean_difference": -16.68359375,
+        "normal_approximation_95": [
+          -18.796206911678652,
+          -14.570980588321348
+        ]
+      },
+      "matched_runs": 512,
+      "unresolved": {
+        "mean_difference": -0.001953125,
+        "normal_approximation_95": [
+          -0.05293160679771375,
+          0.04902535679771375
+        ]
+      }
+    }
+  }
+}

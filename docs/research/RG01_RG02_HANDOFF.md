@@ -35,8 +35,12 @@ python3 -m imperium matrix screening /tmp/screening.jsonl
 python3 -m imperium matrix confirmation /tmp/confirmation.jsonl
 python3 -m imperium matrix policy /tmp/policy.jsonl
 python3 -m imperium matrix mirror /tmp/mirror.jsonl
+python3 -m imperium matrix screening /tmp/legacy-screening.jsonl --legacy
 python3 -m imperium matrix confirmation /tmp/legacy-confirmation.jsonl --legacy
+python3 -m imperium matrix policy /tmp/legacy-policy.jsonl --legacy
+python3 -m imperium matrix legacy-displacement /tmp/legacy-displacement.jsonl
 python3 -m imperium report /tmp/confirmation.jsonl
+python3 -m imperium report /tmp/confirmation.jsonl --paired-baseline F6
 (cd evidence/rg02 && sha256sum -c SHA256SUMS)
 ```
 
@@ -83,6 +87,7 @@ source vectors exercise the hash contract. Legacy uses its own tag and a
 32-bit numerator. Mirroring rotates cells and facings and swaps physical
 side while keeping logical identities, action order, and semantic keys.
 
+See [the results](RG02_RESULTS.md) for comparisons and limitations.
 Per-seed rows and reports are under `evidence/rg02/`. Each matrix row has
 a digest for its complete normalized event journal. To retrieve a journal
 beyond the committed sample, rerun its exact row with the single-run

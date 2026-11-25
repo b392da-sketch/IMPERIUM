@@ -1,0 +1,315 @@
+{
+  "CJON AGG/AGG": {
+    "bm07_warning": false,
+    "losses_min_max": [
+      88,
+      203
+    ],
+    "mean_losses": 138.798828125,
+    "mean_metrics": {
+      "assault": 30.0625,
+      "assault_denied_exhaustion_only": 29.728515625,
+      "assault_denied_other_condition": 116.380859375,
+      "blocked": 4.21484375,
+      "exertion": 173.93359375,
+      "move": 36.443359375,
+      "multi": 10.3984375,
+      "pivot": 2.603515625,
+      "rally": 9.025390625,
+      "refuge": 5.037109375,
+      "reorganized": 3.7421875,
+      "repulse": 7.744140625,
+      "rest": 1.306640625,
+      "rest_completed": 1.25390625,
+      "rest_interrupted": 0.052734375,
+      "rout": 6.4453125,
+      "routing_exits": 0.439453125,
+      "steps": 44.31640625,
+      "withdraw": 11.109375,
+      "zero_contribution": 2.080078125,
+      "zero_exchange": 0.984375
+    },
+    "mean_preferred_choices": 7.334547938966067,
+    "mean_round_three_exhaustion": [
+      0.0,
+      0.0
+    ],
+    "mean_rounds": 11.978515625,
+    "median_first_rout_round": 3,
+    "median_losses": 138.0,
+    "median_round_three_exhaustion": [
+      0.0,
+      0.0
+    ],
+    "median_rounds": 12.0,
+    "objective": {
+      "condition": 154,
+      "contact": 26,
+      "empty": 174,
+      "secure": 127,
+      "threat": 31
+    },
+    "objective_flags": {
+      "condition": 154,
+      "contact": 40,
+      "threat": 111
+    },
+    "round_three_defined_runs": [
+      512,
+      512
+    ],
+    "round_three_exhaustion_gt_half": [
+      0,
+      0
+    ],
+    "runs": 512,
+    "terminal_reasons": {
+      "military": 4,
+      "objective": 125,
+      "unresolved": 383
+    },
+    "unresolved_wilson95": [
+      0.7086901555300428,
+      0.7837091963574333
+    ],
+    "wins_draws": {
+      "0": 76,
+      "1": 53,
+      "None": 383
+    }
+  },
+  "F6 AGG/AGG": {
+    "bm07_warning": true,
+    "losses_min_max": [
+      83,
+      203
+    ],
+    "mean_losses": 135.34375,
+    "mean_metrics": {
+      "assault": 29.818359375,
+      "assault_denied_exhaustion_only": 25.708984375,
+      "assault_denied_other_condition": 149.052734375,
+      "blocked": 3.99609375,
+      "exertion": 176.650390625,
+      "move": 37.57421875,
+      "multi": 10.34765625,
+      "pivot": 2.37109375,
+      "rally": 8.1875,
+      "refuge": 3.142578125,
+      "reorganized": 2.318359375,
+      "repulse": 9.935546875,
+      "rest": 1.453125,
+      "rest_completed": 1.404296875,
+      "rest_interrupted": 0.048828125,
+      "rout": 4.171875,
+      "routing_exits": 0.310546875,
+      "steps": 45.1328125,
+      "withdraw": 13.09375,
+      "zero_contribution": 1.6015625,
+      "zero_exchange": 0.1875
+    },
+    "mean_preferred_choices": 7.697521611465883,
+    "mean_round_three_exhaustion": [
+      0.0,
+      0.0
+    ],
+    "mean_rounds": 12,
+    "median_first_rout_round": 4.0,
+    "median_losses": 135.0,
+    "median_round_three_exhaustion": [
+      0.0,
+      0.0
+    ],
+    "median_rounds": 12.0,
+    "objective": {
+      "condition": 180,
+      "contact": 36,
+      "empty": 157,
+      "secure": 113,
+      "threat": 26
+    },
+    "objective_flags": {
+      "condition": 180,
+      "contact": 61,
+      "threat": 132
+    },
+    "round_three_defined_runs": [
+      512,
+      512
+    ],
+    "round_three_exhaustion_gt_half": [
+      0,
+      0
+    ],
+    "runs": 512,
+    "terminal_reasons": {
+      "objective": 113,
+      "unresolved": 399
+    },
+    "unresolved_wilson95": [
+      0.7413678902658999,
+      0.8130660256388961
+    ],
+    "wins_draws": {
+      "0": 60,
+      "1": 53,
+      "None": 399
+    }
+  },
+  "LOW AGG/AGG": {
+    "bm07_warning": true,
+    "losses_min_max": [
+      94,
+      258
+    ],
+    "mean_losses": 184.78515625,
+    "mean_metrics": {
+      "assault": 38.978515625,
+      "assault_denied_exhaustion_only": 74.162109375,
+      "assault_denied_other_condition": 118.779296875,
+      "blocked": 2.205078125,
+      "exertion": 190.9140625,
+      "move": 32.505859375,
+      "multi": 19.96875,
+      "pivot": 1.251953125,
+      "rally": 6.298828125,
+      "refuge": 1.142578125,
+      "reorganized": 0.85546875,
+      "repulse": 7.427734375,
+      "rest": 2.341796875,
+      "rest_completed": 2.287109375,
+      "rest_interrupted": 0.0546875,
+      "rout": 1.53515625,
+      "routing_exits": 0.060546875,
+      "steps": 38.998046875,
+      "withdraw": 12.958984375,
+      "zero_contribution": 0.76953125,
+      "zero_exchange": 0.1640625
+    },
+    "mean_preferred_choices": 7.91231758342688,
+    "mean_round_three_exhaustion": [
+      0.0,
+      0.0
+    ],
+    "mean_rounds": 12,
+    "median_first_rout_round": 6,
+    "median_losses": 184.0,
+    "median_round_three_exhaustion": [
+      0.0,
+      0.0
+    ],
+    "median_rounds": 12.0,
+    "objective": {
+      "condition": 150,
+      "contact": 108,
+      "empty": 109,
+      "secure": 86,
+      "threat": 59
+    },
+    "objective_flags": {
+      "condition": 150,
+      "contact": 161,
+      "threat": 245
+    },
+    "round_three_defined_runs": [
+      512,
+      512
+    ],
+    "round_three_exhaustion_gt_half": [
+      0,
+      0
+    ],
+    "runs": 512,
+    "terminal_reasons": {
+      "objective": 86,
+      "unresolved": 426
+    },
+    "unresolved_wilson95": [
+      0.7972032842381693,
+      0.861913958445854
+    ],
+    "wins_draws": {
+      "0": 44,
+      "1": 42,
+      "None": 426
+    }
+  },
+  "R0 AGG/AGG": {
+    "bm07_warning": true,
+    "losses_min_max": [
+      62,
+      194
+    ],
+    "mean_losses": 119.85546875,
+    "mean_metrics": {
+      "assault": 26.21875,
+      "assault_denied_exhaustion_only": 107.57421875,
+      "assault_denied_other_condition": 128.759765625,
+      "blocked": 2.958984375,
+      "exertion": 165.625,
+      "move": 37.9609375,
+      "multi": 8.701171875,
+      "pivot": 1.90234375,
+      "rally": 7.587890625,
+      "refuge": 2.125,
+      "reorganized": 1.513671875,
+      "repulse": 8.6015625,
+      "rest": 5.07421875,
+      "rest_completed": 4.947265625,
+      "rest_interrupted": 0.126953125,
+      "rout": 2.88671875,
+      "routing_exits": 0.119140625,
+      "steps": 44.03125,
+      "withdraw": 15.35546875,
+      "zero_contribution": 1.103515625,
+      "zero_exchange": 0.166015625
+    },
+    "mean_preferred_choices": 8.436634956926468,
+    "mean_round_three_exhaustion": [
+      0.4740234375,
+      0.4796223958333333
+    ],
+    "mean_rounds": 12,
+    "median_first_rout_round": 5.0,
+    "median_losses": 119.0,
+    "median_round_three_exhaustion": [
+      0.5,
+      0.5
+    ],
+    "median_rounds": 12.0,
+    "objective": {
+      "condition": 184,
+      "contact": 36,
+      "empty": 138,
+      "secure": 92,
+      "threat": 62
+    },
+    "objective_flags": {
+      "condition": 184,
+      "contact": 70,
+      "threat": 184
+    },
+    "round_three_defined_runs": [
+      512,
+      512
+    ],
+    "round_three_exhaustion_gt_half": [
+      87,
+      104
+    ],
+    "runs": 512,
+    "terminal_reasons": {
+      "objective": 92,
+      "unresolved": 420
+    },
+    "unresolved_wilson95": [
+      0.7847100751881306,
+      0.8511442059893977
+    ],
+    "wins_draws": {
+      "0": 46,
+      "1": 46,
+      "None": 420
+    }
+  }
+}

@@ -86,6 +86,8 @@ class SchedulerTests(unittest.TestCase):
             battle.resolve(Action("move", 0, ((4, 5), (4, 4))))
         self.assertEqual(battle.digest(), before)
         self.assertEqual(battle.events, [])
+        self.assertEqual(len(battle.rejections), 1)
+        self.assertIn("move", battle.rejections[0]["reason"])
 
     def test_last_opportunity_with_exact_effort(self):
         battle = setup((0, (4, 6), "organized"), (6, (4, 5), "organized"))
@@ -139,3 +141,48 @@ class SchedulerTests(unittest.TestCase):
         battle.resolve(Action("pass"))
         self.assertEqual((unit.fatigue, unit.exertion_remainder), (0, 0))
         self.assertEqual(battle.units[1].disposition, "organized")
+
+
+
+    def test_exhausted_organizer_can_secure_objective(self):
+        battle = setup((0, (5, 4), "organized"), (6, (9, 6), "organized"))
+        battle.round = 12
+        battle.units[0].fatigue = 2
+        battle.resolve(Action("pass"))
+        battle.resolve(Action("pass"))
+        self.assertEqual(battle.terminal, (0, "objective"))
+        self.assertEqual(battle.round, 12)
+        frozen = battle.digest()
+        with self.assertRaises(ValueError):
+            battle.resolve(Action("pass"))
+        self.assertEqual(battle.digest(), frozen)
+
+    def test_reciprocal_mutual_rout_adjudicates_after_both_packets(self):
+        from unittest.mock import patch
+
+        from imperium.physical import Casualties
+        from imperium.pressure import Packet
+
+        battle = setup((0, (4, 6), "organized"), (6, (4, 5), "organized"))
+        for unit in battle.ordered():
+            unit.cohesion = unit.morale = 1
+        packet = Packet(Casualties(0, 0), 1, 1)
+        with patch("imperium.scheduler.directed_packet", return_value=packet):
+            battle.resolve(Action("assault", 0, target=6))
+        self.assertTrue(all(f.disposition == "routing" for f in battle.ordered()))
+        self.assertEqual(battle.terminal, (None, "mutual"))
+        self.assertEqual(battle.round, 1)
+
+
+class LegacyTests(unittest.TestCase):
+    def test_h32_vector(self):
+        from imperium.legacy import legacy_draw
+
+        self.assertEqual(legacy_draw(20000, "r1|s0|o1|0|6|0", "injury"), 1493808174)
+
+    def test_early_exit_comparator_exposes_original_defect(self):
+        from imperium.legacy_displacement import EarlyExitBattle
+
+        fixture = setup((0, (4, 8), "routing"), (1, (4, 7), "routing"), (2, (3, 8), "organized"))
+        historical = EarlyExitBattle(PROFILES["F6"], 20000, encounter=fixture.encounter)
+        self.assertEqual(historical.displace((0, 1)).assignments, ((1, (4, 8)),))

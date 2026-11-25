@@ -1,0 +1,21 @@
+{
+  "corrected_principal_runs": 3584,
+  "failed_runs": 0,
+  "fixture": "EF09-RH1",
+  "holdout_runs": 0,
+  "legacy_principal_runs": 3584,
+  "manifest_module": "imperium/experiments.py",
+  "matrix_counts": {
+    "confirmation": 2048,
+    "legacy-confirmation": 2048,
+    "legacy-policy": 512,
+    "legacy-screening": 1024,
+    "legacy_displacement_pairs": 128,
+    "mirror_pairs": 128,
+    "policy": 512,
+    "screening": 1024
+  },
+  "profile_version": "D47-RH1-v1",
+  "python": "3.12.14",
+  "source_manifest": "docs/research/SOURCE_MANIFEST.md"
+}
