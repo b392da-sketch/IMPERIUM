@@ -36,16 +36,19 @@ python3 -m imperium replay /tmp/ef09-early-exit --resolver early-exit-v1
 python3 -m imperium replay evidence/rg02/initial-terminal-sample --resolver frozen-v1
 python3 -m imperium run F6 20000 AGG RES --mirror --output /tmp/ef09-mirror
 cmp /tmp/ef09/events.jsonl /tmp/ef09-mirror/events.jsonl
-python3 -m imperium matrix screening /tmp/screening.jsonl
-python3 -m imperium matrix confirmation /tmp/confirmation.jsonl
-python3 -m imperium matrix policy /tmp/policy.jsonl
-python3 -m imperium matrix mirror /tmp/mirror.jsonl
-python3 -m imperium matrix screening /tmp/legacy-screening.jsonl --legacy
-python3 -m imperium matrix confirmation /tmp/legacy-confirmation.jsonl --legacy
-python3 -m imperium matrix policy /tmp/legacy-policy.jsonl --legacy
-python3 -m imperium matrix legacy-displacement /tmp/legacy-displacement.jsonl
-python3 -m imperium report /tmp/confirmation.jsonl
-python3 -m imperium report /tmp/confirmation.jsonl --paired-baseline F6
+matrix_dir=$(mktemp -d)
+for matrix in screening confirmation policy mirror legacy-displacement; do
+  python3 -m imperium matrix "$matrix" "$matrix_dir/$matrix.jsonl"
+done
+for matrix in screening confirmation policy; do
+  python3 -m imperium matrix "$matrix" "$matrix_dir/legacy-$matrix.jsonl" --legacy
+done
+python3 -m imperium verify-execution "$matrix_dir/confirmation.execution.jsonl" \
+  --observations "$matrix_dir/confirmation.jsonl"
+python3 -m imperium report "$matrix_dir/confirmation.jsonl" \
+  --execution "$matrix_dir/confirmation.execution.jsonl"
+python3 -m imperium report "$matrix_dir/confirmation.jsonl" \
+  --execution "$matrix_dir/confirmation.execution.jsonl" --paired-baseline F6
 (cd evidence/rg02 && sha256sum -c SHA256SUMS)
 ```
 
@@ -138,4 +141,55 @@ baseline=$(mktemp -d)
 git archive cda92e4b6ee9138fb421a2951777dbf88c7dcc64 evidence/rg02 | tar -x -C "$baseline"
 python3 -m imperium.review_evidence "$baseline/evidence/rg02" evidence/rg02
 python3 -m unittest -v tests.test_review tests.test_scheduler.IntegratedDisplacementTests
+```
+
+## EP11 execution accounting
+
+Each matrix invocation has its own `EF09-RH1-execution-v1` JSONL journal.
+The runner uses POSIX file locking and atomic publication on Linux.
+The default path changes `.jsonl` on the matrix output to
+`.execution.jsonl`. Use `matrix --execution PATH` to select a different
+journal. The plan records the exact run identities, including stream,
+resolver variant and physical orientation. Each attempt references its
+plan index. The worker flushes and syncs that record before simulation.
+A completion stores the observation and event count in the journal. A
+caught simulation failure stores the technical-stop reason separately.
+Mirror and displacement pairs each account for two simulations.
+
+A started attempt without a durable outcome is unfinished. A journal
+reader can recover the valid prefix if its final record is torn, and a
+torn tail blocks publication. An identity with no attempt record remains
+unattempted. The runner publishes the final matrix only after validating
+all planned completions and pair checks. Both the journal and output
+use fresh paths. To retry, start a new execution at a new journal path.
+There is no in-place resume or pooling of retries. Prior attempts remain
+auditable in their original journal.
+
+For a failed or interrupted principal matrix, inspect the journal and
+recover a report directly from its completed rows:
+
+```sh
+python3 -m imperium verify-execution "$matrix_dir/confirmation.execution.jsonl"
+python3 -m imperium report "$matrix_dir/confirmation.execution.jsonl" --from-execution
+python3 -m unittest -v tests.test_execution
+```
+
+With `report --execution`, the observation file must match every completed
+row in that journal exactly. Without a journal, a report shows the number
+of supplied completed observations and uses null for attempted runs,
+technical stops and other execution-level counts. An unresolved draw
+denominator counts only successful observations. Paired reports still
+require exact matched sets. Journal append order reflects actual worker
+execution, so parallel reruns can differ in record order while producing
+the same plan, counts and published observations.
+
+To check the accounting rerun against the previous reviewed observation
+files and verify the committed journals:
+
+```sh
+for label in screening confirmation policy mirror legacy-screening legacy-confirmation legacy-policy legacy-displacement; do
+  git show "7082b4aa156d612b231e393fc479725eb41157a3:evidence/rg02/$label.jsonl" | cmp - "$matrix_dir/$label.jsonl"
+  python3 -m imperium verify-execution "evidence/rg02/$label.execution.jsonl" \
+    --observations "evidence/rg02/$label.jsonl"
+done
 ```

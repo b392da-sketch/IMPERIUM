@@ -5,7 +5,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from imperium.__main__ import (
-    dump_rows, paired_report, replay_run, report, simulate, summarize, validated_matrix_rows,
+    dump_rows, paired_report, replay_run, report, simulate, summarize,
 )
 from imperium.events import jsonl
 from imperium.experiments import CONFIRMATION, MIRROR, POLICY, SCREENING, Run
@@ -75,8 +75,10 @@ class MatrixReviewTests(unittest.TestCase):
         ))
 
     def test_matrix_writer_rejects_equal_cardinality_substitution(self):
-        with self.assertRaisesRegex(ValueError, "observation mismatch"):
-            list(validated_matrix_rows([identity(20001)], [Run("F6", 20000, ("AGG", "AGG"))], False))
+        from imperium.execution import validate_completion
+
+        with self.assertRaisesRegex(ValueError, "planned identity"):
+            validate_completion(identity(20000), identity(20001), 1)
 
 
 class ReplayReviewTests(unittest.TestCase):

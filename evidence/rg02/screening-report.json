@@ -4,6 +4,7 @@
     "bm07_warning": true,
     "completed_runs": 128,
     "defeat_subreasons_by_side_ending": {},
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 136.859375,
       "median": 136.0,
@@ -53,6 +54,7 @@
       0.0
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 43,
       "contact": 8,
@@ -65,6 +67,7 @@
       "contact": 17,
       "threat": 31
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 7.708016048472938,
       "median": 7,
@@ -87,6 +90,7 @@
       "objective": 28,
       "unresolved": 100
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7020157030455345,
@@ -105,6 +109,7 @@
     "defeat_subreasons_by_side_ending": {
       "collapse": 1
     },
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 139.71875,
       "median": 139.0,
@@ -154,6 +159,7 @@
       0.0
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 47,
       "contact": 7,
@@ -166,6 +172,7 @@
       "contact": 12,
       "threat": 39
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 7.459940407217348,
       "median": 7.0,
@@ -189,6 +196,7 @@
       "objective": 22,
       "unresolved": 105
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7447837371324442,
@@ -205,6 +213,7 @@
     "bm07_warning": true,
     "completed_runs": 128,
     "defeat_subreasons_by_side_ending": {},
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 134.09375,
       "median": 135.0,
@@ -254,6 +263,7 @@
       0.0
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 48,
       "contact": 6,
@@ -266,6 +276,7 @@
       "contact": 15,
       "threat": 33
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 7.749610687648554,
       "median": 7,
@@ -288,6 +299,7 @@
       "objective": 29,
       "unresolved": 99
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6935732116243923,
@@ -304,6 +316,7 @@
     "bm07_warning": true,
     "completed_runs": 128,
     "defeat_subreasons_by_side_ending": {},
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 134.3671875,
       "median": 134.5,
@@ -353,6 +366,7 @@
       0.0
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 36,
       "contact": 4,
@@ -365,6 +379,7 @@
       "contact": 8,
       "threat": 27
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 7.366625258799171,
       "median": 7,
@@ -387,6 +402,7 @@
       "objective": 31,
       "unresolved": 97
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6767886369138937,
@@ -403,6 +419,7 @@
     "bm07_warning": true,
     "completed_runs": 128,
     "defeat_subreasons_by_side_ending": {},
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 183.6015625,
       "median": 182.5,
@@ -452,6 +469,7 @@
       0.0
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 42,
       "contact": 15,
@@ -464,6 +482,7 @@
       "contact": 27,
       "threat": 58
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 7.868384571475169,
       "median": 7,
@@ -486,6 +505,7 @@
       "objective": 20,
       "unresolved": 108
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7709518905710295,
@@ -502,6 +522,7 @@
     "bm07_warning": true,
     "completed_runs": 128,
     "defeat_subreasons_by_side_ending": {},
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 134.09375,
       "median": 135.0,
@@ -551,6 +572,7 @@
       0.0
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 48,
       "contact": 6,
@@ -563,6 +585,7 @@
       "contact": 15,
       "threat": 33
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 7.749610687648554,
       "median": 7,
@@ -585,6 +608,7 @@
       "objective": 29,
       "unresolved": 99
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6935732116243923,
@@ -601,6 +625,7 @@
     "bm07_warning": true,
     "completed_runs": 128,
     "defeat_subreasons_by_side_ending": {},
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 134.265625,
       "median": 134.0,
@@ -650,6 +675,7 @@
       0.0
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 47,
       "contact": 2,
@@ -662,6 +688,7 @@
       "contact": 12,
       "threat": 31
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 7.708883602657698,
       "median": 7,
@@ -684,6 +711,7 @@
       "objective": 30,
       "unresolved": 98
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6851645688917714,
@@ -700,6 +728,7 @@
     "bm07_warning": true,
     "completed_runs": 128,
     "defeat_subreasons_by_side_ending": {},
+    "execution_status": "complete",
     "losses_descriptive": {
       "mean": 121.9296875,
       "median": 120.0,
@@ -749,6 +778,7 @@
       0.5
     ],
     "median_rounds": 12.0,
+    "not_attempted_runs": 0,
     "objective": {
       "condition": 44,
       "contact": 10,
@@ -761,6 +791,7 @@
       "contact": 19,
       "threat": 43
     },
+    "planned_runs": 128,
     "preferred_choices_descriptive": {
       "mean": 8.42276555728187,
       "median": 8,
@@ -783,6 +814,7 @@
       "objective": 24,
       "unresolved": 104
     },
+    "unfinished_attempts": 0,
     "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7361508192928257,

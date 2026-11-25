@@ -1,7 +1,7 @@
 from dataclasses import replace
 import unittest
 
-from imperium.__main__ import mirror_task, simulate
+from imperium.__main__ import simulate
 from imperium.events import jsonl
 from imperium.experiments import MIRROR
 from imperium.fixture import Encounter, Formation, Identity
@@ -112,7 +112,9 @@ class SchedulerTests(unittest.TestCase):
         battle, _ = simulate(config)
         replay, _ = simulate(config, scripted=battle.actions)
         self.assertEqual(jsonl(replay.events), jsonl(battle.events))
-        self.assertEqual(mirror_task(MIRROR[0])["roots"], len(battle.events))
+        reflected, _ = simulate(MIRROR[0][1])
+        self.assertEqual(jsonl(reflected.events), jsonl(battle.events))
+        self.assertEqual(reflected.digest(), battle.digest())
 
     def test_morale_shock_uses_pre_move_witnesses_and_deduplicates_waves(self):
         from unittest.mock import patch

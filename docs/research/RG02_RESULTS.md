@@ -127,3 +127,15 @@ difference per matched seed and a two-sided 95% Student t interval with
 n−1 degrees of freedom. Insufficient paired samples yield no interval
 in the numerical helper, and zero variance yields a point interval.
 Report-level pairing requires at least two matched seeds.
+
+## EP11 accounting rerun
+
+Against the reviewed commit `7082b4aa156d612b231e393fc479725eb41157a3`,
+all eight regenerated observation files are byte-identical. Existing
+statistics and BM07 warnings match. The eight separate journals verify
+3,584 corrected principal runs, 3,584 H32 principal runs, 256 mirror
+executions and 256 isolated displacement executions. Each planned
+identity has exactly one completed attempt. There are zero technical
+stops, unfinished attempts or unattempted runs in these archived
+executions. The [evidence manifest](../../evidence/rg02/manifest.json)
+links each journal to its observation file and counts.

@@ -1,6 +1,90 @@
 {
   "corrected_principal_runs": 3584,
   "event_schema": "EF09-RH1-events-v2",
+  "execution_comparison_baseline": "7082b4aa156d612b231e393fc479725eb41157a3",
+  "execution_schema": "EF09-RH1-execution-v1",
+  "executions": {
+    "confirmation": {
+      "attempted_runs": 2048,
+      "completed_runs": 2048,
+      "journal": "confirmation.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "confirmation.jsonl",
+      "planned_runs": 2048,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    },
+    "legacy-confirmation": {
+      "attempted_runs": 2048,
+      "completed_runs": 2048,
+      "journal": "legacy-confirmation.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "legacy-confirmation.jsonl",
+      "planned_runs": 2048,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    },
+    "legacy-displacement": {
+      "attempted_runs": 256,
+      "completed_runs": 256,
+      "journal": "legacy-displacement.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "legacy-displacement.jsonl",
+      "planned_runs": 256,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    },
+    "legacy-policy": {
+      "attempted_runs": 512,
+      "completed_runs": 512,
+      "journal": "legacy-policy.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "legacy-policy.jsonl",
+      "planned_runs": 512,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    },
+    "legacy-screening": {
+      "attempted_runs": 1024,
+      "completed_runs": 1024,
+      "journal": "legacy-screening.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "legacy-screening.jsonl",
+      "planned_runs": 1024,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    },
+    "mirror": {
+      "attempted_runs": 256,
+      "completed_runs": 256,
+      "journal": "mirror.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "mirror.jsonl",
+      "planned_runs": 256,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    },
+    "policy": {
+      "attempted_runs": 512,
+      "completed_runs": 512,
+      "journal": "policy.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "policy.jsonl",
+      "planned_runs": 512,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    },
+    "screening": {
+      "attempted_runs": 1024,
+      "completed_runs": 1024,
+      "journal": "screening.execution.jsonl",
+      "not_attempted_runs": 0,
+      "observations": "screening.jsonl",
+      "planned_runs": 1024,
+      "technical_stops": 0,
+      "unfinished_attempts": 0
+    }
+  },
   "failed_runs": 0,
   "fixture": "EF09-RH1",
   "holdout_runs": 0,

@@ -5,6 +5,7 @@ import concurrent.futures
 import hashlib
 import json
 import os
+import tempfile
 from collections import Counter
 from copy import deepcopy
 from dataclasses import asdict
@@ -12,7 +13,8 @@ from pathlib import Path
 from statistics import mean, median, stdev
 
 from .events import canonical_json, jsonl
-from .experiments import CONFIRMATION, MIRROR, POLICY, SCREENING, Run
+from .execution import Journal, identity, load_execution, validate_terminal
+from .experiments import Run
 from .policies import choose
 from .fixture import FIXTURE_VERSION, INTERVAL_MINUTES, Encounter, Formation, Identity
 from .profiles import PROFILE_VERSION, PROFILES
@@ -81,39 +83,6 @@ def summarize(config, battle, counts, trace):
     }
 
 
-def run_task(task):
-    config, legacy = task
-    try:
-        battle, counts = simulate(config, legacy=legacy)
-        trace = jsonl(battle.events)
-        return summarize(config, battle, counts, trace)
-    except Exception as exc:
-        raise RuntimeError(f"failed run {config!r}, legacy={legacy}") from exc
-
-
-def legacy_displacement_task(config):
-    results = []
-    for variant in (FROZEN, EARLY_EXIT):
-        battle, counts = simulate(config, legacy=True, variant=variant)
-        trace = jsonl(battle.events)
-        results.append(summarize(config, battle, counts, trace))
-    return {"seed": config.seed, "frozen": results[0], "early_exit": results[1]}
-
-
-def mirror_task(pair):
-    original, transformed = pair
-    left, _ = simulate(original)
-    right, _ = simulate(transformed)
-    for a, b in zip(left.events, right.events):
-        if a != b:
-            raise ValueError(f"mirror divergence at seed {original.seed}, root {a.root_action_id}")
-    if len(left.events) != len(right.events) or left.digest() != right.digest():
-        raise ValueError(f"mirror final divergence at seed {original.seed}")
-    trace = jsonl(left.events)
-    return {"seed": original.seed, "roots": len(left.events),
-            "trace_sha256": hashlib.sha256(trace.encode()).hexdigest()}
-
-
 def dump_rows(path, rows):
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".partial")
@@ -123,13 +92,30 @@ def dump_rows(path, rows):
     temporary.replace(path)
 
 
-def report(rows):
+def report(rows, execution=None):
+    rows = list(rows)
+    accounting = execution.groups(rows) if execution is not None else {}
     groups = {}
     for row, run in compatible_rows(rows):
         groups.setdefault((run.profile, "/".join(run.policies)), []).append(row)
     result = {}
-    for (profile, matchup), group in groups.items():
+    status = execution.status if execution is not None else "unverified"
+    for profile, matchup in sorted(groups.keys() | accounting.keys()):
+        group = groups.get((profile, matchup), [])
         n = len(group)
+        counts = accounting.get((profile, matchup), {
+            "planned_runs": None, "attempted_runs": None, "completed_runs": n,
+            "technical_stops": None, "unfinished_attempts": None, "not_attempted_runs": None,
+        })
+        counts = {**counts, "execution_status": status}
+        if not group:
+            result[f"{profile} {matchup}"] = {
+                "runs": 0, **counts, "unresolved_denominator": 0, "wins_draws": {},
+                "terminal_reasons": {}, "bm07_warning": None,
+            }
+            continue
+        for row in group:
+            validate_terminal(row)
         unresolved = sum(row["reason"] == "unresolved" for row in group)
         p = unresolved / n
         z = 1.959963984540054
@@ -144,8 +130,7 @@ def report(rows):
         choice_counts = [value for row in group for value in row["preferred_choices"]]
         subreasons = Counter(reason for row in group for reason in row["defeat_subreasons"].values())
         result[f"{profile} {matchup}"] = {
-            "runs": n, "attempted_runs": n, "completed_runs": n,
-            "technical_stops": 0, "unresolved_denominator": n, "wins_draws": dict(Counter(str(row["winner"]) for row in group)),
+            "runs": n, **counts, "unresolved_denominator": n, "wins_draws": dict(Counter(str(row["winner"]) for row in group)),
             "terminal_reasons": dict(Counter(row["reason"] for row in group)),
             "defeat_subreasons_by_side_ending": dict(subreasons),
             "objective": dict(Counter(row["objective"]["classification"] for row in group)),
@@ -189,6 +174,9 @@ def paired_report(rows, baseline):
         if sample.keys() != reference.keys():
             raise ValueError(f"unmatched seeds for {profile} against {baseline}")
         keys = sorted(reference)
+        for key in keys:
+            validate_terminal(reference[key])
+            validate_terminal(sample[key])
         changes = {
             "unresolved": [int(sample[k]["reason"] == "unresolved")
                            - int(reference[k]["reason"] == "unresolved") for k in keys],
@@ -267,13 +255,51 @@ def replay_run(directory, expected_variant=None):
     return len(battle.actions), variant
 
 
-def validated_matrix_rows(rows, expected, legacy):
-    for row, config in zip(rows, expected, strict=True):
-        run, (_, _, stream, variant, _) = observation(row)
-        if (run != config or stream != (H32 if legacy else EP08) or variant != FROZEN
-                or row.get("initial_fixture") != "default"):
-            raise ValueError(f"matrix observation mismatch for {config}")
-        yield row
+def matrix_worker(entry):
+    config, (_, _, stream, variant, _) = identity(entry)
+    battle, counts = simulate(config, legacy=stream == H32, variant=variant)
+    trace = jsonl(battle.events)
+    return summarize(config, battle, counts, trace), len(battle.events)
+
+
+def run_matrix(matrix, legacy, output, execution_path, jobs, worker=matrix_worker):
+    if output.resolve() == execution_path.resolve():
+        raise ValueError("matrix output and execution journal must differ")
+    if output.exists():
+        raise FileExistsError(f"matrix output already exists: {output}")
+    if jobs < 1:
+        raise ValueError("jobs must be positive")
+    journal, plan = Journal.create(execution_path, matrix, legacy)
+    if jobs == 1:
+        for index, entry in enumerate(plan):
+            journal.execute(index, entry, worker)
+    else:
+        with concurrent.futures.ProcessPoolExecutor(jobs) as pool:
+            pending = {pool.submit(journal.execute, index, plan[index], worker)
+                       for index in range(min(jobs, len(plan)))}
+            indices = iter(range(len(pending), len(plan)))
+            try:
+                while pending:
+                    done, pending = concurrent.futures.wait(
+                        pending, return_when=concurrent.futures.FIRST_COMPLETED
+                    )
+                    for future in done:
+                        future.result()
+                    for index in [next(indices, None) for _ in done]:
+                        if index is not None:
+                            pending.add(pool.submit(journal.execute, index, plan[index], worker))
+            except BaseException:
+                for future in pending:
+                    future.cancel()
+                raise
+    rows = load_execution(execution_path).materialize()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    # Publish only after verification and never overwrite a previous run.
+    with tempfile.NamedTemporaryFile(dir=output.parent, mode="w", encoding="utf-8") as staged:
+        staged.writelines(canonical_json(row) + "\n" for row in rows)
+        staged.flush()
+        os.fsync(staged.fileno())
+        os.link(staged.name, output)
 
 
 def main():
@@ -293,11 +319,18 @@ def main():
     matrix = commands.add_parser("matrix")
     matrix.add_argument("name", choices=("screening", "confirmation", "policy", "mirror", "legacy-displacement"))
     matrix.add_argument("output", type=Path)
+    matrix.add_argument("--execution", type=Path)
     matrix.add_argument("--legacy", action="store_true")
     matrix.add_argument("--jobs", type=int, default=min(4, os.cpu_count() or 1))
     aggregate = commands.add_parser("report")
     aggregate.add_argument("input", type=Path)
     aggregate.add_argument("--paired-baseline", choices=PROFILES)
+    source = aggregate.add_mutually_exclusive_group()
+    source.add_argument("--execution", type=Path, help="verify observations against this journal")
+    source.add_argument("--from-execution", action="store_true", help="read completed rows from input journal")
+    verify = commands.add_parser("verify-execution")
+    verify.add_argument("journal", type=Path)
+    verify.add_argument("--observations", type=Path)
     args = parser.parse_args()
 
     if args.command == "run":
@@ -310,25 +343,30 @@ def main():
         roots, variant = replay_run(args.directory, args.resolver)
         print(f"verified {roots} roots and summary ({variant})")
     elif args.command == "matrix":
-        matrices = {"screening": SCREENING, "confirmation": CONFIRMATION, "policy": POLICY}
-        if args.name == "mirror" and args.legacy:
-            parser.error("the mirror matrix uses EP08")
-        with concurrent.futures.ProcessPoolExecutor(args.jobs) as pool:
-            if args.name == "mirror":
-                rows = pool.map(mirror_task, MIRROR, chunksize=4)
-            elif args.name == "legacy-displacement":
-                rows = pool.map(legacy_displacement_task,
-                                [c for c in SCREENING if c.profile == "F6"], chunksize=4)
-            else:
-                configs = matrices[args.name]
-                rows = validated_matrix_rows(
-                    pool.map(run_task, [(c, args.legacy) for c in configs], chunksize=4),
-                    configs, args.legacy,
-                )
-            dump_rows(args.output, rows)
+        path = args.execution or args.output.with_suffix(".execution.jsonl")
+        run_matrix(args.name, args.legacy, args.output, path, args.jobs)
+    elif args.command == "verify-execution":
+        execution = load_execution(args.journal)
+        published = execution.materialize() if execution.complete or args.observations is not None else None
+        if args.observations is not None:
+            rows = list(map(json.loads, args.observations.read_text().splitlines()))
+            if rows != published:
+                raise ValueError("published matrix differs from execution completions")
+        print(json.dumps({"matrix": execution.matrix, "status": execution.status,
+                          "complete": execution.complete, "torn_tail": execution.torn_tail,
+                          "technical_stop_reasons": execution.stops,
+                          **execution.counts(range(len(execution.plan)))}, indent=2))
     else:
-        rows = map(json.loads, args.input.read_text().splitlines())
-        result = paired_report(rows, args.paired_baseline) if args.paired_baseline else report(rows)
+        journal = args.input if args.from_execution else args.execution
+        execution = load_execution(journal) if journal is not None else None
+        rows = (execution.observations() if args.from_execution else
+                list(map(json.loads, args.input.read_text().splitlines())))
+        if args.paired_baseline:
+            if execution is not None:
+                execution.groups(rows)
+            result = paired_report(rows, args.paired_baseline)
+        else:
+            result = report(rows, execution)
         print(json.dumps(result, indent=2, sort_keys=True))
 
 
