@@ -7,6 +7,7 @@ from typing import Any, Iterable
 
 from .fixture import FIXTURE_VERSION, Encounter
 from .profiles import PROFILE_VERSION
+from .geometry import mirror
 
 SCHEMA_VERSION = "EF09-RH1-events-v1"
 
@@ -16,14 +17,20 @@ def canonical_json(value: Any) -> str:
                       ensure_ascii=True)
 
 
-def state_digest(encounter: Encounter, *, round_state: dict[str, Any]) -> str:
+def state_digest(encounter: Encounter, *, round_state: dict[str, Any], mirrored: bool = False) -> str:
     """Hash canonical state, including caller-supplied scheduler bookkeeping."""
+    formations = []
+    for formation in sorted(encounter.formations, key=lambda item: item.identity.formation_id):
+        record = vars(formation).copy()
+        record["identity"] = vars(formation.identity)
+        if mirrored:
+            record["physical_side"] ^= 1
+            record["facing"] = (record["facing"] + 3) % 6
+            if record["position"] is not None:
+                record["position"] = mirror(record["position"])
+        formations.append(record)
     state = {
-        "formations": [
-            asdict(formation) for formation in sorted(
-                encounter.formations, key=lambda item: item.identity.formation_id
-            )
-        ],
+        "formations": formations,
         "contacts": sorted(encounter.contacts),
         "round_state": round_state,
     }
