@@ -66,12 +66,41 @@ orders, effective responses, stages, terminal events and summaries.
 A scripted controller can replay a separate accepted journal via
 `replay_orders` using the same initial fixture.
 
-## Review limits
+## Final source-case verification
 
-The [source and case register](RG03_COVERAGE.md) identifies partial
-acceptance-case coverage. Hidden blockers and campaign admission remain
+The [coverage register](RG03_COVERAGE.md) identifies all 119 acceptance
+cases, 25 amendments and eight hard invariants individually. For mixed
+cases it identifies which standalone assertion passed and which external
+clause is outside scope. Hidden blockers and campaign admission remain
 outside the open-information standalone fixture. The resolver supports
 explicit group authority availability at fixture setup, without a
-standalone leader-loss generator. No holdout or RG04 work was started.
-Independent acceptance remains pending, including review of the partial
-source cases.
+standalone leader-loss generator.
+
+The adversarial fixture test
+`tests.test_f01_source_cases.SourceCases.test_hm01_hm02_reject_invalid_fixture_inventory_and_lots`
+failed at checkpoint `8433ca40992b8c05ff6255df0ee2e543343c2cfa` on
+boolean stock, negative casualty counts, duplicate stage lots, and
+wrong formation lineage. HM01/HM02 and D3.1 require whole nonnegative
+stocks and unique attributed allocations. `F01.check_invariants` now
+validates each lot and inventory before accepting an audited state,
+including typed cells and unique holding membership. The four fault
+fixtures now reject. The guarded path does not change legal action effects.
+
+All 133 tests passed. The full 96-execution matrix was regenerated
+against the checkpoint and replayed. Its execution journal, summary
+report and all 96 individual canonical traces are byte-for-byte equal
+to the checkpoint, so the existing evidence files remain the published
+archive. RG02 and RG03 checksums verified. All planned attempts completed.
+BM07, O0 and D4-RP-0.1 remain as reported above. No holdout or RG04 work
+was started. The draft is ready for independent technical review within
+the recorded standalone scope. Independent acceptance remains pending.
+
+### Additional review commands
+
+```sh
+python3 -m unittest -v tests.test_f01_source_cases
+cmp "$archive/development.execution.jsonl" "$fresh/development.execution.jsonl"
+for file in "$archive"/*-[01].jsonl; do
+  cmp "$file" "$fresh/$(basename "$file")" || exit 1
+done
+```

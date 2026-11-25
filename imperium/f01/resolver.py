@@ -862,7 +862,9 @@ class F01:
 
     def check_invariants(self):
         positions = [u.position for u in self.units.values() if u.position is not None]
-        if len(positions) != len(set(positions)) or any(not in_bounds(cell) for cell in positions):
+        if any(not isinstance(cell, tuple) or len(cell) != 2
+               or any(type(axis) is not int for axis in cell) or not in_bounds(cell)
+               for cell in positions) or len(positions) != len(set(positions)):
             raise AssertionError("invalid F01 primary occupancy")
         if (self.ready & (self.used_members | self.forced) or not all(0 <= used <= 4 for used in self.used)
                 or any(not 0 <= effort <= 3 for effort in self.effort.values())):
@@ -870,7 +872,21 @@ class F01:
         if self.elapsed != (self.round if self.terminal else max(0, self.round - 1)) * 10:
             raise AssertionError("invalid F01 interval accounting")
         holdings = (self.exits, self.custody, self.removed_assets)
+        inventory_ids = [i for ledger in holdings for i in ledger]
+        if len(inventory_ids) != len(set(inventory_ids)) or not set(inventory_ids) <= self.units.keys():
+            raise AssertionError("duplicate or unknown F01 holding")
         for i, u in self.units.items():
+            if any(type(n) is not int or n < 0 for n in (u.available, u.ammunition, u.mounts)):
+                raise AssertionError("invalid F01 formation inventory")
+            stages = set()
+            for lot in u.losses:
+                counts = (lot.casualties.killed, lot.casualties.wounded)
+                if (lot.formation != u.identity or not isinstance(lot.stage, str) or not lot.stage
+                        or lot.stage in stages or len(lot.cell) != 2
+                        or any(type(axis) is not int for axis in lot.cell) or not in_bounds(lot.cell)
+                        or any(type(n) is not int or n < 0 for n in counts) or not sum(counts)):
+                    raise AssertionError("invalid F01 casualty lot")
+                stages.add(lot.stage)
             if (u.position is None) != (u.disposition in ("withdrawn", "depleted", "captured")):
                 raise AssertionError("invalid F01 disposition/location")
             if (u.position is not None) != (u.available > 0):
@@ -883,6 +899,9 @@ class F01:
                 raise AssertionError("invalid F01 reserves or bands")
         units = tuple(self.units.values())
         inventories = [holding for ledger in holdings for holding in ledger.values()]
+        if any(type(n) is not int or n < 0 for holding in inventories
+               for n in (holding.available, holding.ammunition, holding.mounts, holding.wounded_in_custody)):
+            raise AssertionError("invalid F01 holding inventory")
         if sum(u.mounts for u in (*units, *inventories)) != self.initial_mounts:
             raise AssertionError("F01 mounts not conserved")
         if sum(u.ammunition for u in (*units, *inventories)) + self.spent_ammunition != self.initial_stock:
