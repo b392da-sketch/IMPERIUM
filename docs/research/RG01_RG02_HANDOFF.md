@@ -108,3 +108,21 @@ attempt flags are pending.
 The condition module covers depletion precedence, strict severe-condition
 crossings, rout precedence, and threshold/remainder arithmetic. This
 does not establish the ordering of those effects within an accepted root.
+
+## Continuation source access and event format
+
+The continuation brief was inspected. Three attempts to retrieve the private
+Markdown exports (IMPERIUM-Charter.md, IMPERIUM-D3.md and IMPERIUM-D4.md)
+returned an attachment authorization or resolution error. The workspace
+contained the two briefs. The exports were unavailable to inspect or hash,
+and the open source questions above remain open.
+
+`imperium.events` now defines `EF09-RH1-events-v1`. Each JSONL record carries
+the fixture, profile and schema versions, profile ID, seed, round, root
+action, stage, kind, optional endpoints and semantic key, before/after
+digests, and event-specific data. Records are written in resolver order.
+Object keys are sorted recursively, and non-finite numbers are rejected.
+The SHA-256 state digest includes complete formation records, sorted contacts
+and caller-supplied round bookkeeping. Runtime metadata stays outside its
+input. The serializer is tested in isolation. Resolver event emission, replay,
+mirror normalization and durable trace artifacts still require integration.
