@@ -12,6 +12,7 @@ from .participation import allocate
 from .pressure import directed_packet
 from .profiles import Profile
 from .randomness import DrawKey, melee_stage
+from .provenance import EP08, FROZEN, H32
 
 
 @dataclass(frozen=True)
@@ -23,18 +24,29 @@ class Action:
     target: int | None = None
 
 
+def require(condition, message):
+    if not condition:
+        raise AssertionError(message)
+
+
 class Battle:
+    resolver_variant = FROZEN
+
     def __init__(self, profile: Profile, seed: int, mirrored: bool = False,
                  *, encounter: Encounter | None = None, journal: bool = True, legacy: bool = False):
         self.profile, self.seed, self.mirrored = profile, seed, mirrored
+        self.explicit_fixture = encounter is not None
         self.encounter = encounter if encounter is not None else initial_encounter(profile, mirrored)
         self.units = {f.identity.formation_id: f for f in self.encounter.formations}
-        self.round = 1
+        self.round = 0
         self.side = 0
         self.used = [0, 0]
         self.passed = [False, False]
-        self.effort = {}
+        self.effort = dict.fromkeys(self.units, 0)
+        self.opening_effort = self.effort.copy()
+        self.activations = {}
         self.terminal = None
+        self.defeat_subreasons = {}
         self.root = 0
         self.events = []
         self.actions = []
@@ -45,7 +57,22 @@ class Battle:
         self.objectives = []
         self.observations = []
         self.exhaustion = None
-        self.open_round()
+        self.assert_invariants()
+        self.initial_state_digest = self.digest()
+        self.check_terminal()
+        if self.terminal:
+            if self.journal:
+                self.events.append(Event(
+                    self.profile.name, self.seed, 0, 0, 0, "initial_terminal",
+                    self.initial_state_digest, self.digest(),
+                    data={"winner": self.terminal[0], "reason": self.terminal[1],
+                          "defeat_subreasons": self.defeat_subreasons, "objective": self.objective()},
+                    stream=H32 if self.legacy else EP08, resolver_variant=self.resolver_variant,
+                ))
+        else:
+            self.round = 1
+            self.open_round()
+        self.assert_invariants()
 
     def ordered(self):
         return [self.units[i] for i in sorted(self.units)]
@@ -78,6 +105,7 @@ class Battle:
         self.used[:] = [0, 0]
         self.passed[:] = [False, False]
         self.side = (self.round - 1) % 2
+        self.activations.clear()
         field = FrozenField.capture(self.encounter)
         for unit in self.ordered():
             i = unit.identity.formation_id
@@ -89,6 +117,7 @@ class Battle:
             unit.full_interval_safety = self.safe(unit, field)
             if not self.profile.carry_exertion:
                 unit.exertion_remainder = 0
+        self.opening_effort = self.effort.copy()
 
     @staticmethod
     def viable(unit):
@@ -209,6 +238,9 @@ class Battle:
                         self.profile.allocation, routing=self.units[i].disposition == "routing")[0]
             for i in (a, b)
         }
+        for i, allocated in allocations.items():
+            require(type(allocated) is int and 0 <= allocated <= min(24, self.units[i].available_personnel),
+                    f"invalid selected allocation for {i}")
         self.metrics["multi"] += any(len(self.links(i)) > 1 for i in (a, b))
         packets = {}
         for source, target in ((a, b), (b, a)):
@@ -230,6 +262,12 @@ class Battle:
             recipient = self.units[target]
             packets[target] = directed_packet(allocations[source], recipient.available_personnel,
                                               recipient.disposition == "routing", self.profile, draw)
+        for i, packet in packets.items():
+            killed, wounded = packet.casualties.killed, packet.casualties.wounded
+            require(all(type(n) is int and n >= 0 for n in (killed, wounded))
+                    and killed + wounded <= min(self.units[i].available_personnel, self.profile.exposure_cap)
+                    and all(type(n) is int and 0 <= n <= 2 for n in (packet.cohesion, packet.morale)),
+                    f"invalid directed packet for {i}")
         self.metrics["zero_contribution"] += sum(v == 0 for v in allocations.values())
         self.metrics["zero_exchange"] += all(
             not (p.casualties.killed or p.casualties.wounded or p.cohesion or p.morale)
@@ -342,6 +380,7 @@ class Battle:
         }, mirrored=self.mirrored)
 
     def resolve(self, action):
+        self.assert_invariants()
         try:
             cost = self.cost(action)
         except ValueError as error:
@@ -371,6 +410,7 @@ class Battle:
             self.used[self.side] += 1
             unit.principal_eligibility = False
             self.effort[action.actor] -= cost
+            self.activations[action.actor] = cost
             self.metrics[action.kind] += 1
             if action.kind == "move":
                 for cell in action.path:
@@ -398,7 +438,6 @@ class Battle:
                 unit.pending_rest = True
         self.observe("root")
         self.check_terminal()
-        self.assert_invariants()
         if not self.terminal:
             for side in (0, 1):
                 if self.passed[side] or self.used[side] == self.profile.opportunities:
@@ -410,7 +449,9 @@ class Battle:
                     self.side = side
                     break
             else:
+                self.assert_invariants()
                 self.close_round()
+        self.assert_invariants()
         if self.journal:
             if self.mirrored:
                 action = Action(action.kind, action.actor, tuple(map(mirror, action.path)),
@@ -418,9 +459,11 @@ class Battle:
             self.events.append(Event(
                 self.profile.name, self.seed, stage_round, self.root, 0, "principal",
                 before, self.digest(), action.actor, action.target,
+                stream=H32 if self.legacy else EP08, resolver_variant=self.resolver_variant,
                 data={"action": asdict(action), "draws": draws, "details": self.details,
                       "objectives": self.objectives[observation_start:],
-                      "conditions": self.observations[observation_start:]},
+                      "conditions": self.observations[observation_start:],
+                      "defeat_subreasons": self.defeat_subreasons.copy()},
             ))
 
     def objective(self):
@@ -451,6 +494,16 @@ class Battle:
         sides = {f.identity.logical_side for f in self.ordered() if self.viable(f)}
         if len(sides) < 2:
             self.terminal = (next(iter(sides), None), "military" if sides else "mutual")
+            for side in (0, 1):
+                if side in sides:
+                    continue
+                dispositions = {f.disposition for f in self.ordered()
+                                if f.identity.logical_side == side}
+                self.defeat_subreasons[str(side)] = (
+                    "collapse" if "routing" in dispositions else
+                    "orderly_departure" if dispositions == {"withdrawn"} else
+                    "depletion_or_mixed_loss"
+                )
 
     def close_round(self):
         field = FrozenField.capture(self.encounter)
@@ -488,24 +541,79 @@ class Battle:
                 winner = self.objectives[-1]["secure"]
                 self.terminal = (winner, "objective" if winner is not None else "unresolved")
             else:
+                self.assert_invariants()
                 self.round += 1
                 self.open_round()
         self.assert_invariants()
 
     def assert_invariants(self):
+        """Check opening and stable root/closure states, never an unfinished stage."""
+        require(type(self.round) is int and 0 <= self.round <= ROUND_LIMIT, "round outside deadline")
+        require(type(self.side) is int and self.side in (0, 1), "invalid turn side")
+        require(len(self.used) == len(self.passed) == 2
+                and all(type(n) is int and 0 <= n <= self.profile.opportunities for n in self.used)
+                and all(type(flag) is bool for flag in self.passed), "invalid side opportunity ledger")
+        if self.round == 0:
+            require(self.root == 0 and self.used == [0, 0] and not any(self.passed)
+                    and not any(self.opening_effort.values()), "round opened before initial adjudication")
+        require(len(self.units) == len(self.encounter.formations)
+                and self.effort.keys() == self.opening_effort.keys() == self.units.keys()
+                and self.activations.keys() <= self.units.keys(), "invalid formation ledger")
         positions = set()
-        for f in self.ordered():
+        activated = [0, 0]
+        for i, f in self.units.items():
+            side = f.identity.logical_side
+            require(type(side) is int and side in (0, 1) and i == f.identity.formation_id
+                    and type(f.identity.local_role) is int and 0 <= f.identity.local_role < 6
+                    and type(f.physical_side) is int and f.physical_side == side ^ int(self.mirrored),
+                    f"invalid identity for {i}")
+            require(type(f.facing) is int and 0 <= f.facing < 6, f"invalid facing for {i}")
             partitions = (f.available_personnel, f.killed_personnel, f.wounded_unavailable_personnel)
-            assert all(type(n) is int and n >= 0 for n in partitions)
-            assert sum(partitions) == f.initial_personnel
-            assert all(0 <= value <= 2 for value in (f.cohesion, f.morale, f.fatigue))
-            assert 0 <= f.exertion_remainder < self.profile.threshold
-            if f.position is not None:
-                assert in_bounds(f.position) and f.position not in positions and f.available_personnel > 0
+            require(type(f.initial_personnel) is int and f.initial_personnel > 0
+                    and all(type(n) is int and n >= 0 for n in partitions)
+                    and sum(partitions) == f.initial_personnel, f"invalid personnel for {i}")
+            require(all(type(n) is int and 0 <= n <= 2 for n in (f.cohesion, f.morale, f.fatigue))
+                    and type(f.exertion_remainder) is int
+                    and 0 <= f.exertion_remainder < self.profile.threshold
+                    and type(f.activity_marks) is int and f.activity_marks >= 0,
+                    f"invalid condition or exertion for {i}")
+            on_map = f.disposition in ("organized", "reforming", "routing")
+            require((on_map or f.disposition in ("withdrawn", "depleted"))
+                    and (f.position is not None) == on_map
+                    and (f.available_personnel == 0) == (f.disposition == "depleted")
+                    and not (f.disposition == "organized" and f.cohesion == f.morale == 2),
+                    f"invalid disposition/location for {i}")
+            if on_map:
+                require(isinstance(f.position, tuple) and len(f.position) == 2
+                        and all(type(n) is int for n in f.position)
+                        and in_bounds(f.position) and f.position not in positions,
+                        f"invalid or duplicate board position for {i}")
                 positions.add(f.position)
+            opened = self.opening_effort[i]
+            spent = self.activations.get(i, 0)
+            effort = self.effort[i]
+            acted = i in self.activations
+            activated[side] += acted
+            require(all(type(n) is int for n in (opened, spent, effort))
+                    and opened in (0, self.profile.formation_effort)
+                    and (not acted or opened > 0)
+                    and 0 <= spent <= opened and effort == opened - spent,
+                    f"invalid effort debit for {i}")
+            require(all(type(flag) is bool for flag in (
+                f.principal_eligibility, f.forced_stop, f.mandatory_displacement_attempted,
+                f.full_interval_safety, f.incoming_effect_flag, f.pending_rest))
+                    and (not f.mandatory_displacement_attempted or f.forced_stop)
+                    and (not f.principal_eligibility or (
+                        self.viable(f) and opened > 0 and not acted and not f.forced_stop
+                        and (self.terminal or not (self.passed[side]
+                             or self.used[side] == self.profile.opportunities)))),
+                    f"invalid principal eligibility for {i}")
+        require(activated == self.used, "side opportunities disagree with formation activations")
         for a, b in self.encounter.contacts:
-            left, right = self.units[a], self.units[b]
-            assert a < b and self.viable(left) and self.viable(right)
-            assert left.physical_side != right.physical_side and distance(left.position, right.position) == 1
+            left, right = self.units.get(a), self.units.get(b)
+            require(left is not None and right is not None and a < b
+                    and self.viable(left) and self.viable(right)
+                    and left.physical_side != right.physical_side
+                    and distance(left.position, right.position) == 1, "invalid contact edge")
         if len(self.units) == 12:
-            assert sum(f.initial_personnel for f in self.ordered()) == 2880
+            require(sum(f.initial_personnel for f in self.ordered()) == 2880, "invalid fixture roster")

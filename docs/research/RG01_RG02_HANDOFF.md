@@ -13,6 +13,8 @@ and historical scenarios. The charter keeps the production and D5 gates open.
 See the [source manifest](SOURCE_MANIFEST.md) for the three offline exports,
 their digests and the governing rules. The original and continuation
 briefs were also consulted. The source exports remain private.
+The [source-conformance matrix](SOURCE_CONFORMANCE.md) traces the applicable
+hard invariants and D3/D4 rules to tests and remaining scope limits.
 
 Hard invariants govern first, followed by D3.9 A01–A25, D3 v0.2, explicit
 experimental profile overrides, reduced-fixture restrictions and earlier
@@ -29,6 +31,9 @@ python3 -m unittest discover -v
 python3 -m unittest -v tests.test_scheduler.IntegratedDisplacementTests
 python3 -m imperium run F6 20000 AGG RES --output /tmp/ef09
 python3 -m imperium replay /tmp/ef09
+python3 -m imperium run F6 20000 AGG AGG --legacy --resolver early-exit-v1 --output /tmp/ef09-early-exit
+python3 -m imperium replay /tmp/ef09-early-exit --resolver early-exit-v1
+python3 -m imperium replay evidence/rg02/initial-terminal-sample --resolver frozen-v1
 python3 -m imperium run F6 20000 AGG RES --mirror --output /tmp/ef09-mirror
 cmp /tmp/ef09/events.jsonl /tmp/ef09-mirror/events.jsonl
 python3 -m imperium matrix screening /tmp/screening.jsonl
@@ -65,7 +70,7 @@ pairs. This freezes the declared comparisons. Shared seeds are matched
 observations. The development run configuration rejects both holdout
 ranges. HF01–HF06 are outside the harness.
 
-The event format is `EF09-RH1-events-v1`. Each JSONL record carries version
+The event format is `EF09-RH1-events-v2`. Each JSONL record carries version
 and run identifiers, round, root ordinal, stage ordinal, event kind,
 endpoints, and SHA-256 before/after digests. A principal event contains
 the accepted action, effective draw keys and numerators, packets,
@@ -96,3 +101,41 @@ The full matrix journals are reproducible on demand from the committed
 inputs. They are not bundled with the results. Independent review remains
 pending. Preferred choices per decision are not a full BM11 workload
 measure.
+
+## Independent review remediation
+
+Evidence v2 binds the random stream and resolver variant to each trace
+record and records the fixture and profile versions in every run summary. Pre-remediation
+evidence is rejected without these fields.
+Replay checks the recorded action stream through the resolver and
+independently enumerates the declared policy to recover its deterministic
+candidate counts. It verifies all summary fields. Supplying
+`replay --resolver` also asserts the expected variant. To regenerate
+reviewed v1 runs in the current format, rerun the listed commands.
+Reports require the explicit v2 run identity and reject mixed provenance
+or orientations and duplicate observations. Paired reports require one
+matchup, at least two matched seeds and identical seed sets across profiles.
+
+The archived reviewer baseline is commit
+`cda92e4b6ee9138fb421a2951777dbf88c7dcc64`. Compare regenerated results to
+that Git tree using [the remediation comparison](../../evidence/rg02/review-comparison.json).
+Source delivery is handled outside GitHub through the existing private
+review channel. The private packet contains the original assignment brief,
+the exact three exports and checksums. The public PR only links the
+source manifest and conformance documentation.
+
+An initial nonviable side is adjudicated at round zero. An initially
+terminal artifact has a separate `initial_terminal` event and an empty
+actions file. For explicit regression fixtures the artifact stores
+`initial-state.json`; replay reconstructs it and verifies both the
+initial and terminal digests. Reports accept only the default experiment
+fixture.
+
+Baseline comparison from the repository root:
+
+```sh
+baseline=$(mktemp -d)
+git archive cda92e4b6ee9138fb421a2951777dbf88c7dcc64 evidence/rg02 | tar -x -C "$baseline"
+python3 -m imperium.review_evidence "$baseline/evidence/rg02" evidence/rg02
+python3 -m unittest -v tests.test_review tests.test_scheduler.IntegratedDisplacementTests
+```

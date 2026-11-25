@@ -1,6 +1,17 @@
 {
   "C AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 136.859375,
+      "median": 136.0,
+      "n": 128,
+      "p10": 109.7,
+      "p90": 159.0,
+      "sample_sd": 19.62351729691602
+    },
     "losses_min_max": [
       82,
       187
@@ -54,6 +65,14 @@
       "contact": 17,
       "threat": 31
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.708016048472938,
+      "median": 7,
+      "n": 12213,
+      "p10": 2.0,
+      "p90": 14.0,
+      "sample_sd": 4.660016500563802
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -63,10 +82,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 28,
       "unresolved": 100
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7020157030455345,
       0.8440947590506169
@@ -78,7 +99,20 @@
     }
   },
   "CJON AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {
+      "collapse": 1
+    },
+    "losses_descriptive": {
+      "mean": 139.71875,
+      "median": 139.0,
+      "n": 128,
+      "p10": 116.0,
+      "p90": 162.3,
+      "sample_sd": 17.861645664013484
+    },
     "losses_min_max": [
       109,
       200
@@ -132,6 +166,14 @@
       "contact": 12,
       "threat": 39
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.459940407217348,
+      "median": 7.0,
+      "n": 12082,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.580968819075145
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -141,11 +183,13 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "military": 1,
       "objective": 22,
       "unresolved": 105
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7447837371324442,
       0.8771754002548395
@@ -157,7 +201,18 @@
     }
   },
   "F6 AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 134.09375,
+      "median": 135.0,
+      "n": 128,
+      "p10": 112.7,
+      "p90": 154.3,
+      "sample_sd": 18.071353543595947
+    },
     "losses_min_max": [
       82,
       189
@@ -211,6 +266,14 @@
       "contact": 15,
       "threat": 33
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.749610687648554,
+      "median": 7,
+      "n": 12201,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.6460812030295795
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -220,10 +283,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 29,
       "unresolved": 99
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6935732116243923,
       0.8373675154135328
@@ -235,7 +300,18 @@
     }
   },
   "J AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 134.3671875,
+      "median": 134.5,
+      "n": 128,
+      "p10": 114.7,
+      "p90": 154.3,
+      "sample_sd": 15.182289253870412
+    },
     "losses_min_max": [
       105,
       181
@@ -289,6 +365,14 @@
       "contact": 8,
       "threat": 27
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.366625258799171,
+      "median": 7,
+      "n": 12075,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.616553728369822
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -298,10 +382,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 31,
       "unresolved": 97
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6767886369138937,
       0.8238126200075785
@@ -313,7 +399,18 @@
     }
   },
   "LOW AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 183.6015625,
+      "median": 182.5,
+      "n": 128,
+      "p10": 153.0,
+      "p90": 212.6,
+      "sample_sd": 22.073370796658395
+    },
     "losses_min_max": [
       136,
       237
@@ -367,6 +464,14 @@
       "contact": 27,
       "threat": 58
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.868384571475169,
+      "median": 7,
+      "n": 12263,
+      "p10": 3.0,
+      "p90": 13.0,
+      "sample_sd": 4.303329029422717
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -376,10 +481,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 20,
       "unresolved": 108
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7709518905710295,
       0.8965164519909334
@@ -391,7 +498,18 @@
     }
   },
   "N AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 134.09375,
+      "median": 135.0,
+      "n": 128,
+      "p10": 112.7,
+      "p90": 154.3,
+      "sample_sd": 18.071353543595947
+    },
     "losses_min_max": [
       82,
       189
@@ -445,6 +563,14 @@
       "contact": 15,
       "threat": 33
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.749610687648554,
+      "median": 7,
+      "n": 12201,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.6460812030295795
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -454,10 +580,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 29,
       "unresolved": 99
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6935732116243923,
       0.8373675154135328
@@ -469,7 +597,18 @@
     }
   },
   "O AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 134.265625,
+      "median": 134.0,
+      "n": 128,
+      "p10": 109.0,
+      "p90": 163.89999999999998,
+      "sample_sd": 21.545953225459783
+    },
     "losses_min_max": [
       80,
       202
@@ -523,6 +662,14 @@
       "contact": 12,
       "threat": 31
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.708883602657698,
+      "median": 7,
+      "n": 12191,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.638054844482676
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -532,10 +679,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 30,
       "unresolved": 98
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6851645688917714,
       0.8306064230879273
@@ -547,7 +696,18 @@
     }
   },
   "R0 AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 121.9296875,
+      "median": 120.0,
+      "n": 128,
+      "p10": 98.7,
+      "p90": 147.3,
+      "sample_sd": 20.191673497799343
+    },
     "losses_min_max": [
       68,
       173
@@ -601,6 +761,14 @@
       "contact": 19,
       "threat": 43
     },
+    "preferred_choices_descriptive": {
+      "mean": 8.42276555728187,
+      "median": 8,
+      "n": 12229,
+      "p10": 2.0,
+      "p90": 15.0,
+      "sample_sd": 5.03486618490563
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -610,10 +778,12 @@
       23
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 24,
       "unresolved": 104
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7361508192928257,
       0.8706385830362315

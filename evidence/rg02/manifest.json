@@ -1,5 +1,6 @@
 {
   "corrected_principal_runs": 3584,
+  "event_schema": "EF09-RH1-events-v2",
   "failed_runs": 0,
   "fixture": "EF09-RH1",
   "holdout_runs": 0,
@@ -17,5 +18,12 @@
   },
   "profile_version": "D47-RH1-v1",
   "python": "3.12.14",
+  "resolver_variants": {
+    "corrected_ep08": "frozen-v1",
+    "legacy_h32": "frozen-v1",
+    "legacy_h32_early_exit": "early-exit-v1"
+  },
+  "review_comparison": "review-comparison.json",
+  "reviewed_baseline": "cda92e4b6ee9138fb421a2951777dbf88c7dcc64",
   "source_manifest": "docs/research/SOURCE_MANIFEST.md"
 }

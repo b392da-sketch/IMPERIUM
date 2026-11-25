@@ -85,8 +85,8 @@ whether eligible exit cells stay occupied through arbitration. The
 comparison preserves frozen threat and releases all eligible exit cells
 together in the diagnostic branch to isolate the occupancy effect. The
 synthetic edge regression exhibits the forbidden follow when the defect
-is enabled. No event-digest or terminal divergence was observed among
-these 128 matched development pairs. This checks the selected seeds and
+is enabled. No mechanical terminal divergence was observed among these 128 matched
+development pairs. This checks the selected seeds and
 isolated variation. The original procedure could also depend on its
 iteration order, which the comparator does not recreate.
 
@@ -94,3 +94,36 @@ The archived pooled F3 tendency persists, and the unresolved-draw warning
 persists in the corrected confirmation. The H32 and EP08 run outputs
 remain separately labelled. They provide no basis for RG03, full D4
 validation or D5 readiness.
+
+## Independent-review rerun
+
+The reviewed baseline is `cda92e4b6ee9138fb421a2951777dbf88c7dcc64`.
+The [baseline comparison](../../evidence/rg02/review-comparison.json)
+validates each regenerated observation against its reviewed mechanical
+fields. Existing outcomes, charged intervals, losses, objectives,
+and recorded metrics and policy counts are unchanged.
+
+The eight EP08 confirmation military wins, two F6 and six CJON, all
+classify the losing side as collapse. This classification comes from
+actual routing survivors. It leaves the broad military category, winner
+and O0 result unchanged. The initial adjudication fix is exercised
+separately by zero-action fixtures because the standard starting
+formations on both sides are viable.
+
+Trace digests changed in v2 because event records carry stream, resolver
+variant and defeat classifications. Raw H32 comparator digests therefore
+differ by variant even when the mechanics agree. The isolated occupancy
+pairs still agree on terminal-state digests and existing mechanical
+summary fields. Projecting the committed EP08 replay sample back to v1
+reproduces all 92 reviewed event records.
+
+The aggregate reports preserve the earlier point estimates. They add
+sample counts and denominators, sample standard deviation, and type-7
+P10/P90 (linear interpolation at zero-based index (n−1)p). Preferred-choice
+counts are descriptive per decision. Multiple decisions can come from
+one run, and this measure does not establish complete legal-action
+workload or human usability. Paired casualty intervals now use one
+difference per matched seed and a two-sided 95% Student t interval with
+n−1 degrees of freedom. Insufficient paired samples yield no interval
+in the numerical helper, and zero variance yields a point interval.
+Report-level pairing requires at least two matched seeds.

@@ -1,6 +1,17 @@
 {
   "C AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 136.65625,
+      "median": 136.0,
+      "n": 128,
+      "p10": 111.0,
+      "p90": 162.3,
+      "sample_sd": 19.633025968031962
+    },
     "losses_min_max": [
       91,
       177
@@ -54,6 +65,14 @@
       "contact": 18,
       "threat": 30
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.629650924024641,
+      "median": 7,
+      "n": 12175,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.635463543369168
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -63,10 +82,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 20,
       "unresolved": 108
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7709518905710295,
       0.8965164519909334
@@ -78,7 +99,20 @@
     }
   },
   "CJON AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": false,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {
+      "collapse": 1
+    },
+    "losses_descriptive": {
+      "mean": 140.2578125,
+      "median": 137.0,
+      "n": 128,
+      "p10": 119.4,
+      "p90": 167.3,
+      "sample_sd": 19.471459466610163
+    },
     "losses_min_max": [
       97,
       197
@@ -132,6 +166,14 @@
       "contact": 9,
       "threat": 31
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.359678221927351,
+      "median": 7.0,
+      "n": 12058,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.584801996982924
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -141,11 +183,13 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "military": 1,
       "objective": 35,
       "unresolved": 92
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6353658087171574,
       0.7893867729131827
@@ -157,7 +201,18 @@
     }
   },
   "F6 AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 136.328125,
+      "median": 134.5,
+      "n": 128,
+      "p10": 111.0,
+      "p90": 163.0,
+      "sample_sd": 20.632941086379706
+    },
     "losses_min_max": [
       90,
       202
@@ -211,6 +266,14 @@
       "contact": 21,
       "threat": 34
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.677973061760841,
+      "median": 7.0,
+      "n": 12176,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.6418180639068405
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -220,10 +283,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 24,
       "unresolved": 104
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7361508192928257,
       0.8706385830362315
@@ -235,7 +300,20 @@
     }
   },
   "J AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": false,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {
+      "collapse": 1
+    },
+    "losses_descriptive": {
+      "mean": 138.1640625,
+      "median": 137.0,
+      "n": 128,
+      "p10": 118.0,
+      "p90": 159.6,
+      "sample_sd": 17.888005634247385
+    },
     "losses_min_max": [
       91,
       193
@@ -289,6 +367,14 @@
       "contact": 9,
       "threat": 30
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.327283275319078,
+      "median": 7.0,
+      "n": 12066,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.564793998361073
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -298,11 +384,13 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "military": 1,
       "objective": 32,
       "unresolved": 95
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.6601308077044309,
       0.8101309791005885
@@ -314,7 +402,18 @@
     }
   },
   "LOW AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 183.40625,
+      "median": 183.0,
+      "n": 128,
+      "p10": 152.7,
+      "p90": 216.0,
+      "sample_sd": 24.283248981599687
+    },
     "losses_min_max": [
       124,
       254
@@ -368,6 +467,14 @@
       "contact": 43,
       "threat": 60
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.940168149538813,
+      "median": 8,
+      "n": 12251,
+      "p10": 3.0,
+      "p90": 13.0,
+      "sample_sd": 4.26535299640819
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -377,10 +484,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 20,
       "unresolved": 108
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7709518905710295,
       0.8965164519909334
@@ -392,7 +501,18 @@
     }
   },
   "N AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 136.328125,
+      "median": 134.5,
+      "n": 128,
+      "p10": 111.0,
+      "p90": 163.0,
+      "sample_sd": 20.632941086379706
+    },
     "losses_min_max": [
       90,
       202
@@ -446,6 +566,14 @@
       "contact": 21,
       "threat": 34
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.677973061760841,
+      "median": 7.0,
+      "n": 12176,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.6418180639068405
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -455,10 +583,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 24,
       "unresolved": 104
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7361508192928257,
       0.8706385830362315
@@ -470,7 +600,18 @@
     }
   },
   "O AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 137.453125,
+      "median": 136.5,
+      "n": 128,
+      "p10": 111.4,
+      "p90": 168.3,
+      "sample_sd": 22.95420273562875
+    },
     "losses_min_max": [
       86,
       214
@@ -524,6 +665,14 @@
       "contact": 18,
       "threat": 31
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.741983105060281,
+      "median": 7,
+      "n": 12193,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.599585943368851
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -533,10 +682,12 @@
       0
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 28,
       "unresolved": 100
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7020157030455345,
       0.8440947590506169
@@ -548,7 +699,18 @@
     }
   },
   "R0 AGG/AGG": {
+    "attempted_runs": 128,
     "bm07_warning": true,
+    "completed_runs": 128,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 124.21875,
+      "median": 124.0,
+      "n": 128,
+      "p10": 101.7,
+      "p90": 148.6,
+      "sample_sd": 20.13769040389562
+    },
     "losses_min_max": [
       68,
       202
@@ -602,6 +764,14 @@
       "contact": 11,
       "threat": 35
     },
+    "preferred_choices_descriptive": {
+      "mean": 8.476167116343717,
+      "median": 8,
+      "n": 12231,
+      "p10": 2.0,
+      "p90": 15.0,
+      "sample_sd": 5.084621634290326
+    },
     "round_three_defined_runs": [
       128,
       128
@@ -611,10 +781,12 @@
       27
     ],
     "runs": 128,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 25,
       "unresolved": 103
     },
+    "unresolved_denominator": 128,
     "unresolved_wilson95": [
       0.7275592800992087,
       0.864060387171622

@@ -8,8 +8,9 @@ from typing import Any, Iterable
 from .fixture import FIXTURE_VERSION, Encounter
 from .profiles import PROFILE_VERSION
 from .geometry import mirror
+from .provenance import EP08, FROZEN
 
-SCHEMA_VERSION = "EF09-RH1-events-v1"
+SCHEMA_VERSION = "EF09-RH1-events-v2"
 
 
 def canonical_json(value: Any) -> str:
@@ -54,6 +55,8 @@ class Event:
     schema_version: str = SCHEMA_VERSION
     fixture_version: str = FIXTURE_VERSION
     profile_version: str = PROFILE_VERSION
+    stream: str = EP08
+    resolver_variant: str = FROZEN
 
 
 def jsonl(events: Iterable[Event]) -> str:

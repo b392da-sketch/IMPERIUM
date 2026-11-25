@@ -1,3 +1,4 @@
+from dataclasses import replace
 import unittest
 
 from imperium.__main__ import mirror_task, simulate
@@ -90,9 +91,17 @@ class SchedulerTests(unittest.TestCase):
         self.assertIn("move", battle.rejections[0]["reason"])
 
     def test_last_opportunity_with_exact_effort(self):
-        battle = setup((0, (4, 6), "organized"), (6, (4, 5), "organized"))
-        battle.used[0] = 3
-        battle.effort[0] = 2
+        fixture = setup((0, (4, 6), "organized"), (6, (4, 5), "organized"),
+                        (1, (0, 7), "organized"), (2, (1, 7), "organized"),
+                        (3, (2, 7), "organized"), (7, (0, 1), "organized"),
+                        (8, (1, 1), "organized"), (9, (2, 1), "organized"))
+        for unit in fixture.ordered():
+            unit.principal_eligibility = False
+        battle = Battle(replace(PROFILES["F6"], formation_effort=2), 20000,
+                        encounter=fixture.encounter)
+        for own, opposing in ((1, 7), (2, 8), (3, 9)):
+            battle.resolve(Action("hold", own))
+            battle.resolve(Action("hold", opposing))
         battle.resolve(Action("assault", 0, target=6))
         self.assertEqual(battle.effort[0], 0)
         self.assertEqual(battle.units[0].activity_marks, 2)

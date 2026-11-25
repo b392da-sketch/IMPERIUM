@@ -1,6 +1,19 @@
 {
   "CJON AGG/AGG": {
+    "attempted_runs": 512,
     "bm07_warning": false,
+    "completed_runs": 512,
+    "defeat_subreasons_by_side_ending": {
+      "collapse": 4
+    },
+    "losses_descriptive": {
+      "mean": 138.798828125,
+      "median": 138.0,
+      "n": 512,
+      "p10": 115.0,
+      "p90": 166.0,
+      "sample_sd": 19.702497646156946
+    },
     "losses_min_max": [
       88,
       203
@@ -54,6 +67,14 @@
       "contact": 40,
       "threat": 111
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.334547938966067,
+      "median": 7,
+      "n": 48301,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.603961386943736
+    },
     "round_three_defined_runs": [
       512,
       512
@@ -63,11 +84,13 @@
       0
     ],
     "runs": 512,
+    "technical_stops": 0,
     "terminal_reasons": {
       "military": 4,
       "objective": 125,
       "unresolved": 383
     },
+    "unresolved_denominator": 512,
     "unresolved_wilson95": [
       0.7086901555300428,
       0.7837091963574333
@@ -79,7 +102,18 @@
     }
   },
   "F6 AGG/AGG": {
+    "attempted_runs": 512,
     "bm07_warning": true,
+    "completed_runs": 512,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 135.34375,
+      "median": 135.0,
+      "n": 512,
+      "p10": 111.0,
+      "p90": 161.0,
+      "sample_sd": 19.77720821488592
+    },
     "losses_min_max": [
       83,
       203
@@ -133,6 +167,14 @@
       "contact": 61,
       "threat": 132
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.697521611465883,
+      "median": 7,
+      "n": 48701,
+      "p10": 2.0,
+      "p90": 13.0,
+      "sample_sd": 4.5911154063813955
+    },
     "round_three_defined_runs": [
       512,
       512
@@ -142,10 +184,12 @@
       0
     ],
     "runs": 512,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 113,
       "unresolved": 399
     },
+    "unresolved_denominator": 512,
     "unresolved_wilson95": [
       0.7413678902658999,
       0.8130660256388961
@@ -157,7 +201,18 @@
     }
   },
   "LOW AGG/AGG": {
+    "attempted_runs": 512,
     "bm07_warning": true,
+    "completed_runs": 512,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 184.78515625,
+      "median": 184.0,
+      "n": 512,
+      "p10": 154.0,
+      "p90": 215.90000000000003,
+      "sample_sd": 24.3853749433987
+    },
     "losses_min_max": [
       94,
       258
@@ -211,6 +266,14 @@
       "contact": 161,
       "threat": 245
     },
+    "preferred_choices_descriptive": {
+      "mean": 7.91231758342688,
+      "median": 8,
+      "n": 48995,
+      "p10": 3.0,
+      "p90": 13.0,
+      "sample_sd": 4.296572149439963
+    },
     "round_three_defined_runs": [
       512,
       512
@@ -220,10 +283,12 @@
       0
     ],
     "runs": 512,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 86,
       "unresolved": 426
     },
+    "unresolved_denominator": 512,
     "unresolved_wilson95": [
       0.7972032842381693,
       0.861913958445854
@@ -235,7 +300,18 @@
     }
   },
   "R0 AGG/AGG": {
+    "attempted_runs": 512,
     "bm07_warning": true,
+    "completed_runs": 512,
+    "defeat_subreasons_by_side_ending": {},
+    "losses_descriptive": {
+      "mean": 119.85546875,
+      "median": 119.0,
+      "n": 512,
+      "p10": 96.0,
+      "p90": 145.0,
+      "sample_sd": 19.858270060592208
+    },
     "losses_min_max": [
       62,
       194
@@ -289,6 +365,14 @@
       "contact": 70,
       "threat": 184
     },
+    "preferred_choices_descriptive": {
+      "mean": 8.436634956926468,
+      "median": 8.0,
+      "n": 48986,
+      "p10": 2.0,
+      "p90": 15.0,
+      "sample_sd": 5.031787928784286
+    },
     "round_three_defined_runs": [
       512,
       512
@@ -298,10 +382,12 @@
       104
     ],
     "runs": 512,
+    "technical_stops": 0,
     "terminal_reasons": {
       "objective": 92,
       "unresolved": 420
     },
+    "unresolved_denominator": 512,
     "unresolved_wilson95": [
       0.7847100751881306,
       0.8511442059893977
