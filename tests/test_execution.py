@@ -156,3 +156,19 @@ class ExecutionTests(unittest.TestCase):
             evidence.materialize()
         with self.assertRaisesRegex(ValueError, "unfinished trailing"):
             journal.execute(1, plan[1], self.succeed)
+
+    def test_cli_rejects_boolean_substitution_for_integer_observation(self):
+        from imperium.__main__ import main
+
+        def decisive(entry):
+            row, roots = self.succeed(entry)
+            return {**row, "reason": "objective", "winner": 1}, roots
+
+        self.run_with(decisive)
+        with patch("sys.argv", ["imperium", "verify-execution", str(self.journal),
+                                "--observations", str(self.output)]):
+            rows = list(map(json.loads, self.output.read_text().splitlines()))
+            rows[0]["winner"] = True
+            self.output.write_text("".join(json.dumps(row) + "\n" for row in rows))
+            with self.assertRaisesRegex(ValueError, "differs from execution completions"):
+                main()

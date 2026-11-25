@@ -25,7 +25,9 @@ def compare_run(old, new, config, stream, variant):
     if (actual, actual_stream, actual_variant) != expected or new["initial_fixture"] != "default":
         raise ValueError(f"invalid matrix identity: {expected}")
     old_fields = {key: value for key, value in new.items() if key not in ADDED_FIELDS}
-    if old_fields != {key: value for key, value in old.items() if key != "trace_sha256"}:
+    if canonical_json(old_fields) != canonical_json(
+        {key: value for key, value in old.items() if key != "trace_sha256"}
+    ):
         raise ValueError(f"run differs from reviewed mechanical evidence: {expected}")
     return new["trace_sha256"] != old["trace_sha256"]
 
@@ -86,7 +88,7 @@ def compare(baseline, current):
         projected = {k: v for k, v in new.items() if k not in ("resolver_variant", "stream")}
         projected["schema_version"] = old["schema_version"]
         projected["data"] = {k: v for k, v in projected["data"].items() if k != "defeat_subreasons"}
-        if projected != old:
+        if canonical_json(projected) != canonical_json(old):
             raise ValueError("mechanical event changed in reviewed replay sample")
         roots += 1
     aggregate_groups = 0
