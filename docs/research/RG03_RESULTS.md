@@ -86,7 +86,7 @@ validates each lot and inventory before accepting an audited state,
 including typed cells and unique holding membership. The four fault
 fixtures now reject. The guarded path does not change legal action effects.
 
-All 133 tests passed. The full 96-execution matrix was regenerated
+All 135 tests passed. The full 96-execution matrix was regenerated
 against the checkpoint and replayed. Its execution journal, summary
 report and all 96 individual canonical traces are byte-for-byte equal
 to the checkpoint, so the existing evidence files remain the published

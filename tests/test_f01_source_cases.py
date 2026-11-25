@@ -551,3 +551,35 @@ class SourceCases(unittest.TestCase):
                     self.assertEqual(b.events[-1]["stages"][-1]["kind"], "movement-interrupted")
                 else:
                     self.assertEqual(b.units[0].position, (4, 4))
+
+    def test_bt03_assault_requires_actual_forward_adjacency(self):
+        for target, facing, legal in (((4, 5), 4, True), ((4, 5), 1, False),
+                                      ((4, 4), 4, False)):
+            with self.subTest(target=target, facing=facing):
+                b = F01(22000, formations=fixture((0, (4, 6), facing), (8, target, 1)))
+                order = Order("assault", (0,), target=8)
+                self.assertEqual(order in b.legal_orders(), legal)
+                if legal:
+                    self.assertIn((4, 6), b.hostile_threat(0))
+                    with patch("imperium.f01.resolver.packet", return_value=ZERO):
+                        b.resolve(order)
+                    self.assertEqual((b.units[0].position, b.units[0].facing), ((4, 6), 4))
+                    self.assertEqual(b.contacts, {(0, 8)})
+                else:
+                    before = b.digest()
+                    with self.assertRaisesRegex(ValueError, "illegal attack"):
+                        b.resolve(order)
+                    self.assertEqual(b.digest(), before)
+
+    def test_et08_only_reformer_preserves_viability(self):
+        units = fixture((0, (2, 6), 4), (8, (9, 1), 1))
+        units[1].disposition = "reforming"
+        units[1].cohesion = units[1].morale = 2
+        b = F01(22000, formations=units)
+        b.resolve(Order("pass"))
+        self.assertIn(Order("hold", (8,)), b.legal_orders())
+        self.assertNotIn(Order("move", (8,), path=((9, 2),)), b.legal_orders())
+        b.resolve(Order("hold", (8,)))
+        self.assertIsNone(b.terminal)
+        self.assertEqual(b.units[8].disposition, "reforming")
+        self.assertEqual(b.elapsed, 0)

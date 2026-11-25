@@ -64,7 +64,7 @@ D3.2–D3.6 CT/GT/BT/RT/ET tables, and the D3.9 AT table.
 | GT15 | Isolated | `tests.test_f01_source_cases.SourceCases.test_gt15_bt18_full_command_round_and_light_follow_on`. Authored opening and subsequent round under a stipulated zero-effect packet. |
 | BT01 | Isolated | `tests.test_f01_source_cases.SourceCases.test_bt01_bt02_missile_negative_and_stationary_debits`. Range, sector, stock, template and engagement. Separate occlusion test and GT08 barrier allowance. |
 | BT02 | Isolated | `tests.test_f01_source_cases.SourceCases.test_bt01_bt02_missile_negative_and_stationary_debits`. Stationary discharge pays exactly once and opens no response. |
-| BT03 | Isolated | `tests.test_f01_source_cases.SourceCases.test_gt08_overlay_and_nontraversable_threat`. Traversability and no automatic attack. BT05/BT09 cover actual paid frontal assault and preserving positions. |
+| BT03 | Isolated | `tests.test_f01_source_cases.SourceCases.test_bt03_assault_requires_actual_forward_adjacency`. Frontality, range, origin threat and no translation. GT08 covers blocked edges. |
 | BT04 | Isolated | `tests.test_f01_source_cases.SourceCases.test_bt01_bt04_occluded_fire_and_existing_contact_has_no_window`. Persistent contact has no reaction. GT15 and the exact-cost pivot regression exercise live reaction choices. |
 | BT05 | Isolated | `tests.test_f01_resolver.ResolverTests.test_defensive_missile_aborts_paid_assault`. Attack paid before disruption, no contact or refund. |
 | BT06 | Isolated | `tests.test_f01_source_cases.SourceCases.test_bt09_neutral_coefficients_and_backward_inherent_resistance`. Zero-effort defender retains contribution and a single resistance mark. BT11 verifies simultaneous last losses. |
@@ -109,7 +109,7 @@ D3.2–D3.6 CT/GT/BT/RT/ET tables, and the D3.9 AT table.
 | ET05 | Isolated | `tests.test_f01_research.ResearchTests.test_deadline_o0_and_completed_rest`. Exhausted organized centre is secure. |
 | ET06 | Isolated | `tests.test_f01_resolver.ResolverTests.test_reciprocal_rout_and_local_shock`. Blue last viable routs, Red ally survives and wins. |
 | ET07 | Isolated | `tests.test_f01_source_cases.SourceCases.test_et07_et17_blocked_mutual_collapse_has_no_extra_casualties`. Reciprocal mutual break before choosing result. |
-| ET08 | Isolated | `tests.test_f01_resolver.ResolverTests.test_safe_refuge_reformer_gates_and_later_rally`. Reformer is viable and remains in play for later rally; no initiation of attack. |
+| ET08 | Isolated | `tests.test_f01_source_cases.SourceCases.test_et08_only_reformer_preserves_viability`. The sole Blue survivor is viable and can hold while ordinary movement remains unavailable. |
 | ET09 | Isolated | `tests.test_f01_resolver.ResolverTests.test_withdrawal_posture_costs_opportunity_and_precedes_o0`. Declaration costs side slot, leaves position and disables offensive orders. |
 | ET10 | Isolated | `tests.test_f01_resolver.ResolverTests.test_withdrawal_posture_costs_opportunity_and_precedes_o0`. Withdrawing secure occupier loses by abandonment at deadline. |
 | ET11 | Isolated | `tests.test_f01_source_cases.SourceCases.test_et11_both_withdraw_then_one_exits_and_capitulation_precedence`. Mutual abandonment versus surrender precedence. |
