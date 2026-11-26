@@ -61,10 +61,13 @@ class Journal:
     @classmethod
     def create(cls, path, matrix, legacy):
         plan = matrix_plan(matrix, legacy)
+        return cls.create_for(path, {"schema": SCHEMA, "matrix": matrix, "legacy": legacy}, plan), plan
+
+    @classmethod
+    def create_for(cls, path, header, plan):
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("x", encoding="utf-8") as output:
-            output.write(canonical_json({"schema": SCHEMA, "matrix": matrix,
-                                         "legacy": legacy, "plan": plan}) + "\n")
+            output.write(canonical_json({**header, "plan": plan}) + "\n")
             output.flush()
             os.fsync(output.fileno())
         directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
@@ -72,7 +75,7 @@ class Journal:
             os.fsync(directory)
         finally:
             os.close(directory)
-        return cls(path), plan
+        return cls(path)
 
     def append(self, record):
         with self.path.open("a+b") as output:
@@ -84,11 +87,11 @@ class Journal:
             output.flush()
             os.fsync(output.fileno())
 
-    def execute(self, index, entry, worker):
+    def execute(self, index, entry, worker, validate=validate_completion):
         self.append({"event": "attempted", "index": index})
         try:
             row, roots = worker(entry)
-            validate_completion(entry, row, roots)
+            validate(entry, row, roots)
         except Exception as error:
             self.append({"event": "technical_stop", "index": index,
                          "reason": f"{type(error).__name__}: {error}"})
@@ -170,17 +173,27 @@ class Execution:
         return pairs
 
 
+def reduced_plan(header):
+    if (header.get("schema") != SCHEMA or type(header.get("legacy")) is not bool
+            or not isinstance(header.get("matrix"), str)):
+        raise ValueError("unsupported execution schema")
+    return matrix_plan(header["matrix"], header["legacy"])
+
+
 def load_execution(path):
+    return load_journal(path, reduced_plan, validate_completion)
+
+
+def load_journal(path, get_plan, validate):
     with path.open("rb") as source:
         fcntl.flock(source, fcntl.LOCK_SH)
         records = source.read().splitlines(keepends=True)
     if not records or not records[0].endswith(b"\n"):
         raise ValueError("missing execution plan")
     header = json.loads(records[0])
-    if (not isinstance(header, dict) or header.get("schema") != SCHEMA
-            or type(header.get("legacy")) is not bool or not isinstance(header.get("matrix"), str)):
-        raise ValueError("unsupported execution schema")
-    plan = matrix_plan(header["matrix"], header["legacy"])
+    if not isinstance(header, dict):
+        raise ValueError("invalid execution header")
+    plan = get_plan(header)
     if canonical_json(header.get("plan")) != canonical_json(plan):
         raise ValueError("execution plan differs from the declared matrix")
     attempted, completed, stops = set(), {}, {}
@@ -202,7 +215,7 @@ def load_execution(path):
         if event == "completed":
             if not isinstance(record.get("observation"), dict):
                 raise ValueError("missing completed observation")
-            validate_completion(plan[index], record["observation"], record.get("roots"))
+            validate(plan[index], record["observation"], record.get("roots"))
             completed[index] = record
         elif event == "technical_stop" and isinstance(record.get("reason"), str) and record["reason"]:
             stops[index] = record["reason"]

@@ -350,7 +350,7 @@ def main():
         published = execution.materialize() if execution.complete or args.observations is not None else None
         if args.observations is not None:
             rows = list(map(json.loads, args.observations.read_text().splitlines()))
-            if rows != published:
+            if canonical_json(rows) != canonical_json(published):
                 raise ValueError("published matrix differs from execution completions")
         print(json.dumps({"matrix": execution.matrix, "status": execution.status,
                           "complete": execution.complete, "torn_tail": execution.torn_tail,
