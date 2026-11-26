@@ -28,9 +28,14 @@ STATE_QUERIES = (
 
 class ClosedPhaseTests(BattleCase):
     def assert_closed(self, s, elapsed):
+        """The complete Terminal column of the 9.1 table."""
         for side in B.Side:
             self.assertEqual(B.usable_opportunities(s, side), 0)
             self.assertTrue(B.side_finished(s, side))
+            self.assertIsNone(B.capacity_remaining(s, side))
+            self.assertIsNone(B.projected_capacity(s, side))
+        self.assertIsNone(B.next_side(s))
+        self.assertIsNone(B.current_round(s))
         for fid in ROSTER:
             self.assertIs(B.activation(s, fid), B.Activation.CLOSED)
             self.assertFalse(B.response_allowance_unused(s, fid))
@@ -38,6 +43,10 @@ class ClosedPhaseTests(BattleCase):
             self.assertFalse(B.rest_benefit_pending(s, fid))
             self.assertEqual(B.effort_usable(s, fid), 0)
             self.assertIsNone(B.effort_charged(s, fid))
+            self.assertIsNone(B.effort_remaining(s, fid))
+            self.assertIsNone(B.projected_opening_effort(s, fid))
+            self.assertIsNone(B.rest_order_exists(s, fid))
+            self.assertIsNone(B.full_safe_interval(s, fid))
         self.assertEqual(B.elapsed_minutes(s), elapsed)
 
     def test_at_q01(self):
@@ -47,7 +56,17 @@ class ClosedPhaseTests(BattleCase):
                 self.assertEqual(B.usable_opportunities(s, side), 0)
                 self.assertFalse(B.side_finished(s, side))
                 self.assertEqual(B.projected_capacity(s, side), 4)
+                self.assertIsNone(B.capacity_remaining(s, side))
+            self.assertIsNone(B.next_side(s))
+            self.assertIsNone(B.current_round(s))
+            self.assertEqual(B.elapsed_minutes(s), 0)
             for fid in ROSTER:
+                self.assertEqual(B.effort_usable(s, fid), 0)
+                self.assertFalse(B.response_allowance_unused(s, fid))
+                self.assertFalse(B.response_possible(s, fid))
+                self.assertIsNone(B.rest_order_exists(s, fid))
+                self.assertIsNone(B.full_safe_interval(s, fid))
+                self.assertFalse(B.rest_benefit_pending(s, fid))
                 self.assertIs(B.activation(s, fid), B.Activation.CLOSED)
                 self.assertIsNone(B.effort_charged(s, fid))
                 self.assertIsNone(B.effort_remaining(s, fid))

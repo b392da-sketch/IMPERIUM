@@ -75,6 +75,12 @@ class ByteAndTreeTests(BattleCase):
         self.bytes_code(b"[1.5,NaN]", "NONFINITE")
         self.bytes_code(b"[NaN,1.5]", "NONFINITE")
         self.bytes_code(b'{"a":1,"a":1,"b":1.5}', "DUPLICATE_KEY")
+        e = self.bytes_code(b'{"a":{"x":0,"x":1},"a":2}', "DUPLICATE_KEY", None, "")
+        self.assertEqual(e.detail, "duplicate key: x")
+        e = self.bytes_code(b'{"a":0,"a":{"x":0,"x":1}}', "DUPLICATE_KEY", None, "")
+        self.assertEqual(e.detail, "duplicate key: a")
+        e = self.bytes_code(b'[{"b":[{"y":1,"y":2}]},{"a":1,"a":2}]', "DUPLICATE_KEY", None, "")
+        self.assertEqual(e.detail, "duplicate key: y")
         e = self.bytes_code(b'{"a":1.5', "SYNTAX")
         self.assertEqual(e.offset, 8)
         self.bytes_code(b'{"b":[1,12345678901234567890],"a":1,"a":2}', "INTEGER_LIMIT", 8)
@@ -103,6 +109,32 @@ class ByteAndTreeTests(BattleCase):
         self.assertEqual(len(exact), 1_048_576)
         self.assertEqual(B.canonical_bytes(B.decode_bytes(exact)), data)
         self.bytes_code(exact + b" ", "BYTES_LIMIT", None, "")
+
+    def test_pr4_01_integer_domain_round_trip(self):
+        """Every validated state encodes within the codec's integer domain (13.1, 13.4)."""
+        s = build(a1())
+        for value in (2 ** 63 - 1, 0):
+            t = s.evolve(clock=B.Clock(0, value))
+            self.assertEqual(B.validate_state(t), ())
+            self.assertEqual(B.decode_bytes(B.canonical_bytes(t)), t)
+            self.assertEqual(B.decode_state(B.encode_state(t)), t)
+        for field in ("event_cursor", "completed_rounds"):
+            kwargs = {"completed_rounds": 0, "event_cursor": 0, field: 2 ** 63}
+            with self.assertRaises(B.InvalidValue) as cm:
+                B.Clock(**kwargs)
+            self.assertEqual((cm.exception.clause, cm.exception.path), ("T10", field))
+            with self.assertRaises(B.InvalidValue):
+                s.evolve(clock=dataclasses.replace(s.clock, **{field: 2 ** 63}))
+        bad = build(a1())
+        object.__setattr__(bad.clock, "event_cursor", 2 ** 63)
+        self.assertIn("T10", [v.clause for v in B.validate_state(bad)])
+        d = a1()
+        d["clock"]["event_cursor"] = 2 ** 63
+        self.decode_code(d, "INTEGER_LIMIT", "/clock/event_cursor")
+        self.bytes_code(dumps(d), "INTEGER_LIMIT", None, "/clock/event_cursor")
+        d["clock"]["event_cursor"] = 2 ** 63 - 1
+        self.assertEqual(B.encode_state(B.decode_state(d))["clock"]["event_cursor"], 2 ** 63 - 1)
+        self.assertEqual(B.decode_bytes(dumps(d)), B.decode_state(d))
 
     def test_at_c05(self):
         text = canon(OPEN).decode("ascii")

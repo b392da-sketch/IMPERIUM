@@ -398,6 +398,18 @@ class LegTests(BattleCase):
 
     def test_at_w26(self):
         self.reject(self.h1(move([(4, 4)], [leg((3, 4), (4, 4), 0)]), "BARRIER"), "R21")
+        barrier = self.accept(a1("BARRIER", "W26C"))
+        closed = B.Move((B.Hex(4, 4),), (B.Leg(B.Hex(3, 4), B.Hex(4, 4), 0, B.MovementMode.FOOT),),
+                        B.MoveEnd.COMPLETED)
+        with self.assertRaises(B.InvalidValue) as cm:
+            B.charge(barrier, F("S0.H1"), closed)
+        self.assertEqual(cm.exception.clause, "R21")
+        closed_step = B.GroupStep(B.Leg(B.Hex(3, 4), B.Hex(4, 4), 0, B.MovementMode.FOOT))
+        with self.assertRaises(B.InvalidValue):
+            B.charge(barrier, F("S0.H1"), closed_step)
+        open_step = B.Move((B.Hex(5, 4),), (B.Leg(B.Hex(4, 4), B.Hex(5, 4), 0, B.MovementMode.FOOT),),
+                           B.MoveEnd.COMPLETED)
+        self.assertEqual(B.charge(barrier, F("S0.H1"), open_step), 1)
         d = self.h1(move([(5, 4)], [leg((4, 4), (5, 4), 0)]), "BARRIER")
         place(d, "S0.H1", (5, 4), 0)
         s = self.accept(d)

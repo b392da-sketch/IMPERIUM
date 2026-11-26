@@ -1,10 +1,12 @@
 """14.1 openings, descriptors and provenance; 11.4 oracle; restored P, B and M rows."""
 
 import copy
+import dataclasses
 import hashlib
+from unittest import mock
 
 import imperium.battle as B
-from imperium.battle import canon as canon_module
+from imperium.battle import invariants
 from tests.battle import oracle
 from tests.battle.common import (
     BattleCase, a1, canon, fi, individual,
@@ -51,17 +53,26 @@ class OracleTests(BattleCase):
                 self.assertEqual(B.digest(state), full)
 
     def test_at_o16_swapped_descriptor_fails_comparison(self):
-        # A test-local descriptor with N and F swapped, passed to the comparisons
-        # under test (P10(a) uses N, P10(b) uses F); no runtime registration.
+        # The validator's descriptor lookup is patched for this test to return a
+        # copy of the registered descriptor with N and F swapped. The registry
+        # itself is never mutated; P10 must reject the unchanged genesis state.
         for fid, doc, n, full in ORACLE:
             state = fixture_state(fid)
-            values = tuple(getattr(state, name) for name in canon_module.STATE_FIELDS)
-            swapped_n, swapped_f = full, n
+            registered = invariants.find_descriptor(B.FixtureId(fid))
+            swapped = dataclasses.replace(registered, normalized_genesis_digest=full,
+                                          full_genesis_digest=n)
+
+            def lookup(fixture_id, _swapped=swapped, _original=invariants.find_descriptor):
+                return _swapped if fixture_id == _swapped.fixture_id else _original(fixture_id)
+
             with self.subTest(fid):
-                self.assertNotEqual(canon_module.normalized_digest(values), swapped_n)
-                self.assertNotEqual(canon_module.full_digest(values), swapped_f)
-                self.assertEqual(canon_module.normalized_digest(values), n)
-                self.assertEqual(canon_module.full_digest(values), full)
+                self.assertEqual(B.validate_state(state), ())
+                with mock.patch.object(invariants, "find_descriptor", side_effect=lookup):
+                    clauses = [v.clause for v in B.validate_state(state)]
+                self.assertIn("P10", clauses)
+                self.assertEqual(B.validate_state(state), ())
+                self.assertIs(B.descriptor(B.FixtureId(fid)), registered)
+                self.assertEqual(registered.normalized_genesis_digest, n)
 
     def test_m06_descriptor_shape(self):
         for d in B.DESCRIPTORS:

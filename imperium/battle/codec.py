@@ -172,6 +172,16 @@ def _constant_marker(lexeme):
     return _Number(lexeme, "constant")
 
 
+class _KeyVisit:
+    """Stage 3 walk marker: the visit of one object member's key."""
+
+    __slots__ = ("key", "seen")
+
+    def __init__(self, key, seen):
+        self.key = key
+        self.seen = seen
+
+
 def _stage3(text):
     offset = None
     try:
@@ -192,14 +202,18 @@ def _stage3(text):
                     nonfinite = node
             elif node.kind == "float" and fraction is None:
                 fraction = node
+        elif t is _KeyVisit:
+            if node.key in node.seen and duplicate is None:
+                duplicate = node.key
+            node.seen.add(node.key)
         elif t is _Pairs:
+            # Document preorder: each member's key, then its value, before
+            # the next member, so a nested duplicate that occurs earlier in
+            # the text is the one located (13.3).
             seen = set()
-            for key, _ in node.items:
-                if key in seen and duplicate is None:
-                    duplicate = key
-                seen.add(key)
-            for _, value in reversed(node.items):
+            for key, value in reversed(node.items):
                 stack.append(value)
+                stack.append(_KeyVisit(key, seen))
         elif t is list:
             for value in reversed(node):
                 stack.append(value)

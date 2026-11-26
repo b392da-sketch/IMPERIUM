@@ -5,6 +5,7 @@ values below are literal, so both runs must agree with each other and with
 the descriptors.
 """
 
+import json
 import os
 import subprocess
 import sys
@@ -28,13 +29,35 @@ EXPECTED = {
     "F01-v1-defensive-mutual-capitulation": ("32493376", "10590eea"),
 }
 SCRIPT = """
+import importlib
+import importlib.util
 import sys
+
 first = sys.argv[1]
-if first == "codec":
-    import imperium.battle.codec
-else:
-    import imperium.battle.fixtures
-import imperium.battle as B
+order = ["codec", "fixtures"] if first == "codec" else ["fixtures", "codec"]
+loaded = []
+
+
+class Recorder:
+    def find_spec(self, name, path=None, target=None):
+        if name.startswith("imperium.battle.") and name not in loaded:
+            loaded.append(name)
+        return None
+
+
+sys.meta_path.insert(0, Recorder())
+import imperium
+spec = importlib.util.find_spec("imperium.battle")
+package = importlib.util.module_from_spec(spec)
+sys.modules["imperium.battle"] = package
+# Import the two submodules in the requested order before the facade runs.
+for name in order:
+    importlib.import_module("imperium.battle." + name)
+assert "api" not in [n.rsplit(".", 1)[1] for n in loaded], loaded
+spec.loader.exec_module(package)
+B = package
+short = [n.rsplit(".", 1)[1] for n in loaded]
+print("ORDER", "codec<fixtures" if short.index("codec") < short.index("fixtures") else "fixtures<codec")
 for d in B.DESCRIPTORS:
     s = B.f01_supplied(d.fixture_id) if d.fixture_id in B.supplied_ids() else B.f01_opening(d.variant, d.orientation)
     print(d.fixture_id.token, B.normalized_digest(s), B.digest(s), B.digest(B.decode_bytes(B.canonical_bytes(s))))
@@ -86,19 +109,44 @@ class DeterminismTests(unittest.TestCase):
         self.assertEqual(len(seen), 1)
 
     def test_at_r04_import_orders_and_hash_seeds(self):
-        outputs = []
+        """Fresh processes load codec before fixtures, and fixtures before codec,
+        before the package facade initializes; each under hash seeds 0 and 1."""
+        outputs = {}
         for first in ("codec", "fixtures"):
             for seed in ("0", "1"):
                 env = {"PATH": os.environ.get("PATH", ""), "PYTHONHASHSEED": seed}
                 result = subprocess.run([sys.executable, "-s", "-W", "error", "-c", SCRIPT, first],
                                         cwd=ROOT, env=env, capture_output=True, text=True,
                                         check=True)
-                outputs.append(result.stdout)
-        self.assertEqual(len(set(outputs)), 1, outputs)
-        lines = outputs[0].splitlines()
+                outputs[first, seed] = result.stdout.splitlines()
+        for seed in ("0", "1"):
+            self.assertEqual(outputs["codec", seed][0], "ORDER codec<fixtures")
+            self.assertEqual(outputs["fixtures", seed][0], "ORDER fixtures<codec")
+        bodies = {tuple(lines[1:]) for lines in outputs.values()}
+        self.assertEqual(len(bodies), 1, outputs)
+        lines = list(bodies.pop())
         self.assertEqual(len(lines), 9)
         for line in lines[:8]:
             token, n, full, again = line.split()
             self.assertTrue(n.startswith(EXPECTED[token][0]))
             self.assertTrue(full.startswith(EXPECTED[token][1]))
             self.assertEqual(full, again)
+        self.assertTrue(lines[8].startswith("NOT_INTEGER"))
+
+
+class IndependentOracleTests(unittest.TestCase):
+    """Codex's independently constructed genesis digests (PR #4 review)."""
+
+    def test_independent_genesis_digests(self):
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "independent_genesis_digests.json")
+        with open(path, encoding="utf-8") as fh:
+            expected = json.load(fh)
+        self.assertEqual(set(expected), set(EXPECTED))
+        for d in B.DESCRIPTORS:
+            s = fixture_state(d)
+            pair = expected[d.fixture_id.token]
+            self.assertEqual(B.normalized_digest(s), pair["normalized"])
+            self.assertEqual(B.digest(s), pair["full"])
+            self.assertEqual(d.normalized_genesis_digest, pair["normalized"])
+            self.assertEqual(d.full_genesis_digest, pair["full"])

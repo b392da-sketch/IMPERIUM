@@ -209,15 +209,23 @@ def opponent(side):
 DIGEST_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
+INT_DOMAIN = 2 ** 63 - 1  # the codec's integer limit (13.1, 13.2)
+
+
 class Int:
-    """Exact ``int`` (T01), optionally range-checked under ``clause``."""
+    """Exact ``int`` (T01), optionally range-checked under ``clause``.
+
+    A range-checked kind with no stated upper bound is capped at the codec's
+    integer domain, so that every validated state encodes to a document both
+    decoders accept (13.1, 13.4).
+    """
 
     __slots__ = ("clause", "low", "high", "choices")
 
     def __init__(self, clause=None, low=None, high=None, choices=None):
         self.clause = clause
         self.low = low
-        self.high = high
+        self.high = INT_DOMAIN if clause is not None and choices is None and high is None else high
         self.choices = choices
 
     def check(self, v, path):
