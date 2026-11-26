@@ -1,0 +1,34 @@
+{
+  "F01-v1-open-standard": {
+    "normalized": "84b518d2f83581d2c410cf40dc68764d2415a27384ee179075ee285b1155ced5",
+    "full": "c810920dff7d83ea9a246f9c82e8ac1082615db8feb945c8cbfcfd30e885978e"
+  },
+  "F01-v1-open-mirrored": {
+    "normalized": "91ba718863743f97ade1321f91d4bf800f04e85cea7219c160bb682adcf6ae5c",
+    "full": "f3ee9fbfdad5daef931ef1586173971bde32fb2580e0fa5287c320e932aa767f"
+  },
+  "F01-v1-rough-standard": {
+    "normalized": "d9ba56e8fa5150f2adaac8d89270be57045393fa6ee852d3632479ec74d98c3e",
+    "full": "1efef34dec136fcd0bccc9d7b0048fd13251c3409359265e5ba44d1d423ce848"
+  },
+  "F01-v1-rough-mirrored": {
+    "normalized": "4c0814d64ea7da938733be52b26031aef2c66abac9a96d8f612ef1eab19e6a45",
+    "full": "3f8890dc223c440a787c776c1309a39f3c88467329a49d2da2298e2b07fd792c"
+  },
+  "F01-v1-barrier-standard": {
+    "normalized": "49209f9a3b5a3465ddcc5b90d9ea91ca6b0546d848a8003db1e1c7c5e5d3fb7e",
+    "full": "e42a51c9b07e8b7280ed6f69bcbf3bf9c77110da7f93dfe78a3ed8dbd5984ba0"
+  },
+  "F01-v1-barrier-mirrored": {
+    "normalized": "8ddb6fefad222712904124e88613960c3aa95823b4b2581d8a4281287d686195",
+    "full": "fd5078388543eed5a3adfc7c1c9e06b25d3c133632625407a44685365d90d948"
+  },
+  "F01-v1-open-standard-mount-shortfall": {
+    "normalized": "9abd67ed3d8f861744c57fb1a6bb2fdd1014ca5b2bc4ac6e09b17144f7cf72e6",
+    "full": "5e73410b10305f1109a3426403dfe441d50bff4b2a4c764fa9b486f845fe0ce6"
+  },
+  "F01-v1-defensive-mutual-capitulation": {
+    "normalized": "32493376a74735248ed23d98d2e3e8157b497d6c3a2305ae2870fd5b27f5fe3f",
+    "full": "10590eea2ae4e524c3e2478d98d7adb2b4ead2e3a9e6475b46f05dcece5ea5dd"
+  }
+}
