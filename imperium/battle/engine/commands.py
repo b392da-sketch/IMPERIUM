@@ -109,19 +109,22 @@ COMMAND_CLASSES = (OpenBattle, HoldOrder, PassOrder, DeclareWithdrawal, Capitula
 Command = OpenBattle | HoldOrder | PassOrder | DeclareWithdrawal | Capitulate
 
 # Variant keys of the command document, in declaration order (3.1).
-_COMMAND_KEYS = {
-    OpenBattle: (),
-    HoldOrder: ("side", "formation"),
-    PassOrder: ("side",),
-    DeclareWithdrawal: ("side",),
-    Capitulate: ("side",),
-}
+_COMMAND_KEYS = (
+    (OpenBattle, ()),
+    (HoldOrder, ("side", "formation")),
+    (PassOrder, ("side",)),
+    (DeclareWithdrawal, ("side",)),
+    (Capitulate, ("side",)),
+)
 
 
 def check_command(command):
     """Raise T15 at ``command`` unless it is exactly one of the five classes."""
-    if type(command) not in COMMAND_CLASSES:
-        raise InvalidValue("T15", "command", "not a P2 command")
+    t = type(command)
+    for cls in COMMAND_CLASSES:
+        if t is cls:
+            return
+    raise InvalidValue("T15", "command", "not a P2 command")
 
 
 def check_state(state):
@@ -141,7 +144,10 @@ def encode_command(command):
     check_command(command)
     t = type(command)
     doc = {"schema": COMMAND_SCHEMA, "kind": t.__name__}
-    for name in _COMMAND_KEYS[t]:
+    for cls, keys in _COMMAND_KEYS:
+        if t is cls:
+            break
+    for name in keys:
         doc[name] = _token(getattr(command, name))
     return doc
 

@@ -107,6 +107,43 @@ class BoundaryTypes(EngineCase):
             E.JournalEntry(1, "A" * 64, "0" * 64, "0" * 64)
 
 
+class ForeignCommand(EngineCase):
+    """PR5-01: an unrelated class whose metaclass claims equality is never admitted."""
+
+    def test_foreign_metaclass(self):
+        calls = []
+
+        class Liar(type):
+            def __eq__(cls, other):
+                calls.append(getattr(other, "__name__", other))
+                return True
+
+            def __hash__(cls):
+                return hash(E.DeclareWithdrawal)
+
+        class Foreign(metaclass=Liar):
+            side = S0
+
+        foreign = Foreign()
+        withdrawing = build(awaiting(label="PR5-01"))
+        withdrawing = self.accepted(withdrawing, E.DeclareWithdrawal(S0))
+        for state in (B.f01_opening(B.Variant.OPEN, B.Orientation.STANDARD), opened(), withdrawing):
+            with self.assertRaises(B.InvalidValue) as cm:
+                E.step(state, foreign)
+            self.assertEqual((cm.exception.clause, cm.exception.path), ("T15", "command"))
+        for fn in (E.encode_command, E.command_digest):
+            with self.assertRaises(B.InvalidValue) as cm:
+                fn(foreign)
+            self.assertEqual((cm.exception.clause, cm.exception.path), ("T15", "command"))
+        with self.assertRaises(B.InvalidValue):
+            E.Deferred(opened(), foreign, E.Stage.RECOVERY, ("DO-P2-02",))
+        s = E.BattleSession.open(B.FixtureId("F01-v1-open-standard"))
+        with self.assertRaises(B.InvalidValue):
+            s.submit(foreign)
+        self.assertEqual(s.journal, ())
+        self.assertEqual(calls, [])
+
+
 class Records(EngineCase):
     """TA-A02 and the command document (3.1)."""
 
