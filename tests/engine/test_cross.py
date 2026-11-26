@@ -18,7 +18,10 @@ import unittest
 
 import imperium.battle as B
 from imperium.battle import engine as E
-from tests.engine.helpers import OPENINGS, S0, S1, EngineCase
+from tests.battle.common import cond, fr, individual, leg, move, place, response
+from tests.engine.helpers import (
+    OPENINGS, S0, S1, EngineCase, awaiting, build, hold_use, make_reformer,
+)
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SEEDS = range(1000)
@@ -128,6 +131,75 @@ def lineage_view(state):
     return pers, mounts, ammo
 
 
+def _avail(st):
+    out = {}
+    for l in st.personnel:
+        if l.status is B.PersonnelStatus.AVAILABLE:
+            out[l.lineage] = out.get(l.lineage, 0) + l.count
+    return out
+
+
+def _mounts(st, assigned_only):
+    out = {}
+    for m in st.mounts:
+        if m.serviceability is not B.Serviceability.SERVICEABLE:
+            continue
+        if assigned_only and m.assignment is not B.Assignment.ASSIGNED:
+            continue
+        out[m.formation] = out.get(m.formation, 0) + m.count
+    return out
+
+
+def _rallied(st):
+    if st.ledger is None:
+        return set()
+    return {m for u in st.ledger.uses for m, w in zip(u.members, u.work) if type(w) is B.Rally}
+
+
+def check_ml(test, prev, cur, seed):
+    """ML1–ML6 (P1 10.8) between consecutive stable states."""
+    pf = {f.formation: f for f in prev.formations}
+    same_round = (type(prev.phase) is B.AwaitingPrincipal and type(cur.phase) is B.AwaitingPrincipal
+                  and prev.clock.completed_rounds == cur.clock.completed_rounds)
+    rallied = _rallied(cur) if same_round else set()
+    for f in cur.formations:
+        p = pf[f.formation]
+        if p.disposition in ABSORBING:                                        # ML1
+            test.assertIs(f.disposition, p.disposition, seed)
+        test.assertGreaterEqual(f.condition.fatigue, p.condition.fatigue, seed)     # ML3
+        if f.formation not in rallied:
+            test.assertGreaterEqual(f.condition.cohesion, p.condition.cohesion, seed)
+            test.assertGreaterEqual(f.condition.morale, p.condition.morale, seed)
+    pa, ca = _avail(prev), _avail(cur)
+    for k, v in ca.items():                                                   # ML4a
+        test.assertLessEqual(v, pa.get(k, 0), seed)
+    test.assertEqual(_mounts(prev, False), _mounts(cur, False), seed)         # ML4b stock S
+    pa_m, ca_m = _mounts(prev, True), _mounts(cur, True)
+    battlefield = (B.Disposition.ORGANIZED, B.Disposition.REFORMING, B.Disposition.ROUTING)
+    for f in cur.formations:                                                  # ML4b assigned
+        if f.disposition in battlefield and pf[f.formation].disposition in battlefield:
+            test.assertEqual(ca_m.get(f.formation, 0), pa_m.get(f.formation, 0), seed)
+    if same_round:                                                            # ML2, ML5
+        pr = {r.formation: r for r in prev.ledger.formations}
+        for r in cur.ledger.formations:
+            q = pr[r.formation]
+            test.assertTrue(q.safe_latch or not r.safe_latch, seed)
+            for flag in ("incoming", "exerted", "displaced", "displacement_attempted"):
+                test.assertTrue(getattr(r, flag) or not getattr(q, flag), seed)
+            if r.formation not in rallied:
+                test.assertTrue(r.incoming_since_rally or not q.incoming_since_rally, seed)
+            if q.response is not None:
+                test.assertEqual(r.response, q.response, seed)
+        for f in cur.formations:
+            if f.disposition is B.Disposition.REFORMING:
+                test.assertIs(pf[f.formation].disposition, B.Disposition.REFORMING, seed)
+    if type(cur.phase) is B.AwaitingPrincipal:                                # ML6
+        rounds = {r.formation: r for r in cur.ledger.formations}
+        for f in cur.formations:
+            if f.disposition in (B.Disposition.ORGANIZED, B.Disposition.REFORMING):
+                test.assertTrue(rounds[f.formation].opened_eligible, seed)
+
+
 class RandomPlay(EngineCase):
 
     def test_x01_x03_x04(self):
@@ -148,47 +220,38 @@ class RandomPlay(EngineCase):
             self.assertEqual([e.cursor for e in s.journal], list(range(1, len(commands) + 1)))
 
     def check_ml(self, prev, cur, seed):
-        pf = {f.formation: f for f in prev.formations}
-        for f in cur.formations:
-            p = pf[f.formation]
-            if p.disposition in ABSORBING:                       # ML1
-                self.assertIs(f.disposition, p.disposition, seed)
-            self.assertGreaterEqual(f.condition.fatigue, p.condition.fatigue, seed)   # ML3
-        def avail(st):
-            out = {}
-            for l in st.personnel:
-                if l.status is B.PersonnelStatus.AVAILABLE:
-                    out[l.lineage] = out.get(l.lineage, 0) + l.count
-            return out
-        pa, ca = avail(prev), avail(cur)
-        for k, v in ca.items():                                   # ML4a
-            self.assertLessEqual(v, pa.get(k, 0), seed)
-        def stock(st):
-            out = {}
-            for m in st.mounts:
-                if m.serviceability is B.Serviceability.SERVICEABLE:
-                    out[m.formation] = out.get(m.formation, 0) + m.count
-            return out
-        self.assertEqual(stock(prev), stock(cur), seed)           # ML4b
-        same_round = (type(prev.phase) is B.AwaitingPrincipal and type(cur.phase) is B.AwaitingPrincipal
-                      and prev.clock.completed_rounds == cur.clock.completed_rounds)
-        if same_round:                                            # ML2, ML5
-            pr = {r.formation: r for r in prev.ledger.formations}
-            for r in cur.ledger.formations:
-                q = pr[r.formation]
-                self.assertTrue(q.safe_latch or not r.safe_latch, seed)
-                for flag in ("incoming", "exerted", "displaced", "displacement_attempted"):
-                    self.assertTrue(getattr(r, flag) or not getattr(q, flag), seed)
-                if q.response is not None:
-                    self.assertEqual(r.response, q.response, seed)
-            for f in cur.formations:
-                if f.disposition is B.Disposition.REFORMING:
-                    self.assertIs(pf[f.formation].disposition, B.Disposition.REFORMING, seed)
-        if type(cur.phase) is B.AwaitingPrincipal:                # ML6
-            rounds = {r.formation: r for r in cur.ledger.formations}
-            for f in cur.formations:
-                if f.disposition in (B.Disposition.ORGANIZED, B.Disposition.REFORMING):
-                    self.assertTrue(rounds[f.formation].opened_eligible, seed)
+        check_ml(self, prev, cur, seed)
+
+    def test_x04_nontrivial_carrier(self):
+        """Hold on an imported A carrier with prior response, exertion, incoming and
+        condition bands preserves every earlier field (ML2, ML3, ML5)."""
+        d = awaiting(label="X04", uses=[
+            hold_use("S0", "S0.H3"),
+            individual("S1", "S1.L1", move([(3, 6)], [leg((3, 7), (3, 6), 4)])),
+        ])
+        place(d, "S0.H2", (5, 7))
+        place(d, "S0.H5", (6, 7))
+        place(d, "S1.L1", (3, 6), 4)
+        place(d, "S0.H1", (2, 6), 5)
+        cond(d, "S0.H1", c=1, m=1, fat=1, e=2)
+        cond(d, "S0.H4", c=1, m=0, fat=2, e=4)
+        make_reformer(d, "S0.H6")
+        r = fr(d, "S0.H1")
+        r["response"] = response("DEFENSIVE_PIVOT", "S1.L1")
+        r["exerted"] = True
+        r["incoming"] = True
+        r["incoming_since_rally"] = True
+        fr(d, "S1.L1")["exerted"] = True
+        for token in ("S0.H1", "S0.H2", "S0.H3", "S0.H4", "S0.H5", "S0.H6", "S0.L1", "S0.C1", "S1.L1"):
+            fr(d, token)["safe_latch"] = False
+        s = build(d)
+        t = self.accepted(s, E.HoldOrder(S0, B.FormationId("S0.H1")))
+        u = self.accepted(t, E.HoldOrder(S1, B.FormationId("S1.H1")))
+        w = self.accepted(u, E.HoldOrder(S0, B.FormationId("S0.H6")))
+        for prev, cur in ((s, t), (t, u), (u, w)):
+            check_ml(self, prev, cur, "X04")
+        self.assertEqual(w.formations, s.formations)
+        self.assertEqual(w.ledger.formations, s.ledger.formations)
 
     def test_x02_illegal_interleaving(self):
         for seed in X02_SEEDS:
@@ -207,35 +270,52 @@ class RandomPlay(EngineCase):
 
 
 SCRIPT = r"""
-import importlib, sys, hashlib
-order = sys.argv[1].split(",")
-for name in order:
-    importlib.import_module("imperium.battle.engine." + name)
-import imperium.battle as B
-from imperium.battle import engine as E
+import hashlib, importlib, importlib.util, json, sys
 sys.path.insert(0, ".")
+first, second = sys.argv[1:]
+import imperium.battle as B
+name = "imperium.battle.engine"
+spec = importlib.util.find_spec(name)
+engine = importlib.util.module_from_spec(spec)
+sys.modules[name] = engine
+for item in (first, second):
+    importlib.import_module(name + "." + item)
+observed = [k.rsplit(".", 1)[1] for k in sys.modules if k in (name + ".terminal", name + ".custody")]
+assert observed == [first, second], observed
+assert name + ".step" not in sys.modules and name + ".session" not in sys.modules
+spec.loader.exec_module(engine)
 from tests.engine.test_cross import game
 h = hashlib.sha256()
 for seed in range(0, 1000, 37):
     s, states, commands, _ = game(seed)
-    for e in s.journal:
-        h.update((e.command_digest + e.previous + e.current).encode())
-    h.update(B.canonical_bytes(s.state))
-print("ORDER", sys.argv[1], h.hexdigest())
+    # replay to capture stages per accepted command
+    r = engine.BattleSession.open(states[0].scenario.provenance.fixture_id)
+    for c in commands:
+        res = r.submit(c)
+        e = r.journal[-1]
+        h.update(json.dumps(dict(cursor=e.cursor, cmd=e.command_digest, prev=e.previous,
+                                 current=e.current, stages=[x.name for x in res.stages]),
+                            sort_keys=True).encode())
+        h.update(B.canonical_bytes(res.state))
+    assert r.journal == s.journal
+print("ORDER", first + "<" + second, h.hexdigest())
 """
 
 
 class Determinism(unittest.TestCase):
 
     def test_x05_hash_seeds_and_import_orders(self):
+        """PR5-03: two independent sibling modules (E1 terminal, E2 custody) imported in both
+        orders before the facade initializes, under PYTHONHASHSEED 0 and 1; the full trace
+        (cursor, command digest, previous, current, stages, every accepted state's bytes)
+        must agree."""
         results = set()
-        for order in ("commands,terminal,custody,rounds,step,session",
-                      "session,step,rounds,custody,terminal,commands"):
+        for first, second in (("terminal", "custody"), ("custody", "terminal")):
             for seed in ("0", "1"):
                 env = {"PATH": os.environ.get("PATH", ""), "PYTHONHASHSEED": seed}
-                out = subprocess.run([sys.executable, "-c", SCRIPT, order], cwd=ROOT, env=env,
-                                     capture_output=True, text=True, check=True).stdout
+                out = subprocess.run([sys.executable, "-c", SCRIPT, first, second], cwd=ROOT,
+                                     env=env, capture_output=True, text=True, check=True).stdout
                 line = out.strip().splitlines()[-1]
-                self.assertTrue(line.startswith("ORDER " + order), out)
+                self.assertTrue(line.startswith(f"ORDER {first}<{second} "), out)
                 results.add(line.split()[-1])
         self.assertEqual(len(results), 1, results)
