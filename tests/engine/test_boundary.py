@@ -1,7 +1,13 @@
 """TA-E01–E05: the round-boundary sequence and the typed closure deferral (P2-E)."""
 
+from unittest import mock
+
 import imperium.battle as B
 from imperium.battle import engine as E
+import importlib
+
+step_module = importlib.import_module("imperium.battle.engine.step")
+from imperium.battle.engine import terminal as terminal_module
 from tests.battle.common import cond, individual
 from tests.engine.helpers import (
     CLOSE_CONTINUE, ROOT_TERMINAL, ROOT_TRACE, S0, S1, EngineCase, awaiting, build, hold,
@@ -64,6 +70,25 @@ class Boundary(EngineCase):
         self.assertEqual(b.phase, B.AwaitingPrincipal(S1))
         self.assertEqual(b.ledger.uses, ())
         self.assertEqual(b.ledger.formations, opened().ledger.formations)
+
+    def test_e01_predicate_points(self):
+        """PR5-02: the immediate predicate runs after the root, after the no-op closure
+        displacement (pre-advance clock) and at round end, in that order."""
+        a = self.accepted(opened(), E.PassOrder(S0))
+        points = []
+        original = terminal_module.immediate_outcome
+
+        def audit(fields, point, charged, capitulator=None):
+            points.append((point, charged, fields.clock.completed_rounds))
+            return original(fields, point, charged, capitulator)
+
+        with mock.patch.object(step_module, "immediate_outcome", side_effect=audit), \
+                mock.patch.object(terminal_module, "immediate_outcome", side_effect=audit):
+            b = E.step(a, E.PassOrder(S1))
+        self.assertEqual(b.stages, CLOSE_CONTINUE)
+        P = B.TerminationPoint
+        self.assertEqual(points, [(P.AFTER_ROOT, 1, 0), (P.AFTER_CLOSURE_DISPLACEMENT, 1, 0),
+                                  (P.ROUND_END, 1, 1)])
 
     def test_e02_e03_deferral(self):
         for name, (kw, stage, obligations) in VARIANTS.items():

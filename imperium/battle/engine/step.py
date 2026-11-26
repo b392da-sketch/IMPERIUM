@@ -143,8 +143,14 @@ def _plan(values, command):
     deferral = closure_deferral(after)
     if deferral is not None:
         return ("deferred",) + deferral
-    # Completable closure: CLOSURE_DISPLACEMENT and RECOVERY are verified
-    # no-ops (10.1); CLOSURE_CHECK cannot newly reach a terminal state.
+    # CLOSURE_DISPLACEMENT is a verified no-op in the supported subset (10.1).
+    # CLOSURE_CHECK: the immediate predicate on the post-displacement fields,
+    # with the pre-advance clock; no positive is reachable in P2.
+    record = immediate_outcome(Fields(**after), TerminationPoint.AFTER_CLOSURE_DISPLACEMENT, charged)
+    if record is not None:
+        return "accepted", _terminal(after, record), root + (
+            Stage.CLOSURE_DISPLACEMENT, Stage.CLOSURE_CHECK, Stage.TERMINAL)
+    # RECOVERY is a verified no-op; ADVANCE; END_CHECK.
     completed = clock.completed_rounds + 1
     after["clock"] = Clock(completed_rounds=completed, event_cursor=clock.event_cursor)
     record = round_end_outcome(Fields(**after), completed, scenario.profile.rounds)
