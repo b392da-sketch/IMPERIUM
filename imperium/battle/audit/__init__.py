@@ -7,7 +7,6 @@ This package never imports ``imperium.battle.engine`` (guard G-P3-1).
 
 from .drawcheck import check_draw_records
 from .errors import AuditError, AuditReport, DrawRecordError
-from .refold import preflight, verify
+from .refold import verify
 
-__all__ = ["verify", "AuditReport", "AuditError", "check_draw_records", "DrawRecordError",
-           "preflight"]
+__all__ = ["verify", "AuditReport", "AuditError", "check_draw_records", "DrawRecordError"]

@@ -8,6 +8,7 @@ Nothing here constructs or validates a stable state.
 """
 
 import json
+import re
 from dataclasses import dataclass
 
 from imperium.battle import InvalidValue
@@ -62,16 +63,25 @@ def _pairs(items):
     return out
 
 
+def _has_surrogate(text):
+    return any(0xD800 <= ord(c) <= 0xDFFF for c in text)
+
+
 def _in_domain(tree):
+    """The audit wire's primitive domain: P1 signed integers, no lone surrogates."""
     stack = [tree]
     while stack:
         v = stack.pop()
         t = type(v)
-        if t is int and not -INT_DOMAIN - 1 <= v <= INT_DOMAIN:
+        if t is int and not -INT_DOMAIN <= v <= INT_DOMAIN:
+            return False
+        if t is str and _has_surrogate(v):
             return False
         if t is list:
             stack.extend(v)
         elif t is dict:
+            if any(_has_surrogate(k) for k in v):
+                return False
             stack.extend(v.values())
     return True
 
@@ -152,13 +162,20 @@ def diff(a, b, segments=()):
     return [(segments, a, b)]
 
 
+_INDEX = re.compile(r"0|[1-9][0-9]*")
+INDEX_DIGITS = 19   # an array index is a P1 nonnegative integer
+
+
 def _segment_key(segments):
-    """Typed order: canonical decimal segments numerically, others by ASCII."""
+    """Typed order: canonical ASCII decimal segments numerically, others by ASCII.
+
+    Callers have already rejected decimal segments longer than ``INDEX_DIGITS``.
+    """
     out = []
     for s in segments:
         if type(s) is int:
             out.append((0, s, ""))
-        elif s.isdigit() and (s == "0" or s[0] != "0"):
+        elif _INDEX.fullmatch(s):
             out.append((0, int(s), ""))
         else:
             out.append((1, 0, s))
@@ -178,8 +195,11 @@ class Effect:
     def __post_init__(self):
         if type(self.path) is not str:
             _fail("T15", "path", "expected str")
-        if split_pointer(self.path) is None:
-            _fail("T16", "path", "not a canonical JSON pointer")
+        segments = split_pointer(self.path)
+        if segments is None or not self.path.isascii():
+            _fail("T16", "path", "not a canonical ASCII JSON pointer")
+        if any(_INDEX.fullmatch(seg) and len(seg) > INDEX_DIGITS for seg in segments):
+            _fail("T16", "path", "array index outside the P1 integer domain")
         canonical_tree(self.old, "old")
         canonical_tree(self.new, "new")
         if self.old == self.new:

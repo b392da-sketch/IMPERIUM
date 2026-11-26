@@ -46,12 +46,13 @@ class NoDraws(unittest.TestCase):
             exports = []
             for name in CARRIERS:
                 s = session(name)
+                E.replay(s.export_audit())
                 s.submit(E.OpenBattle())  # rejected in every carrier after genesis/opening
                 exports += [s.export_audit(), s.export_audit(seal=False)]
-            for seed in WALK_SEEDS[::5]:
+            for seed in WALK_SEEDS:
                 s = walk(seed, interleave=True)[0]
                 exports.append(s.export_audit())
-                for r in s.records:
+                for r in s._records:
                     for e in r.events:
                         self.assertEqual(e.draws, ())
             for name, (kw, stage, obligations) in VARIANTS.items():
@@ -65,7 +66,6 @@ class NoDraws(unittest.TestCase):
                         self.assertEqual(t["draws"], 0)
                     else:
                         self.assertTrue(all(e["draws"] == [] for e in t["events"]))
-                E.replay(data, require_sealed=False)
         self.assertEqual({k: c.calls for k, c in counters.items()},
                          {"ep08_numerator": 0, "draw_numerator": 0, "ep08": 0})
 

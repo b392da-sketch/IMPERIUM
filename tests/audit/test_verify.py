@@ -82,7 +82,9 @@ class Verification(Base):
                                  self.report_for(name, sealed, True))
                 self.assertEqual(verify(prefix, require_sealed=False),
                                  self.report_for(name, prefix, False))
-                # L3 on the sealed artifact; ER06 anchored unsealed positive.
+                # Pin API on both modes (ER06). These chains are read from the same export, so
+                # they exercise the API only; the L3 evidence with a separately held commitment
+                # is TA-C02, which pins against the pinned-P2 model's own chain.
                 self.assertEqual(verify(sealed, expected_chain=final_chain(sealed)).sealed, True)
                 anchored = verify(prefix, require_sealed=False, expected_chain=final_chain(prefix))
                 self.assertEqual((anchored.sealed, anchored.final_chain),
@@ -109,14 +111,14 @@ class Verification(Base):
                                  (len(commands), s.state.clock.event_cursor, B.digest(s.state),
                                   type(s.state.phase) is B.Terminal, seal, 0), seed)
                 counts = {}
-                for rec in s.records:
+                for rec in s._records:
                     for e in rec.events:
                         counts[e.stage.name] = counts.get(e.stage.name, 0) + 1
                 self.assertEqual(r.stages, stages_of(counts), seed)
             # D03: the final document decodes through P1 and matches the last current
             # (verify itself decodes every root, AU15, and compares every current, AU14).
             state = B.decode_bytes(B.canonical_bytes(s.state))
-            self.assertEqual(B.digest(state), s.records[-1].current, seed)
+            self.assertEqual(B.digest(state), s._records[-1].current, seed)
 
     def test_d03_each_root_decodes(self):
         for name in ("G1", "G2", "G3", "G4"):
@@ -452,10 +454,17 @@ class Corruption(Base):
         self.fault(rechain(sealed, kind), "AU04", 3, "/kind")
 
         def origins(ts):
+            # Capitulate may write personnel (custody), so this reaches the AU12 lot check.
+            effects = ts[2]["events"][0]["effects"]
+            effects.append({"path": "/personnel/0/origin", "old": None, "new": "r1:S0.o1:ROOT"})
+            effects.sort(key=lambda f: f["path"])
+            ts[2]["current"] = "0" * 64
+        self.fault(rechain(journals("G3")[0], origins), "AU12", 3, "/events")
+
+        def hold_origin(ts):
             ts[2]["events"][0]["effects"].append(
                 {"path": "/personnel/0/origin", "old": None, "new": "r1:S0.o1:ROOT"})
-            ts[2]["current"] = "0" * 64
-        self.fault(rechain(sealed, origins), "AU12", 3, "/events")
+        self.fault(rechain(sealed, hold_origin), "AU07", 3, "/events/0/effects/2/path")
 
     def test_e11_trailer_fields(self):
         sealed = journals("G1")[0]

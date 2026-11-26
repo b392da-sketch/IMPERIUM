@@ -10,7 +10,8 @@ import json
 
 from imperium.battle import FixtureId
 from imperium.battle.canon import canonical_bytes_of
-from imperium.battle.audit import preflight, verify
+from imperium.battle.audit import verify
+from imperium.battle.audit.refold import preflight
 
 from .commands import Accepted, decode_command
 from .draws import RunKey

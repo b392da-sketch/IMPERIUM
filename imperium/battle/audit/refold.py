@@ -35,6 +35,27 @@ def _exact_int(value):
     return type(value) is int
 
 
+_ABSENT = object()
+
+
+def _get(tree, *keys):
+    """A nested object member, or ``_ABSENT`` if any container is the wrong type."""
+    for k in keys:
+        if type(tree) is not dict or k not in tree:
+            return _ABSENT
+        tree = tree[k]
+    return tree
+
+
+def _lots(doc):
+    """(lot, origin) per personnel record, or None for a malformed container."""
+    personnel = doc.get("personnel")
+    if type(personnel) is not list or any(type(p) is not dict or "lot" not in p
+                                          or "origin" not in p for p in personnel):
+        return None
+    return [(p["lot"], p["origin"]) for p in personnel]
+
+
 def _genesis(token):
     d = rules.DESCRIPTOR_OF[token]
     if d.fixture_class is FixtureClass.CANONICAL_OPENING:
@@ -144,10 +165,9 @@ class _Verifier:
         for i, e in enumerate(events):
             nxt = stages[i + 1] if i + 1 < len(stages) else None
             doc = self.event(i, e, doc, pre, command, trace, nxt, cursor)
-        if doc["phase"]["kind"] != rules.TRACES[trace][1]:
+        if _get(doc, "phase", "kind") != rules.TRACES[trace][1]:
             self.fail("AU09", "/events", "successor phase disagrees with the trace")
-        lots = lambda d: [(p["lot"], p["origin"]) for p in d["personnel"]]
-        if lots(doc) != lots(pre):
+        if _lots(doc) is None or _lots(doc) != _lots(pre):
             self.fail("AU12", "/events", "personnel lot ids or origins changed")
         body = canonical_bytes_of(doc)
         if sha256_hex(body) != tree["current"]:
@@ -200,14 +220,16 @@ class _Verifier:
                 prev = typed_paths[-1]
                 if not rules.order_key(prev) < rules.order_key(typed) or typed[:len(prev)] == prev:
                     self.fail("AU07", f"{at}/path", "effects unordered or overlapping")
-            if not rules.permitted(stage, typed, trace):
-                self.fail("AU07", f"{at}/path", "path not permitted in this stage")
-            if rules.cbytes(eff["old"]) == rules.cbytes(eff["new"]):
-                self.fail("AU07", f"{at}/new", "no-op replacement")
+            if not rules.permitted(stage, typed, trace, command, pre):
+                self.fail("AU07", f"{at}/path", "path not permitted for this stage and command")
             typed_paths.append(typed)
+        # ER01 step 4: typed old-value agreement precedes any no-op or diff judgement.
         for j, (eff, typed) in enumerate(zip(e["effects"], typed_paths)):
             if rules.cbytes(rules.get(before, typed)) != rules.cbytes(eff["old"]):
                 self.fail("AU08", f"{base}/effects/{j}/old", "old value disagrees")
+        for j, eff in enumerate(e["effects"]):
+            if rules.cbytes(eff["old"]) == rules.cbytes(eff["new"]):
+                self.fail("AU07", f"{base}/effects/{j}/new", "no-op replacement")
         after = before
         for eff, typed in zip(e["effects"], typed_paths):
             after = rules.put(after, typed, eff["new"])
@@ -242,30 +264,37 @@ class _Verifier:
                 if rules.cbytes(after["ledger"]) != rules.cbytes(before["ledger"]):
                     self.fail("AU10", f"{base}/effects", "Capitulate records no ledger use")
             else:
-                uses = before["ledger"]["uses"] + [rules.expected_use(command)]
-                if rules.cbytes(after["ledger"]["uses"]) != rules.cbytes(uses):
+                uses = _get(before, "ledger", "uses")
+                got = _get(after, "ledger", "uses")
+                if type(uses) is not list or type(got) is not list or rules.cbytes(got) != \
+                        rules.cbytes(uses + [rules.expected_use(command)]):
                     self.fail("AU10", f"{base}/effects", "ledger use does not match the command")
             if kind == "DeclareWithdrawal":
-                posture = [s["posture"] for s in after["sides"] if s["side"] == command["side"]]
+                sides = after["sides"]
+                posture = ([s.get("posture") for s in sides
+                            if type(s) is dict and s.get("side") == command["side"]]
+                           if type(sides) is list else None)
                 if posture != ["WITHDRAWING"]:
                     self.fail("AU10", f"{base}/effects", "withdrawal posture not recorded")
         elif stage in ("CLOSURE_DISPLACEMENT", "RECOVERY"):
             want = {"applied": []}
         elif stage == "ADVANCE":
-            c = before["clock"]["completed_rounds"]
-            if after["clock"]["completed_rounds"] != c + 1 or not _exact_int(
-                    after["clock"]["completed_rounds"]):
+            c = _get(before, "clock", "completed_rounds")
+            n = _get(after, "clock", "completed_rounds")
+            if not _exact_int(c) or not _exact_int(n) or n != c + 1:
                 self.fail("AU10", f"{base}/effects", "missing or wrong round advance")
             want = {"completed": c + 1}
         elif stage == "OPEN_ROUND":
             phase, ledger = after["phase"], after["ledger"]
-            if (phase.get("kind") != "AwaitingPrincipal" or type(ledger) is not dict
-                    or ledger.get("uses") != []):
+            if (type(phase) is not dict or phase.get("kind") != "AwaitingPrincipal"
+                    or type(ledger) is not dict or ledger.get("uses") != []
+                    or not _exact_int(_get(after, "clock", "completed_rounds"))):
                 self.fail("AU10", f"{base}/effects", "OPEN_ROUND installs no fresh round")
             want = {"round": after["clock"]["completed_rounds"] + 1, "first": phase.get("side")}
         else:  # TERMINAL
             phase = after["phase"]
-            if phase.get("kind") != "Terminal" or after["ledger"] is not None:
+            if type(phase) is not dict or phase.get("kind") != "Terminal" \
+                    or after["ledger"] is not None:
                 self.fail("AU10", f"{base}/effects", "TERMINAL installs no terminal phase")
             want = {"record": phase.get("record")}
         if rules.cbytes(data) != rules.cbytes(want):

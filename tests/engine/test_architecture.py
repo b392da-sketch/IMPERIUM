@@ -68,7 +68,7 @@ class EngineGuards(unittest.TestCase):
                     for b in BANNED:
                         self.assertNotIn(b, low, f"{name}: {ident}")
         self.assertEqual(sorted(n for n in dir(E.BattleSession) if not n.startswith("_")),
-                         ["export_audit", "journal", "open", "records", "run", "state", "submit"])
+                         ["export_audit", "journal", "open", "state", "submit"])
         self.assertEqual(set(E.__all__), {
             "OpenBattle", "HoldOrder", "PassOrder", "DeclareWithdrawal", "Capitulate", "Command",
             "Accepted", "Rejected", "Deferred", "Result", "Stage", "RejectCode", "step",
