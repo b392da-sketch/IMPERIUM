@@ -11,8 +11,9 @@ from imperium.battle import engine as E
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 ENGINE = ROOT / "imperium" / "battle" / "engine"
-LAYERS = {"commands": 0, "terminal": 1, "custody": 2, "rounds": 3, "step": 4, "session": 5,
-          "__init__": 6}
+# P3 (contract rev 0.3 section 3) adds draws (E0a), events (E4a) and replay (E5a).
+LAYERS = {"commands": 0, "draws": 0.5, "terminal": 1, "custody": 2, "rounds": 3, "events": 3.5,
+          "step": 4, "session": 5, "replay": 5.5, "__init__": 6}
 BANNED = ("unchecked", "trusted", "force", "skip", "bypass", "raw_install", "rawinstall",
           "setter")
 P1_BASELINE = "d93d69195ddb04786f481638d850351ab4934b2e"
@@ -67,11 +68,15 @@ class EngineGuards(unittest.TestCase):
                     for b in BANNED:
                         self.assertNotIn(b, low, f"{name}: {ident}")
         self.assertEqual(sorted(n for n in dir(E.BattleSession) if not n.startswith("_")),
-                         ["journal", "open", "state", "submit"])
+                         ["export_audit", "journal", "open", "records", "run", "state", "submit"])
         self.assertEqual(set(E.__all__), {
             "OpenBattle", "HoldOrder", "PassOrder", "DeclareWithdrawal", "Capitulate", "Command",
             "Accepted", "Rejected", "Deferred", "Result", "Stage", "RejectCode", "step",
-            "BattleSession", "JournalEntry", "encode_command", "command_digest"})
+            "BattleSession", "JournalEntry", "encode_command", "command_digest",
+            # P3 additions, exactly ER04's inventory
+            "RunKey", "Channel", "StageKey", "format_stage_id", "parse_stage_id", "fixture_pair",
+            "draw_numerator", "Effect", "DrawRecord", "StageEvent", "StageSnapshot", "RootRecord",
+            "Resolved", "resolve", "command_bytes", "decode_command", "replay", "ReplayError"})
 
     def test_g_p2_4_stdlib_only(self):
         stdlib = set(sys.stdlib_module_names)
@@ -91,7 +96,7 @@ class EngineGuards(unittest.TestCase):
                 cwd=ROOT, capture_output=True, text=True, check=True).stdout
         except (OSError, subprocess.CalledProcessError) as exc:  # pragma: no cover
             self.skipTest(f"git unavailable: {exc}")
-        changed = [p for p in out.splitlines() if "/engine/" not in p]
+        changed = [p for p in out.splitlines() if "/engine/" not in p and "/audit/" not in p]
         self.assertEqual(changed, [])
 
     def test_no_group_commands(self):

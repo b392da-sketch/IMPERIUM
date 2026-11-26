@@ -79,7 +79,7 @@ class Session(EngineCase):
         s = E.BattleSession.open(STANDARD)
         s.submit(E.OpenBattle())
         state, journal = s.state, s.journal
-        with mock.patch.object(session_module, "step", side_effect=B.InvalidValue("T10", "x", "y")):
+        with mock.patch.object(session_module, "resolve", side_effect=B.InvalidValue("T10", "x", "y")):
             with self.assertRaises(B.InvalidValue):
                 s.submit(hold(S0, "S0.H1"))
         self.assertIs(s.state, state)
@@ -92,7 +92,7 @@ class Session(EngineCase):
         state, journal = s.state, s.journal
         c = E.PassOrder(S0)
         stub = lambda st, cmd: E.Deferred(st, cmd, E.Stage.RECOVERY, ("DO-P2-02",))
-        with mock.patch.object(session_module, "step", side_effect=stub):
+        with mock.patch.object(session_module, "resolve", side_effect=stub):
             r = s.submit(c)
         self.assertIs(type(r), E.Deferred)
         self.assertIs(s.state, state)
