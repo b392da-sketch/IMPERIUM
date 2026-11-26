@@ -1,6 +1,8 @@
-"""Layer E4: ``step``, the single P2 transition (P2 contract 5, 6, 8, 10).
+"""Layer E4: ``resolve`` and ``step``, the single transition (P2 contract
+5, 6, 8, 10; P3 contract rev 0.3 section 5).
 
-Order: argument types, phase, side, command prerequisites, the pure
+``resolve`` returns the P2 result plus the root's events and stage
+snapshots; ``step`` is its ``Accepted`` projection. Order: argument types, phase, side, command prerequisites, the pure
 deferral decision, the cursor bound, then exactly one ``BattleState``
 construction through P1's validating constructor. This is the only engine
 module that constructs a state.
@@ -18,6 +20,7 @@ from imperium.battle.state import BattleState, state_values
 from imperium.battle.values import (
     INT_DOMAIN, Activation, Posture, TerminationPoint, UseKind,
 )
+from imperium.battle.codec import digest
 from imperium.battle.errors import InvalidValue
 
 from .commands import (
@@ -25,13 +28,10 @@ from .commands import (
     OpenBattle, PassOrder, RejectCode, Rejected, Stage, check_command, check_state,
 )
 from .custody import capitulate
+from .events import Resolved, build_root
 from .rounds import both_finished, closure_deferral, next_to_move, open_round
 from .terminal import immediate_outcome, round_end_outcome
 
-CLOSURE_STAGES = (
-    Stage.CLOSURE_DISPLACEMENT, Stage.CLOSURE_CHECK, Stage.RECOVERY, Stage.ADVANCE,
-    Stage.END_CHECK,
-)
 
 
 def _reject(state, code, detail=None):
@@ -45,15 +45,6 @@ def _terminal(values, record):
     out = dict(values)
     out["phase"] = Terminal(record)
     out["ledger"] = None
-    return out
-
-
-def _with_clock(values, completed=None):
-    clock = values["clock"]
-    out = dict(values)
-    out["clock"] = Clock(
-        completed_rounds=clock.completed_rounds if completed is None else completed,
-        event_cursor=clock.event_cursor + 1)
     return out
 
 
@@ -103,10 +94,11 @@ def _use_of(command):
 
 
 def _plan(values, command):
-    """``("deferred", stage, obligations)`` or ``("accepted", values, stages)``.
+    """``("deferred", stage, obligations)`` or ``("accepted", trace)``.
 
-    Pure: works on field values only. The returned values still hold the
-    input clock; the caller advances the cursor.
+    ``trace`` is a tuple of ``(stage, values)`` pairs: the field values
+    after each stage of the root (P3 5.3). Pure: works on field values
+    only. Every entry still holds the input cursor; the caller advances it.
     """
     fields = Fields(**values)
     clock = fields.clock
@@ -114,15 +106,17 @@ def _plan(values, command):
     if t is OpenBattle:
         record = immediate_outcome(fields, TerminationPoint.INITIAL_CHECK, 0)
         if record is not None:
-            return "accepted", _terminal(values, record), (Stage.INITIAL_CHECK, Stage.TERMINAL)
-        return "accepted", open_round(values), (Stage.INITIAL_CHECK, Stage.OPEN_ROUND)
+            return "accepted", ((Stage.INITIAL_CHECK, values),
+                                (Stage.TERMINAL, _terminal(values, record)))
+        return "accepted", ((Stage.INITIAL_CHECK, values), (Stage.OPEN_ROUND, open_round(values)))
     charged = clock.completed_rounds + 1
     if t is Capitulate:
         after = capitulate(values, command.side)
         record = immediate_outcome(Fields(**after), TerminationPoint.AFTER_ROOT, charged,
                                    capitulator=command.side)
-        return "accepted", _terminal(after, record), (Stage.ROOT, Stage.IMMEDIATE_CHECK, Stage.TERMINAL)
-    # ROOT: append the ledger-bearing use.
+        return "accepted", ((Stage.ROOT, after), (Stage.IMMEDIATE_CHECK, after),
+                            (Stage.TERMINAL, _terminal(after, record)))
+    # ROOT: append the ledger-bearing use; the phase is unchanged here.
     after = dict(values)
     if t is DeclareWithdrawal:
         after["sides"] = tuple(
@@ -131,36 +125,55 @@ def _plan(values, command):
     ledger = fields.ledger
     ledger = dataclasses.replace(ledger, uses=ledger.uses + (_use_of(command),))
     after["ledger"] = ledger
-    root = (Stage.ROOT, Stage.IMMEDIATE_CHECK)
+    trace = ((Stage.ROOT, after),)
     # IMMEDIATE_CHECK
     record = immediate_outcome(Fields(**after), TerminationPoint.AFTER_ROOT, charged)
     if record is not None:
-        return "accepted", _terminal(after, record), root + (Stage.TERMINAL,)
+        return "accepted", trace + ((Stage.IMMEDIATE_CHECK, after),
+                                    (Stage.TERMINAL, _terminal(after, record)))
     scenario = fields.scenario
     if not both_finished(scenario, ledger):
-        after["phase"] = AwaitingPrincipal(next_to_move(scenario, clock, ledger))
-        return "accepted", after, root
+        cont = dict(after)
+        cont["phase"] = AwaitingPrincipal(next_to_move(scenario, clock, ledger))
+        return "accepted", trace + ((Stage.IMMEDIATE_CHECK, cont),)
     deferral = closure_deferral(after)
     if deferral is not None:
         return ("deferred",) + deferral
+    trace += ((Stage.IMMEDIATE_CHECK, after), (Stage.CLOSURE_DISPLACEMENT, after))
     # CLOSURE_DISPLACEMENT is a verified no-op in the supported subset (10.1).
     # CLOSURE_CHECK: the immediate predicate on the post-displacement fields,
     # with the pre-advance clock; no positive is reachable in P2.
     record = immediate_outcome(Fields(**after), TerminationPoint.AFTER_CLOSURE_DISPLACEMENT, charged)
+    trace += ((Stage.CLOSURE_CHECK, after),)
     if record is not None:
-        return "accepted", _terminal(after, record), root + (
-            Stage.CLOSURE_DISPLACEMENT, Stage.CLOSURE_CHECK, Stage.TERMINAL)
+        return "accepted", trace + ((Stage.TERMINAL, _terminal(after, record)),)
     # RECOVERY is a verified no-op; ADVANCE; END_CHECK.
+    trace += ((Stage.RECOVERY, after),)
     completed = clock.completed_rounds + 1
-    after["clock"] = Clock(completed_rounds=completed, event_cursor=clock.event_cursor)
-    record = round_end_outcome(Fields(**after), completed, scenario.profile.rounds)
+    advanced = dict(after)
+    advanced["clock"] = Clock(completed_rounds=completed, event_cursor=clock.event_cursor)
+    trace += ((Stage.ADVANCE, advanced), (Stage.END_CHECK, advanced))
+    record = round_end_outcome(Fields(**advanced), completed, scenario.profile.rounds)
     if record is not None:
-        return "accepted", _terminal(after, record), root + CLOSURE_STAGES + (Stage.TERMINAL,)
-    return "accepted", open_round(after), root + CLOSURE_STAGES + (Stage.OPEN_ROUND,)
+        return "accepted", trace + ((Stage.TERMINAL, _terminal(advanced, record)),)
+    return "accepted", trace + ((Stage.OPEN_ROUND, open_round(advanced)),)
 
 
-def step(state, command):
-    """Apply one command to one stable state; return Accepted, Rejected or Deferred."""
+def _advance_cursor(values):
+    clock = values["clock"]
+    out = dict(values)
+    out["clock"] = Clock(completed_rounds=clock.completed_rounds,
+                         event_cursor=clock.event_cursor + 1)
+    return out
+
+
+def resolve(state, command):
+    """Apply one command to one stable state (P3 5.1).
+
+    Returns the P2 ``Rejected`` or ``Deferred`` unchanged, or ``Resolved``
+    carrying the P2 ``Accepted``, its ``RootRecord`` and one snapshot per
+    event.
+    """
     check_state(state)
     check_command(command)
     values = dict(zip(STATE_FIELDS, state_values(state)))
@@ -170,12 +183,22 @@ def step(state, command):
     outcome = _plan(values, command)
     if outcome[0] == "deferred":
         return Deferred(state, command, outcome[1], outcome[2])
-    _, after, stages = outcome
+    trace = outcome[1]
     if state.clock.event_cursor >= INT_DOMAIN:
         raise InvalidValue("T10", "state.clock.event_cursor",
                            "successor cursor exceeds the P1 integer domain")
-    after = _with_clock(after, after["clock"].completed_rounds)
-    return Accepted(BattleState(**after), stages)
+    stages = tuple(stage for stage, _ in trace)
+    stage_values = tuple(_advance_cursor(v) for _, v in trace)
+    successor = BattleState(**stage_values[-1])
+    accepted = Accepted(successor, stages)
+    record, snapshots = build_root(values, command, stages, stage_values,
+                                   digest(state), digest(successor))
+    return Resolved(accepted, record, snapshots)
 
 
-__all__ = ["step"]
+def step(state, command):
+    """Apply one command to one stable state; return Accepted, Rejected or Deferred."""
+    result = resolve(state, command)
+    if type(result) is Resolved:
+        return result.accepted
+    return result

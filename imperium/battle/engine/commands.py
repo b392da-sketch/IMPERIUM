@@ -6,6 +6,7 @@ fragment; every expenditure is derived by ``step``. Records validate
 exact field types in ``__post_init__`` and are frozen with slots.
 """
 
+import json
 from dataclasses import dataclass
 from enum import Enum
 
@@ -160,6 +161,69 @@ def command_bytes(command):
 def command_digest(command):
     """Lowercase-hex SHA-256 of the canonical command bytes."""
     return sha256_hex(command_bytes(command))
+
+
+COMMAND_MAX_BYTES = 1024
+
+
+def _no_duplicates(items):
+    out = {}
+    for k, v in items:
+        if k in out:
+            raise ValueError("duplicate key")
+        out[k] = v
+    return out
+
+
+def _no_float(token):
+    raise ValueError("float")
+
+
+def decode_command(data):
+    """The command whose canonical bytes are exactly ``data`` (P3 6).
+
+    Anything else, including a wrong argument type, raises T15 at
+    ``command``. No fixture-legality check is made.
+    """
+    def bad(detail):
+        raise InvalidValue("T15", "command", detail)
+
+    if type(data) is not bytes:
+        bad("expected bytes")
+    if len(data) > COMMAND_MAX_BYTES:
+        bad("command body exceeds 1 KiB")
+    try:
+        doc = json.loads(data.decode("ascii"), object_pairs_hook=_no_duplicates,
+                         parse_float=_no_float, parse_constant=_no_float)
+    except (ValueError, UnicodeDecodeError, RecursionError):
+        bad("not canonical command JSON")
+    if type(doc) is not dict or doc.get("schema") != COMMAND_SCHEMA:
+        bad("not a command document")
+    for cls, keys in _COMMAND_KEYS:
+        if doc.get("kind") == cls.__name__:
+            break
+    else:
+        bad("unknown command kind")
+    if set(doc) != {"schema", "kind", *keys}:
+        bad("wrong command keys")
+    args = {}
+    for name in keys:
+        value = doc[name]
+        if type(value) is not str:
+            bad(f"{name} must be a string")
+        if name == "side":
+            if value not in Side.__members__:
+                bad("unknown side")
+            args[name] = Side[value]
+        else:
+            try:
+                args[name] = FormationId(value)
+            except InvalidValue:
+                bad("invalid formation token")
+    command = cls(**args)
+    if command_bytes(command) != data:
+        bad("not the canonical command bytes")
+    return command
 
 
 # --------------------------------------------------------------------------

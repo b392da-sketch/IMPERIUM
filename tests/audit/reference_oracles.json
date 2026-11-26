@@ -1,0 +1,157 @@
+{
+  "bk1_vectors": [
+    [
+      0,
+      "F01-v1-open",
+      0,
+      "r1:S0.o1:MELEE:S0.H1:S1.H1:S0.H1",
+      "injury",
+      0,
+      382238467295567
+    ],
+    [
+      0,
+      "F01-v1-open",
+      0,
+      "r1:S0.o1:MELEE:S0.H1:S1.H1:S0.H1",
+      "fatal",
+      0,
+      8452011673637164
+    ],
+    [
+      0,
+      "F01-v1-open",
+      1,
+      "r1:S0.o1:MELEE:S0.H1:S1.H1:S0.H1",
+      "injury",
+      0,
+      8725995834625205
+    ],
+    [
+      1,
+      "F01-v1-open",
+      0,
+      "r1:S0.o1:MELEE:S0.H1:S1.H1:S0.H1",
+      "injury",
+      0,
+      3290746974098573
+    ],
+    [
+      0,
+      "F01-v1-open",
+      0,
+      "r1:S0.o1:MELEE:S0.H1:S1.H1:S0.H1",
+      "injury",
+      1,
+      5142644981938092
+    ],
+    [
+      0,
+      "F01-v1-rough",
+      0,
+      "r12:S1.o4:MISSILE:S1.L1:S0.H1:-",
+      "cohesion",
+      0,
+      1224839125935200
+    ],
+    [
+      999,
+      "F01-v1-barrier",
+      7,
+      "r3:S0.o2:MELEE:S0.C1:S1.H6:S1.L1",
+      "morale",
+      3,
+      1575111783106146
+    ]
+  ],
+  "ep08_vector_columns": [
+    "seed",
+    "pair",
+    "replicate",
+    "stage_id",
+    "channel",
+    "index",
+    "numerator"
+  ],
+  "g0_wire_model": {
+    "full_state_digest": "10590eea2ae4e524c3e2478d98d7adb2b4ead2e3a9e6475b46f05dcece5ea5dd",
+    "original": {
+      "prefix_chain": "c0a11262ebe488ea0a167c2294bdf6b414802eba5ad0b855bad71535c33974e0",
+      "prefix_sha256": "946cc1d81ece3543e745bc17241dfc4942b4e95395bde74fe0662a1d3df27b6e",
+      "sealed_chain": "a0b113339d23d8725835a23987768ab5c58373de778f82001475df92669eb4fe",
+      "sealed_sha256": "13936bd37f5fcaabb59d5f9cfbd801921707c3eab4f3bd9d0678b305a299354d",
+      "seed": 0
+    },
+    "replacement_valid_run": {
+      "prefix_chain": "21fd5bafe326ce7640034a1826f2c0c350691d376b97d3e705cf239b2e173981",
+      "prefix_sha256": "bd436e58327e73e3b0ebacffb663a4890c5f7485aa3cc8f3bd00e1ee0023b9f4",
+      "sealed_chain": "149e4a30842393a2d4a2b2362eab084594ca663d35c8f2eed5660dd1d5e66fa2",
+      "sealed_sha256": "bcb283c01a097989c600e4cdf3c7fce6a84d865483ecb2d7e4568d9c0319a248",
+      "seed": 1
+    }
+  },
+  "h02_state_witness": {
+    "p1_valid_alternate_digest": "9081305607eaf7f7f6ebbb348bf3c8caf14f208925274f224a57e760c65d3645",
+    "p2_digest": "291cca2e6c7d6173dc7a702e5ec1153b972ac70b5ac0bae2daba7b8257c1e5ec"
+  },
+  "legacy_vectors": [
+    [
+      20000,
+      "EF09-RH1",
+      20000,
+      "r1/s0/o1/a0/t6/src0",
+      "injury",
+      0,
+      3009345297762912
+    ],
+    [
+      20000,
+      "EF09-RH1",
+      20000,
+      "r1/s0/o1/a0/t6/src6",
+      "injury",
+      0,
+      2811142551922415
+    ],
+    [
+      20000,
+      "EF09-RH1",
+      20000,
+      "r1/s0/o1/a0/t6/src0",
+      "cohesion",
+      0,
+      5676462493038990
+    ],
+    [
+      256,
+      "D43-dev-micro",
+      256,
+      "A-to-B",
+      "injury",
+      0,
+      4417050748692798
+    ]
+  ],
+  "p2_carriers": {
+    "G1": {
+      "full_state_digest": "8b2fa85805f709522bf9a3c971c6127bb499cafbbb9e0a5ac6cb3a4a1c18d842",
+      "roots": 4,
+      "stages": 14
+    },
+    "G2": {
+      "full_state_digest": "e1d0f02095bf00dee7f452ea41feccfa10da807c72ac15262a5d5de420345e47",
+      "roots": 2,
+      "stages": 4
+    },
+    "G3": {
+      "full_state_digest": "1403ff7fe4562a379d0a10057447167a44bd3abbd6fbfcca67d52d4ca513daf0",
+      "roots": 2,
+      "stages": 5
+    },
+    "G4": {
+      "full_state_digest": "bc63ce039b9663386eab01d77fdfaa2130f9bdb969ba7ec96156fa8e1928e8c5",
+      "roots": 25,
+      "stages": 122
+    }
+  }
+}
