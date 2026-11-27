@@ -292,3 +292,217 @@ def ep08(seed, pair, replicate, stage, channel, index):
     payload = json.dumps(["D4-SHA256-v1", seed, pair, replicate, stage, channel, index],
                          separators=(",", ":")).encode("ascii")
     return int(hashlib.sha256(payload).hexdigest()[:14], 16) >> 3
+
+
+# --------------------------------------------------------------------------
+# Audit v2: P4 orders, stages and window decisions (P4 contract rev 0.2
+# sections 10.3-10.5, ER05, ER06, E03, E04). Re-derived independently of the
+# engine.
+
+AUDIT_SCHEMA_V2 = "imperium.battle-audit/2"
+EVENT_SCHEMA_V1 = "imperium.battle-event/1"
+EVENT_SCHEMA_V2 = "imperium.battle-event/2"
+P4_ORDERS = {
+    "MoveOrder": ("side", "formation", "path"),
+    "PivotOrder": ("side", "formation", "turn", "steps"),
+    "WithdrawOrder": ("side", "formation", "destination"),
+    "EvacuateOrder": ("side", "formation"),
+    "GroupMoveOrder": ("side", "group", "members", "direction"),
+    "GroupPivotOrder": ("side", "group", "members", "turn"),
+}
+DECISIONS = {
+    "RespondPivot": ("side", "window_id", "formation", "target"),
+    "RespondMissile": ("side", "window_id", "formation", "target"),
+    "DeclineResponse": ("side", "window_id"),
+}
+COMMAND_KEYS_V2 = dict(COMMAND_KEYS, **P4_ORDERS)
+for _kind in P4_ORDERS:
+    USE_KIND[_kind] = "GROUP" if _kind.startswith("Group") else "INDIVIDUAL"
+del _kind
+P4_STAGE_NAMES = ("STEP1", "STEP2", "STEP3", "WITHDRAW", "GROUP_STEP", "PIVOT", "GROUP_PIVOT",
+                  "EVACUATE", "WINDOW", "RESPONSE")
+STAGES_V2 = STAGES + P4_STAGE_NAMES
+STAGE_ORDER_V2 = tuple(sorted(STAGES_V2))
+STEPS = ("STEP1", "STEP2", "STEP3")
+TRIGGERS = STEPS + ("WITHDRAW", "GROUP_STEP")
+FIRST_PHYSICAL = {"MoveOrder": "STEP1", "WithdrawOrder": "WITHDRAW", "GroupMoveOrder": "GROUP_STEP",
+                  "PivotOrder": "PIVOT", "GroupPivotOrder": "GROUP_PIVOT",
+                  "EvacuateOrder": "EVACUATE"}
+TAILS = {
+    ("IMMEDIATE_CHECK",): "AwaitingPrincipal",
+    ("IMMEDIATE_CHECK", "TERMINAL"): "Terminal",
+    ("IMMEDIATE_CHECK",) + CLOSURE + ("OPEN_ROUND",): "AwaitingPrincipal",
+    ("IMMEDIATE_CHECK",) + CLOSURE + ("TERMINAL",): "Terminal",
+}
+WINDOW_TAG = "IMPERIUM-P4-window-1"
+DIRS = ((1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1))
+_P4_ID = re.compile(r"r([1-9][0-9]*):(S[01])\.o([1-9][0-9]*):(" + "|".join(P4_STAGE_NAMES) + ")")
+
+
+def id_kind_v2(text):
+    """The kind of a well-formed v2 stage id, or None: the ten P4 kinds only
+    on the principal form within BK-1's round and ordinal domain."""
+    if type(text) is not str or len(text) > 64:
+        return None
+    m = _P4_ID.fullmatch(text)
+    if m is not None:
+        if 1 <= int(m.group(1)) <= 12 and 1 <= int(m.group(3)) <= 4:
+            return m.group(4)
+        return None
+    return p2_id_kind(text)
+
+
+def _cell_ok(value):
+    return type(value) is list and len(value) == 2 and all(type(v) is int for v in value)
+
+
+def _token_ok(value):
+    return type(value) is str and TOKEN.fullmatch(value) is not None
+
+
+def _digest_ok(value):
+    return type(value) is str and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
+
+
+def order_shape(command, table):
+    """None if ``command`` is a well-formed document of ``table``, else a path.
+
+    Accepted P4 orders also satisfy their value ranges (ER07).
+    """
+    if type(command) is not dict:
+        return "/command"
+    kind = command.get("kind")
+    if type(kind) is not str or kind not in table:
+        return "/command/kind"
+    if command.get("schema") != COMMAND_SCHEMA:
+        return "/command/schema"
+    if set(command) != {"schema", "kind", *table[kind]}:
+        return "/command"
+    if "side" in command and command["side"] not in SIDES:
+        return "/command/side"
+    for key in ("formation", "group", "target"):
+        if key in command and not _token_ok(command[key]):
+            return f"/command/{key}"
+    if "window_id" in command and not _digest_ok(command["window_id"]):
+        return "/command/window_id"
+    if "path" in command:
+        path = command["path"]
+        if type(path) is not list or not 1 <= len(path) <= 3 or not all(map(_cell_ok, path)):
+            return "/command/path"
+    if "destination" in command and not _cell_ok(command["destination"]):
+        return "/command/destination"
+    if "members" in command:
+        m = command["members"]
+        if (type(m) is not list or not 2 <= len(m) <= 3 or not all(map(_token_ok, m))
+                or any(a >= b for a, b in zip(m, m[1:]))):
+            return "/command/members"
+    for key, ok in (("turn", (-1, 1)), ("steps", (1, 2, 3)), ("direction", range(6))):
+        if key in command and (type(command[key]) is not int or command[key] not in ok):
+            return f"/command/{key}"
+    return None
+
+
+def command_shape_v2(command):
+    return order_shape(command, COMMAND_KEYS_V2)
+
+
+def decision_shape(command):
+    return order_shape(command, DECISIONS)
+
+
+def p4_family(kind, stages):
+    """Static AU09 check of a P4 trace: True iff ``stages`` is a member of
+    the selected family (E03: sequence, ordering and predecessors only)."""
+    if not stages or stages[0] != "ROOT":
+        return False
+    i = 1
+    first = FIRST_PHYSICAL[kind]
+    windows = 0
+    if kind == "MoveOrder":
+        k = 0
+        while i < len(stages) and stages[i] in STEPS:
+            if stages[i] != STEPS[k]:
+                return False
+            k += 1
+            i += 1
+            if i < len(stages) and stages[i] == "WINDOW":
+                windows += 1
+                i += 1
+                if i < len(stages) and stages[i] == "RESPONSE":
+                    i += 1
+        if k == 0:
+            return False
+    else:
+        if i >= len(stages) or stages[i] != first:
+            return False
+        i += 1
+        if first in TRIGGERS and i < len(stages) and stages[i] == "WINDOW":
+            windows += 1
+            i += 1
+            if i < len(stages) and stages[i] == "RESPONSE":
+                i += 1
+    if windows > 1:
+        return False
+    return tuple(stages[i:]) in TAILS
+
+
+def p4_permitted(stage, typed, ctx):
+    """Whether one effect path may appear in a P4 stage (ER06 whitelist)."""
+    seg = tuple(typed)
+    if stage == "ROOT":
+        return seg == CURSOR
+    if stage == "WINDOW":
+        return False
+    actors = ctx["actors"]
+    first = stage == ctx["first"]
+    if seg == USES:
+        return first
+    n = len(seg)
+    if n >= 3 and seg[0] == "formations" and type(seg[1]) is int:
+        who = ctx["formation_at"](seg[1])
+        if who not in actors:
+            return False
+        field = seg[2]
+        if field == "condition":
+            return n == 4 and seg[3] in ("exertion", "fatigue")
+        if field == "cell":
+            return n <= 4 and stage in TRIGGERS
+        if field == "facing":
+            return n == 3 and stage in ("PIVOT", "GROUP_PIVOT", "RESPONSE")
+        if field == "disposition":
+            return n == 3 and stage == "EVACUATE"
+        return False
+    if n == 4 and seg[:2] == ("ledger", "formations") and type(seg[2]) is int:
+        if seg[3] == "safe_latch":
+            return True
+        who = ctx["round_at"](seg[2])
+        if seg[3] == "exerted":
+            return who in actors
+        if seg[3] == "response":
+            return stage == "RESPONSE" and who in actors
+        return False
+    if stage in ("STEP2", "STEP3") and n == 6 and seg[:2] == USES and seg[2] == ctx["use_index"] \
+            and seg[3:5] == ("work", 0) and seg[5] in ("legs", "end"):
+        return True
+    if stage == "EVACUATE" and n == 3 and seg[0] in ("personnel", "mounts", "ammunition") \
+            and type(seg[1]) is int:
+        return ctx["evacuable"](seg[0], seg[1], seg[2])
+    return False
+
+
+def window_id(previous, command, after):
+    command_digest = hashlib.sha256(canonical_bytes_of(command)).hexdigest()
+    return hashlib.sha256(canonical_bytes_of([WINDOW_TAG, previous, command_digest, after])
+                          ).hexdigest()
+
+
+def map_marks(condition, marks, threshold=6):
+    """MP21 with N01 carry, re-derived for the audit (P4 6.2)."""
+    e = condition["exertion"] + marks
+    f = condition["fatigue"]
+    while e >= threshold and f < 2:
+        f += 1
+        e -= threshold
+    if f == 2:
+        e %= threshold
+    return f, e
