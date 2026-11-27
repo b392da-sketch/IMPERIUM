@@ -14,7 +14,7 @@ import imperium.battle as B
 from imperium.battle import engine as E
 from imperium.battle.audit import AuditError, verify
 from imperium.battle.engine import draws as D
-from tests.audit.support import cjson, rechain, trees
+from tests.audit.support import cjson, rechain, sha, trees
 from tests.movement.support import P2_STAGE_NAMES, P4_STAGE_NAMES, STANDARD, run_carrier
 
 replay_module = sys.modules["imperium.battle.engine.replay"]
@@ -268,3 +268,132 @@ class K04Replay(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --------------------------------------------------------------------------
+# PR8-01 to PR8-04 (Codex implementation review of PR #8): contradictory
+# stage records and malformed intermediates rejected at their exact first
+# fault, through both public entry points.
+
+
+def two_step(*cells, decline=False):
+    s = E.BattleSession.open(STANDARD)
+    s.submit(E.OpenBattle())
+    token = "S0.H1" if not decline else "S0.H4"
+    r = s.submit(E.MoveOrder(B.Side.S0, B.FormationId(token),
+                             tuple(B.Hex(*c) for c in cells)))
+    if decline:
+        assert type(r) is E.Suspended
+        r = s.submit(E.DeclineResponse(B.Side.S1, r.root.window.window_id))
+    assert type(r) is E.Accepted
+    return s.export_audit(seal=False)
+
+
+def effect(e, suffix):
+    return next(x for x in e["effects"] if x["path"].endswith(suffix))
+
+
+class PR8Structural(Base):
+
+    def both(self, data, code, line, path):
+        self.fault(data, code, line, path, require_sealed=False)
+        with self.assertRaises(AuditError) as cm:
+            E.replay(data, require_sealed=False)
+        self.assertEqual((cm.exception.code, cm.exception.line, cm.exception.path),
+                         (code, line, path))
+
+    def test_positive_controls(self):
+        for data in (two_step((2, 5), (2, 4)), two_step((5, 5), (5, 4), decline=True)):
+            verify(data, require_sealed=False)
+            E.replay(data, require_sealed=False)
+        stages = [e["stage"] for e in trees(two_step((5, 5), (5, 4), decline=True))[2]["events"]]
+        self.assertEqual(stages[:4], ["ROOT", "STEP1", "WINDOW", "STEP2"])
+
+    def test_pr8_01_step_beyond_declaration(self):
+        def mutate(ts):
+            root = ts[2]
+            root["command"]["path"].pop()
+            root["command_digest"] = sha(cjson(root["command"]))
+            work = effect(root["events"][1], "/ledger/uses")["new"][-1]["work"][0]
+            work["declared"].pop()
+            work["end"] = "COMPLETED"
+            root["events"][2]["effects"] = [x for x in root["events"][2]["effects"]
+                                            if not x["path"].endswith("/end")]
+        self.both(rechain(two_step((2, 5), (2, 4)), mutate), "AU09", 3, "/events")
+
+    def test_pr8_02_step_after_recorded_entry_stop(self):
+        def direct(ts):
+            ts[2]["events"][1]["data"]["threatened"] = True
+        self.both(rechain(two_step((2, 5), (2, 4)), direct), "AU09", 3, "/events")
+        # Across a WINDOW: the stop recorded at STEP1 still forbids STEP2.
+        self.both(rechain(two_step((5, 5), (5, 4), decline=True), direct), "AU09", 3,
+                  "/events")
+
+    def test_pr8_02_threatened_final_step_completes(self):
+        s = E.BattleSession.open(STANDARD)
+        s.submit(E.OpenBattle())
+        r = s.submit(E.MoveOrder(B.Side.S0, B.FormationId("S0.L1"), (B.Hex(5, 4),)))
+        s.submit(E.DeclineResponse(B.Side.S1, r.root.window.window_id))
+        data = s.export_audit(seal=False)
+        step = trees(data)[2]["events"][1]
+        self.assertTrue(step["data"]["threatened"])
+        verify(data, require_sealed=False)
+        E.replay(data, require_sealed=False)
+
+    def test_pr8_03_closure_with_slots_left(self):
+        g5 = export("G5", seal=False)
+        ts = trees(g5)
+        # The first group move (line 3) leaves both sides able to act: append
+        # an otherwise well-formed closure and a fresh round to it.
+        gt15 = trees(export("GT15", seal=False))
+        closing = [t for t in gt15 if t.get("kind") == "root"
+                   and t["command"]["kind"] != "OpenBattle"
+                   and any(e["stage"] == "OPEN_ROUND" for e in t["events"])][0]
+        suffix = closing["events"][closing["events"].index(
+            next(e for e in closing["events"] if e["stage"] == "IMMEDIATE_CHECK")) + 1:]
+
+        def mutate(ts):
+            del ts[3:]
+            root = ts[2]
+            check = root["events"][-1]
+            self.assertEqual(check["stage"], "IMMEDIATE_CHECK")
+            check["effects"] = []
+            check["data"] = {"point": "AFTER_ROOT", "result": "CONTINUE"}
+            root["events"].extend(json.loads(cjson(suffix)))
+        bad = rechain(g5, mutate)
+        self.assertEqual(len(ts) - len(trees(bad)), 1)
+        with self.assertRaises(AuditError) as cm:
+            verify(bad, require_sealed=False)
+        self.assertEqual((cm.exception.code, cm.exception.line, cm.exception.path),
+                         ("AU09", 3, "/events"))
+        self.assertIn("closure", cm.exception.detail)
+
+    def test_pr8_03_real_closure_and_terminal_positive(self):
+        for name in ("GT15", "G9"):
+            verify(export(name))
+
+    def test_pr8_04_boolean_intermediate(self):
+        for leaf, value in (("/condition/exertion", True), ("/condition/fatigue", False)):
+            def mutate(ts):
+                step1, step2 = ts[2]["events"][1:3]
+                if leaf == "/condition/exertion":
+                    effect(step1, leaf)["new"] = value
+                    effect(step2, leaf)["old"] = value
+                else:
+                    index = effect(step1, "/condition/exertion")["path"].rsplit("/", 2)[0]
+                    step1["effects"].append({"path": index + "/condition/fatigue", "old": 0,
+                                             "new": value})
+                    step2["effects"].append({"path": index + "/condition/fatigue",
+                                             "old": value, "new": 0})
+                    for e in (step1, step2):
+                        e["effects"].sort(key=lambda x: key(x["path"]))
+            with self.subTest(leaf=leaf):
+                self.both(rechain(two_step((2, 5), (2, 4)), mutate), "AU10", 3,
+                          "/events/1/effects")
+
+    def test_pr8_04_typed_old_still_au08(self):
+        def mutate(ts):
+            effect(ts[2]["events"][2], "/condition/exertion")["old"] = True
+        data = rechain(two_step((2, 5), (2, 4)), mutate)
+        e = self.fault(data, "AU08", 3, require_sealed=False)
+        self.assertTrue(e.path.startswith("/events/2/effects/") and e.path.endswith("/old"))

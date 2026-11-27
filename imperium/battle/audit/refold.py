@@ -347,6 +347,9 @@ class _Verifier:
         """Static AU09 (E03): the selected family and the decision branch."""
         if not rules.p4_family(command["kind"], stages):
             self.fail("AU09", "/events", "stage sequence is not a P4 trace")
+        if command["kind"] == "MoveOrder" and \
+                sum(s in rules.STEPS for s in stages) > len(command["path"]):
+            self.fail("AU09", "/events", "a STEP beyond the declared path")
         for i, s in enumerate(stages):
             if s != "WINDOW":
                 continue
@@ -387,8 +390,12 @@ class _Verifier:
         ctx["evacuable"] = evacuable
         continuation = stages[-1] == "IMMEDIATE_CHECK"
         doc = pre
+        stopped = False
         for i, e in enumerate(events):
             stage = e["stage"]
+            if stage in rules.STEPS and stopped:
+                # ER06: a recorded threatened entry is a forced stop.
+                self.fail("AU09", "/events", "a STEP after a recorded entry stop")
             if stage == "RESPONSE":
                 decision = _get(events[i - 1]["data"], "decision")
                 who = decision.get("formation") if type(decision) is dict else None
@@ -399,7 +406,26 @@ class _Verifier:
             nxt = stages[i + 1] if i + 1 < len(stages) else None
             trace = rules.T_ROOT if continuation else None
             doc = self.event(i, e, doc, pre, command, trace, nxt, cursor, ctx)
+            if stage in rules.STEPS:
+                stopped = e["data"]["threatened"] is True
+            if stage == "IMMEDIATE_CHECK":
+                self._p4_suffix(doc, nxt)
         return doc
+
+    def _p4_suffix(self, doc, nxt):
+        """ER06 closure: the reconstructed ledger at IMMEDIATE_CHECK selects
+        continuation, closure or (with precedence) an immediate terminal."""
+        if nxt == "TERMINAL":
+            return
+        uses = doc["ledger"]["uses"]
+        opportunities = doc["scenario"]["profile"]["opportunities"]
+        done = all(rules.side_finished(uses, s, opportunities) for s in ("S0", "S1"))
+        if done != (nxt is not None):
+            self.fail("AU09", "/events", "round closure disagrees with the ledger")
+        if nxt is None:
+            first = "S0" if (doc["clock"]["completed_rounds"] + 1) % 2 == 1 else "S1"
+            if doc["phase"]["side"] != rules.next_to_move(first, uses, opportunities):
+                self.fail("AU09", "/events", "successor side disagrees with the ledger")
 
     def _index(self, doc, token):
         for i, f in enumerate(doc["formations"]):
@@ -447,6 +473,8 @@ class _Verifier:
         i = self._index(before, token)
         c0 = before["formations"][i]["condition"]
         c1 = after["formations"][i]["condition"]
+        if not all(_exact_int(c[k]) for c in (c0, c1) for k in ("fatigue", "exertion")):
+            self.fail("AU10", f"{base}/effects", "exertion or fatigue is not an exact integer")
         f, e = rules.map_marks(c0, marks, before["scenario"]["profile"]["exertion_threshold"])
         if (c1["fatigue"], c1["exertion"]) != (f, e):
             self.fail("AU10", f"{base}/effects", "exertion marks disagree with MP21")

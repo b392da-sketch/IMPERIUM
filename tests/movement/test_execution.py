@@ -80,6 +80,33 @@ class D02Threat(MovementCase):
         self.assertEqual(res.accepted.state.contacts, ())
 
 
+class D02EntryStopSeam(MovementCase):
+
+    def test_latched_entry_stops_with_clear_current_threat(self):
+        """Labelled planner seam (D02): only the stored entry stop is injected;
+        the board and the live threat query match the positive control."""
+        import sys
+        from unittest import mock
+        step_module = sys.modules["imperium.battle.engine.step"]
+        st = state_of(doc())
+        order = mv("S0.H1", (2, 5), (2, 4))
+        real = step_module.move_step
+
+        def latched(values, command, k):
+            stage, after, data, threatened = real(values, command, k)
+            self.assertEqual((k, threatened), (1, False))
+            return stage, after, dict(data, threatened=True), True
+
+        control = complete(st, order)
+        self.assertIn(E.Stage.STEP2, control.accepted.stages)
+        with mock.patch.object(step_module, "move_step", latched):
+            stopped = complete(st, order)
+        self.assertNotIn(E.Stage.STEP2, stopped.accepted.stages)
+        work = stopped.accepted.state.ledger.uses[-1].work[0]
+        self.assertEqual((work.end.name, len(work.legs)), ("STOPPED", 1))
+        self.assertEqual(B.formation(stopped.accepted.state, fid("S0.H1")).condition.exertion, 1)
+
+
 class D03Exertion(MovementCase):
 
     def condition_after(self, d, command):
@@ -168,6 +195,21 @@ class D04Latch(MovementCase):
         self.assertFalse({r.formation.token: r.safe_latch
                           for r in after.ledger.formations}["S0.L1"])
         self.assertTrue(moved)
+
+    def test_real_adjacency_loss_keeps_both_latches_false(self):
+        from tests.movement.support import wd
+        d = doc()
+        place(d, "S1.H3", (8, 1))                         # frees S1.L1's rear cell (6,2)
+        for r in d["ledger"]["formations"]:
+            r["safe_latch"] = True
+        adjacent = complete(state_of(d), mv("S0.L1", (5, 4))).accepted.state
+        apart = complete(adjacent, wd("S1.L1", (6, 2))).accepted.state
+        for st, safe in ((adjacent, False), (apart, True)):
+            fields = fields_of(_values(st))
+            for token in ("S0.L1", "S1.L1"):
+                self.assertEqual(recovery_safe_now(fields, fid(token)), safe, token)
+        latch = {r.formation.token: r.safe_latch for r in apart.ledger.formations}
+        self.assertEqual((latch["S0.L1"], latch["S1.L1"]), (False, False))
 
     def test_latch_true_survives_safe_move(self):
         d = doc()

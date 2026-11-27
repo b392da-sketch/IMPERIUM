@@ -410,6 +410,31 @@ def decision_shape(command):
     return order_shape(command, DECISIONS)
 
 
+def side_finished(uses, side, opportunities):
+    """P1 R11 over a ledger document: passed, or every opportunity used."""
+    mine = [u for u in uses if u["side"] == side]
+    return any(u["kind"] == "PASS" for u in mine) or \
+        sum(u["kind"] != "PASS" for u in mine) >= opportunities
+
+
+def next_to_move(first, uses, opportunities):
+    """The side to move after ``uses`` in a round opened by ``first`` (R11)."""
+    expected = first
+    finished = {"S0": False, "S1": False}
+    counts = {"S0": 0, "S1": 0}
+    for u in uses:
+        x = u["side"]
+        other = "S1" if x == "S0" else "S0"
+        if u["kind"] == "PASS":
+            finished[x] = True
+        else:
+            counts[x] += 1
+            if counts[x] >= opportunities:
+                finished[x] = True
+        expected = x if finished[other] else other
+    return expected
+
+
 def p4_family(kind, stages):
     """Static AU09 check of a P4 trace: True iff ``stages`` is a member of
     the selected family (E03: sequence, ordering and predecessors only)."""

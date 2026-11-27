@@ -79,39 +79,40 @@ class J02Pivot(unittest.TestCase):
             self.assertEqual(W.pivot_turn(d, hx(5 + dq, 4 + dr)), turn, direction)
 
     def test_eligibility_controls(self):
+        """Each negative keeps a window open through an independent missile
+        option, so the excluded pivot's absence is asserted, not assumed."""
+        pivot = ("S1.H4", "DEFENSIVE_PIVOT", "S0.L1")
+        missile = ("S1.L1", "DEFENSIVE_MISSILE", "S0.L1")
         base = doc()
         place(base, "S1.H4", (3, 4), facing=4)          # S0.L1 entering (4,4) is at d0
-        st = state_of(base)
-        root = self.assert_window(st)
-        self.assertIn(("S1.H4", "DEFENSIVE_PIVOT", "S0.L1"), options(root))
+        place(base, "S1.L1", (6, 3), facing=2)          # keeps a missile on (4,4)
+        self.assertEqual(options(self.assert_window(state_of(base))), [pivot, missile])
+
+        def no_effort(d):
+            d["ledger"]["uses"] = [hold_use("S0", "S0.H1"), individual(
+                "S1", "S1.H4", {"kind": "Pivot", "facing_before": 1, "turn": 1, "steps": 3})]
+            cond(d, "S1.H4", e=3)
+            fr(d, "S1.H4")["exerted"] = True
+
         for label, edit in (("C2", lambda d: cond(d, "S1.H4", c=2)),
                             ("reforming", lambda d: make_reformer(d, "S1.H4")),
-                            ("used response", lambda d: _responded(d, "S1.H4"))):
-            d = json.loads(json.dumps(base))
-            edit(d)
-            r = E.step(state_of(d), mv("S0.L1", (4, 4)))
-            if type(r) is E.Suspended:
-                self.assertNotIn(("S1.H4", "DEFENSIVE_PIVOT", "S0.L1"), options(r.root), label)
-        d = json.loads(json.dumps(base))                         # no effort left
-        d["ledger"]["uses"] = [hold_use("S0", "S0.H1"), individual(
-            "S1", "S1.H4", {"kind": "Pivot", "facing_before": 1, "turn": 1, "steps": 3})]
-        cond(d, "S1.H4", e=3)
-        fr(d, "S1.H4")["exerted"] = True
-        r = E.step(state_of(d), mv("S0.L1", (4, 4)))
-        if type(r) is E.Suspended:
-            self.assertNotIn(("S1.H4", "DEFENSIVE_PIVOT", "S0.L1"), options(r.root))
-        d = json.loads(json.dumps(base))
+                            ("used response", lambda d: _responded(d, "S1.H4")),
+                            ("no effort", no_effort)):
+            with self.subTest(control=label):
+                d = json.loads(json.dumps(base))
+                edit(d)
+                self.assertEqual(options(self.assert_window(state_of(d))), [missile])
+        d = json.loads(json.dumps(base))                         # SPENT stays eligible
         d["ledger"]["uses"] = [hold_use("S0", "S0.H1"), hold_use("S1", "S1.H4")]
-        root = self.assert_window(state_of(d))                   # SPENT stays eligible
-        self.assertIn(("S1.H4", "DEFENSIVE_PIVOT", "S0.L1"), options(root))
+        self.assertEqual(options(self.assert_window(state_of(d))), [pivot, missile])
 
     def test_only_hostile_adjacent_is_the_mover(self):
         d = doc()
         place(d, "S1.H4", (3, 4), facing=4)
         place(d, "S0.H4", (2, 4), facing=4)                     # already adjacent to S1.H4
-        r = E.step(state_of(d), mv("S0.L1", (4, 4)))
-        if type(r) is E.Suspended:
-            self.assertNotIn(("S1.H4", "DEFENSIVE_PIVOT", "S0.L1"), options(r.root))
+        place(d, "S1.L1", (6, 3), facing=2)
+        self.assertEqual(options(self.assert_window(state_of(d))),
+                         [("S1.L1", "DEFENSIVE_MISSILE", "S0.L1")])
 
     def assert_window(self, st):
         r = E.step(st, mv("S0.L1", (4, 4)))
