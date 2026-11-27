@@ -360,6 +360,13 @@ class H01Evacuate(Case):
         self.assertIs(B.formation(after, fid("S0.H5")).disposition, B.Disposition.WITHDRAWN)
         place(d, "S1.H4", (4, 8), facing=0)          # adjacent, facing away
         self.no(state_of(d), ev("S0.H5"), R.EXIT_UNSAFE, "/formation")
+        place(d, "S1.H4", (4, 8), facing=3)          # facing in, across closed edges (seam)
+        st = state_of(d)
+        closed = (EdgeRule(hx(3, 8), hx(4, 8), False, False, 0),
+                  EdgeRule(hx(4, 8), hx(3, 8), False, False, 0))
+        self.assertEqual(movement.admit(seam(st, closed), ev("S0.H5")),
+                         ("reject", R.EXIT_UNSAFE, "/formation",
+                          rejection_oracles()["EXIT_UNSAFE"]["detail"]))
 
     def test_effort(self):
         d = responded(doc(), "S0.H5", "S1.H1")

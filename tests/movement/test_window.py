@@ -9,6 +9,7 @@ import unittest
 import imperium.battle as B
 from imperium.battle import engine as E
 from imperium.battle.engine import window as W
+from tests.battle.common import individual
 from tests.engine.helpers import hold_use, make_reformer, pass_use
 from tests.movement.support import (
     S0, S1, MovementCase, carriers, cjson, complete, cond, doc, f, fid, fr, gm, hx, mv, place,
@@ -91,6 +92,14 @@ class J02Pivot(unittest.TestCase):
             r = E.step(state_of(d), mv("S0.L1", (4, 4)))
             if type(r) is E.Suspended:
                 self.assertNotIn(("S1.H4", "DEFENSIVE_PIVOT", "S0.L1"), options(r.root), label)
+        d = json.loads(json.dumps(base))                         # no effort left
+        d["ledger"]["uses"] = [hold_use("S0", "S0.H1"), individual(
+            "S1", "S1.H4", {"kind": "Pivot", "facing_before": 1, "turn": 1, "steps": 3})]
+        cond(d, "S1.H4", e=3)
+        fr(d, "S1.H4")["exerted"] = True
+        r = E.step(state_of(d), mv("S0.L1", (4, 4)))
+        if type(r) is E.Suspended:
+            self.assertNotIn(("S1.H4", "DEFENSIVE_PIVOT", "S0.L1"), options(r.root))
         d = json.loads(json.dumps(base))
         d["ledger"]["uses"] = [hold_use("S0", "S0.H1"), hold_use("S1", "S1.H4")]
         root = self.assert_window(state_of(d))                   # SPENT stays eligible
