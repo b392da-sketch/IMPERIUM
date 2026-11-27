@@ -81,15 +81,6 @@ class BattleSession:
     def journal(self):
         return self._journal
 
-    @property
-    def records(self):
-        """The accepted ``RootRecord``s, in order (P3 6)."""
-        return self._records
-
-    @property
-    def run(self):
-        return self._run
-
     def submit(self, command):
         result = resolve(self._state, command)
         if type(result) is not Resolved:

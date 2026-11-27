@@ -12,7 +12,7 @@ from .errors import AuditError
 MAX_INPUT = 256 * 1024 * 1024
 MAX_LINE = 1024 * 1024
 MAX_DEPTH = 32
-INT_LOW = -(2 ** 63)
+INT_LOW = -(2 ** 63 - 1)   # the P1 signed domain is symmetric
 INT_HIGH = 2 ** 63 - 1
 HEX = frozenset("0123456789abcdef")
 

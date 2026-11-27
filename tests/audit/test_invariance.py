@@ -164,7 +164,7 @@ class Invariance(unittest.TestCase):
                                                             E.PassOrder(S0)]
                 for c in seq:
                     self.assertIs(type(s.submit(c)), E.Accepted)
-                ids.append([[e.stage_id for e in r.events] for r in s.records])
+                ids.append([[e.stage_id for e in r.events] for r in s._records])
                 digests.append(B.digest(s.state))
                 pairs.append(trees(s.export_audit())[0]["pair"])
             with self.subTest(variant=variant):

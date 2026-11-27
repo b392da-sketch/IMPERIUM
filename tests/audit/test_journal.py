@@ -10,11 +10,17 @@ chain. Nothing below takes an expected value from ``export_audit``.
 
 import importlib
 import json
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
 import unittest
 from unittest import mock
 
 import imperium.battle as B
 from imperium.battle import engine as E
+from imperium.battle.audit import verify
 from tests.audit.support import (
     CARRIERS, DEFENSIVE, RUN0, S0, S1, STANDARD, WALK_SEEDS, chained, cjson, journals, oracles,
     session, sha, trees, walk,
@@ -24,6 +30,8 @@ from tests.engine.test_boundary import VARIANTS, closing
 from tests.support.battle_builder import build
 
 session_module = importlib.import_module("imperium.battle.engine.session")
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+P2_RUNTIME = "5dcfd5dd186c7a2f3ee5a422992c302e2a521389"
 STAGES = ("ADVANCE", "CLOSURE_CHECK", "CLOSURE_DISPLACEMENT", "END_CHECK", "IMMEDIATE_CHECK",
           "INITIAL_CHECK", "OPEN_ROUND", "RECOVERY", "ROOT", "TERMINAL")
 HEADER_KEYS = {"kind", "schema", "state_schema", "command_schema", "event_schema", "rng",
@@ -80,21 +88,21 @@ def new_use(command):
     return None
 
 
-def model_docs(before, after, command, stages):
+def model_docs(before, after, body, names):
     """Intermediate documents from the two stable documents and section 5.3."""
     docs, cur = [], copy(before)
-    names = [s.name for s in stages]
     for i, stage in enumerate(names):
         cur = copy(cur)
         if i == 0:
             cur["clock"]["event_cursor"] += 1
         if stage == "ROOT":
-            for k in ("sides", "formations", "personnel", "mounts", "ammunition", "contacts"):
-                if "TERMINAL" in names or "CLOSURE_DISPLACEMENT" not in names:
+            if body["kind"] == "Capitulate":
+                for k in ("formations", "personnel", "mounts", "ammunition", "contacts"):
                     cur[k] = copy(after[k])
-            u = new_use(command)
-            if u is not None:
-                cur["ledger"]["uses"] = cur["ledger"]["uses"] + [u]
+            else:
+                cur["ledger"]["uses"] = cur["ledger"]["uses"] + [new_use(body)]
+            if body["kind"] == "DeclareWithdrawal":
+                cur["sides"] = copy(after["sides"])
         elif stage == "IMMEDIATE_CHECK" and i == len(names) - 1:
             cur["phase"] = copy(after["phase"])
         elif stage == "ADVANCE":
@@ -107,71 +115,84 @@ def model_docs(before, after, command, stages):
     return docs
 
 
-def model_journal(fixture, commands, run, seal):
-    d = B.descriptor(fixture)
-    state = (B.f01_opening(d.variant, d.orientation)
-             if d.fixture_class is B.FixtureClass.CANONICAL_OPENING else B.f01_supplied(fixture))
-    pair = (PAIRS[d.variant.name.lower()] if d.fixture_class is B.FixtureClass.CANONICAL_OPENING
-            else fixture.token)
+def new_use(body):
+    kind = {"HoldOrder": "INDIVIDUAL", "PassOrder": "PASS",
+            "DeclareWithdrawal": "POSTURE_WITHDRAWAL"}[body["kind"]]
+    members = [body["formation"]] if body["kind"] == "HoldOrder" else []
+    work = [{"kind": "Hold"}] if body["kind"] == "HoldOrder" else []
+    return {"group": None, "kind": kind, "members": members, "side": body["side"], "work": work}
+
+
+def model_ids(before, body, names):
+    """Section 4.3 ids from the pre-root document."""
+    if body["kind"] == "OpenBattle":
+        return [f"r0:IN:{s}" for s in names]
+    side = body["side"]
+    o = sum(1 for u in before["ledger"]["uses"] if u["side"] == side) + 1
+    rnd = before["clock"]["completed_rounds"] + 1
+    out, closing_ = [], False
+    for s in names:
+        closing_ = closing_ or s == "CLOSURE_DISPLACEMENT"
+        out.append(f"r{rnd}:CL:{s}" if closing_ else f"r{rnd}:{side}.o{o}:{s}")
+    return out
+
+
+_PINNED = {}
+
+
+def pinned_p2():
+    """Stable states and stage names from the accepted P2 tree, in a fresh process."""
+    if "states" not in _PINNED:
+        script = str(pathlib.Path(__file__).with_name("p2_states.py"))
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = subprocess.run(["git", "archive", P2_RUNTIME], cwd=ROOT, capture_output=True,
+                                     check=True).stdout
+            subprocess.run(["tar", "-x", "-C", tmp], input=archive, check=True)
+            out = subprocess.run([sys.executable, "-I", "-s", "-B", script], cwd=tmp,
+                                 capture_output=True, check=True, text=True,
+                                 env={"PATH": os.environ.get("PATH", ""),
+                                      "PYTHONHASHSEED": "0"}).stdout
+        _PINNED["states"] = json.loads(out)
+    return _PINNED["states"]
+
+
+def model_journal(name, run, seal):
+    """Expected journal bytes for a golden carrier, from pinned P2 states only."""
+    p2 = pinned_p2()[name]
+    token = p2["fixture"]
+    pair = token if name == "G0" else "F01-v1-open"
+    state = p2["genesis"]
     lines = [{"kind": "header", "schema": "imperium.battle-audit/1",
               "state_schema": "imperium.battle-state/1",
               "command_schema": "imperium.battle-command/1",
               "event_schema": "imperium.battle-event/1", "rng": "D4-SHA256-v1",
-              "registry": "IMPERIUM-BK-1", "fixture": fixture.token, "pair": pair,
-              "genesis": B.digest(state),
+              "registry": "IMPERIUM-BK-1", "fixture": token, "pair": pair,
+              "genesis": sha(cjson(state)),
               "run": None if run is None else {"seed": run.seed, "replicate": run.replicate}}]
     counts = dict.fromkeys(STAGES, 0)
-    for n, c in enumerate(commands, start=1):
-        r = E.step(state, c)
-        assert type(r) is E.Accepted
-        before, after = jdoc(state), jdoc(r.state)
-        docs = model_docs(before, after, c, r.stages)
-        ids = model_ids(before, c, r.stages)
-        events, prev = [], before
-        for i, (stage, sid, cur) in enumerate(zip(r.stages, ids, docs)):
-            nxt = r.stages[i + 1].name if i + 1 < len(r.stages) else None
-            events.append({"stage": stage.name, "id": sid,
-                           "data": EventChecks.expected_data(stage.name, c, cur, nxt),
+    for n, root in enumerate(p2["roots"], start=1):
+        body, names, after = root["command"], root["stages"], root["after"]
+        docs = model_docs(state, after, body, names)
+        ids = model_ids(state, body, names)
+        events, prev = [], state
+        for i, (stage, sid, cur) in enumerate(zip(names, ids, docs)):
+            nxt = names[i + 1] if i + 1 < len(names) else None
+            events.append({"stage": stage, "id": sid,
+                           "data": EventChecks.expected_data(stage, body, cur, nxt),
                            "effects": [{"path": p, "old": o, "new": v} for p, o, v in diff(prev, cur)],
                            "draws": []})
-            counts[stage.name] += 1
+            counts[stage] += 1
             prev = cur
-        body = json.loads(COMMAND_BODY(c))
         lines.append({"kind": "root", "cursor": n, "command": body,
-                      "command_digest": sha(cjson(body)), "previous": B.digest(state),
-                      "current": B.digest(r.state), "events": events})
-        state = r.state
+                      "command_digest": sha(cjson(body)), "previous": sha(cjson(state)),
+                      "current": sha(cjson(after)), "events": events})
+        state = after
     if seal:
-        lines.append({"kind": "trailer", "roots": len(commands), "cursor": state.clock.event_cursor,
-                      "final": B.digest(state), "terminal": type(state.phase) is B.Terminal,
-                      "stages": counts, "draws": 0})
+        lines.append({"kind": "trailer", "roots": len(p2["roots"]),
+                      "cursor": state["clock"]["event_cursor"], "final": sha(cjson(state)),
+                      "terminal": state["phase"]["kind"] == "Terminal", "stages": counts,
+                      "draws": 0})
     return chained(lines)
-
-
-def COMMAND_BODY(c):
-    body = {"kind": type(c).__name__, "schema": "imperium.battle-command/1"}
-    if hasattr(c, "side"):
-        body["side"] = c.side.name
-    if type(c) is E.HoldOrder:
-        body["formation"] = c.formation.token
-    return cjson(body)
-
-
-def model_ids(before, command, stages):
-    """Section 4.3 ids from the pre-root document."""
-    completed = before["clock"]["completed_rounds"]
-    out = []
-    if type(command) is E.OpenBattle:
-        return [f"r0:IN:{s.name}" for s in stages]
-    side = command.side.name
-    o = sum(1 for u in before["ledger"]["uses"] if u["side"] == side) + 1
-    rnd = completed + 1
-    closing_ = False
-    for s in stages:
-        if s.name in ("CLOSURE_DISPLACEMENT",):
-            closing_ = True
-        out.append(f"r{rnd}:CL:{s.name}" if closing_ else f"r{rnd}:{side}.o{o}:{s.name}")
-    return out
 
 
 class Wire(unittest.TestCase):
@@ -202,16 +223,20 @@ class Wire(unittest.TestCase):
                         self.assertEqual(sorted(ts[-1]["stages"]), list(STAGES))
 
     def test_c02_golden_bytes(self):
+        """Exact bytes against a model built only from the pinned P2 runtime's states."""
         digests = {}
-        for name in ("G1", "G2", "G3", "G4"):
-            fixture, commands = CARRIERS[name]
+        for name in ("G0", "G1", "G2", "G3", "G4"):
             for seal in (True, False):
-                expected = model_journal(fixture, commands(), RUN0, seal)
+                expected = model_journal(name, RUN0, seal)
                 with self.subTest(carrier=name, seal=seal):
                     self.assertEqual(session(name).export_audit(seal=seal), expected)
+                    # L3 with a separately held commitment: the model's own chain.
+                    held = trees(expected)[-1]["chain"]
+                    r = verify(session(name).export_audit(seal=seal), require_sealed=seal,
+                               expected_chain=held)
+                    self.assertEqual((r.sealed, r.final_chain), (seal, held))
                 digests[(name, seal)] = sha(expected)
-            expected = model_journal(fixture, commands(), None, True)
-            self.assertEqual(session(name, None).export_audit(), expected)
+            self.assertEqual(session(name, None).export_audit(), model_journal(name, None, True))
         for name in ("G1", "G2", "G3", "G4"):
             print(f"\nC02 {name} sealed {digests[(name, True)]} prefix {digests[(name, False)]}",
                   end="")
@@ -228,7 +253,7 @@ class Wire(unittest.TestCase):
             self.assertEqual(sha(sealed), m["sealed_sha256"])
             self.assertEqual(trees(prefix)[-1]["chain"], m["prefix_chain"])
             self.assertEqual(trees(sealed)[-1]["chain"], m["sealed_chain"])
-            self.assertEqual(sealed, model_journal(DEFENSIVE, [], E.RunKey(m["seed"], 0), True))
+            self.assertEqual(sealed, model_journal("G0", E.RunKey(m["seed"], 0), True))
             t = trees(sealed)[-1]
             self.assertEqual((t["roots"], t["cursor"], t["terminal"], t["draws"]), (0, 0, True, 0))
             self.assertEqual(t["final"], model["full_state_digest"])
@@ -236,12 +261,12 @@ class Wire(unittest.TestCase):
 
     def test_c02_export_arguments(self):
         s = session("G1")
-        before = (s.state, s.journal, s.records)
+        before = (s.state, s.journal, s._records)
         for bad in (1, None, "yes"):
             with self.assertRaises(TypeError):
                 s.export_audit(bad)
         mid = s.export_audit()
-        self.assertEqual(before, (s.state, s.journal, s.records))
+        self.assertEqual(before, (s.state, s.journal, s._records))
         self.assertIs(type(s.submit(E.PassOrder(S1))), E.Accepted)
         self.assertTrue(s.export_audit(seal=False).startswith(mid[:mid.rindex(b'{"chain"')]))
 
@@ -291,7 +316,7 @@ class Commands(unittest.TestCase):
 class Publication(unittest.TestCase):
 
     def snapshot(self, s):
-        return (s.state, B.digest(s.state), s.journal, s.records, s.export_audit(),
+        return (s.state, B.digest(s.state), s.journal, s._records, s.export_audit(),
                 s.export_audit(seal=False))
 
     def test_c04_failure_before_publication(self):
@@ -351,15 +376,15 @@ class Publication(unittest.TestCase):
         sessions = [session(n) for n in ("G1", "G2", "G3", "G4")]
         sessions += [walk(seed)[0] for seed in WALK_SEEDS]
         for s in sessions:
-            self.assertEqual(len(s.journal), len(s.records))
-            for j, r in zip(s.journal, s.records):
+            self.assertEqual(len(s.journal), len(s._records))
+            for j, r in zip(s.journal, s._records):
                 self.assertEqual((j.cursor, j.command_digest, j.previous, j.current),
                                  (r.cursor, r.command_digest, r.previous, r.current))
                 self.assertEqual(r.command_digest, sha(E.command_bytes(r.command)))
-            if s.records:
-                self.assertEqual(s.records[0].previous,
+            if s._records:
+                self.assertEqual(s._records[0].previous,
                                  trees(s.export_audit(seal=False))[0]["genesis"])
-                self.assertEqual(s.records[-1].current, B.digest(s.state))
+                self.assertEqual(s._records[-1].current, B.digest(s.state))
 
 
 if __name__ == "__main__":

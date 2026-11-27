@@ -172,7 +172,7 @@ class EventChecks(unittest.TestCase):
         if stage in POINT:
             return {"point": POINT[stage], "result": "TERMINAL" if nxt == "TERMINAL" else "CONTINUE"}
         if stage == "ROOT":
-            body = E.encode_command(command)
+            body = command if type(command) is dict else E.encode_command(command)
             return {"kind": body["kind"], "side": body["side"],
                     "formation": body.get("formation"), "use": USE[body["kind"]]}
         if stage in ("CLOSURE_DISPLACEMENT", "RECOVERY"):
@@ -211,13 +211,13 @@ class Goldens(EventChecks):
         r = s.submit(E.OpenBattle())
         self.assertIs(type(r), E.Rejected)
         self.assertIs(r.code, E.RejectCode.PHASE)
-        self.assertEqual((s.records, s.journal, s.state.clock.event_cursor), ((), (), 0))
+        self.assertEqual((s._records, s.journal, s.state.clock.event_cursor), ((), (), 0))
 
     def test_b02_extra_s1_closing_witness(self):
         roots = self.run_carrier(STANDARD, [E.OpenBattle(), E.PassOrder(S0), E.PassOrder(S1)],
                                  WITNESS_IDS)
         self.assertEqual(len(roots[-1][2].record.events), 8)
-        self.assertEqual([r.stage_id for r in b02_witness().records[-1].events], WITNESS_IDS[-1])
+        self.assertEqual([r.stage_id for r in b02_witness()._records[-1].events], WITNESS_IDS[-1])
 
     def test_b02_b0_bare_terminal(self):
         state = b0_state()
@@ -368,13 +368,13 @@ class Walks(EventChecks):
     def test_b04_b05_b06_walks(self):
         for seed in WALK_SEEDS:
             s, commands, _ = walk(seed)
-            d = B.descriptor(s.records and B.FixtureId(json.loads(
+            d = B.descriptor(s._records and B.FixtureId(json.loads(
                 s.export_audit(seal=False).split(b"\n")[0])["fixture"]))
             state = (B.f01_opening(d.variant, d.orientation)
                      if d.fixture_class is B.FixtureClass.CANONICAL_OPENING
                      else B.f01_supplied(d.fixture_id))
             ids = []
-            for n, (c, rec) in enumerate(zip(commands, s.records), start=1):
+            for n, (c, rec) in enumerate(zip(commands, s._records), start=1):
                 r = E.resolve(state, c)
                 self.assertEqual(r.record, rec, seed)
                 self.check_root(state, c, r, n, f"seed {seed} root {n}")

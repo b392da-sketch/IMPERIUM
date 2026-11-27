@@ -61,16 +61,32 @@ CHECK_POINT = {"INITIAL_CHECK": "INITIAL_CHECK", "IMMEDIATE_CHECK": "AFTER_ROOT"
 
 CURSOR = ("clock", "event_cursor")
 COMPLETED = ("clock", "completed_rounds")
-ROOT_FIELDS = ("sides", "ledger", "formations", "personnel", "mounts", "ammunition", "contacts")
+USES = ("ledger", "uses")
+CUSTODY = ("formations", "personnel", "mounts", "ammunition", "contacts")
 
 
-def permitted(stage, segments, trace):
-    """Whether one effect path may appear in this stage (5.3)."""
+def permitted(stage, segments, trace, command, pre):
+    """Whether one effect path may appear in this stage for this command (5.3).
+
+    ROOT is command-scoped: Hold and Pass append a ledger use, Withdrawal also
+    sets the acting side's posture, and Capitulate changes custody fields
+    only. ``pre`` is the verified stable predecessor document.
+    """
     seg = tuple(segments)
     if stage == "INITIAL_CHECK":
         return seg == CURSOR
     if stage == "ROOT":
-        return seg == CURSOR or (len(seg) >= 1 and seg[0] in ROOT_FIELDS)
+        if seg == CURSOR:
+            return True
+        kind = command["kind"]
+        if kind == "Capitulate":
+            return len(seg) >= 1 and seg[0] in CUSTODY
+        if seg == USES:
+            return True
+        if kind == "DeclareWithdrawal" and len(seg) == 3 and seg[0] == "sides" \
+                and seg[2] == "posture" and type(seg[1]) is int:
+            return pre["sides"][seg[1]]["side"] == command["side"]
+        return False
     if stage == "IMMEDIATE_CHECK":
         return trace == T_ROOT and seg == ("phase", "side")
     if stage == "ADVANCE":
@@ -179,6 +195,9 @@ def split(text):
     return out
 
 
+_INDEX = re.compile(r"0|[1-9][0-9]{0,18}")
+
+
 def resolve(doc, raw_segments):
     """Typed segments for an existing location, or None."""
     node = doc
@@ -190,7 +209,8 @@ def resolve(doc, raw_segments):
             typed.append(s)
             node = node[s]
         elif type(node) is list:
-            if not (s.isdigit() and (s == "0" or s[0] != "0")):
+            # ASCII canonical decimal only, bounded before conversion.
+            if _INDEX.fullmatch(s) is None:
                 return None
             i = int(s)
             if i >= len(node):
