@@ -226,7 +226,7 @@ class Review(unittest.TestCase):
         self.assertEqual(sorted(audit.__all__), sorted(
             ["verify", "AuditReport", "AuditError", "check_draw_records", "DrawRecordError"]))
         self.assertEqual(sorted(n for n in dir(E.BattleSession) if not n.startswith("_")),
-                         ["export_audit", "journal", "open", "state", "submit"])
+                         ["export_audit", "journal", "open", "pending", "state", "submit"])
 
 
 if __name__ == "__main__":

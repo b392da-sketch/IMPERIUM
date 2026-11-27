@@ -1,0 +1,5694 @@
+{
+  "G5": {
+    "final": {
+      "clock": {
+        "completed_rounds": 0,
+        "event_cursor": 3
+      },
+      "formations": [
+        {
+          "cell": [
+            1,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.C1"
+        },
+        {
+          "cell": [
+            2,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H1"
+        },
+        {
+          "cell": [
+            3,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H2"
+        },
+        {
+          "cell": [
+            4,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H3"
+        },
+        {
+          "cell": [
+            5,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H4"
+        },
+        {
+          "cell": [
+            3,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H5"
+        },
+        {
+          "cell": [
+            4,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H6"
+        },
+        {
+          "cell": [
+            4,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.L1"
+        },
+        {
+          "cell": [
+            9,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.C1"
+        },
+        {
+          "cell": [
+            8,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H1"
+        },
+        {
+          "cell": [
+            7,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H2"
+        },
+        {
+          "cell": [
+            6,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H3"
+        },
+        {
+          "cell": [
+            5,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H4"
+        },
+        {
+          "cell": [
+            7,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H5"
+        },
+        {
+          "cell": [
+            6,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H6"
+        },
+        {
+          "cell": [
+            6,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.L1"
+        }
+      ],
+      "ledger": {
+        "formations": [
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          }
+        ],
+        "uses": [
+          {
+            "group": "S0.G1",
+            "kind": "GROUP",
+            "members": [
+              "S0.H1",
+              "S0.H2",
+              "S0.H5"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    2,
+                    5
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    2,
+                    6
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    3,
+                    5
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    3,
+                    6
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    3,
+                    6
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    3,
+                    7
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "group": "S1.G1",
+            "kind": "GROUP",
+            "members": [
+              "S1.H1",
+              "S1.H2",
+              "S1.H5"
+            ],
+            "side": "S1",
+            "work": [
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    8,
+                    3
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    8,
+                    2
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    7,
+                    3
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    7,
+                    2
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    7,
+                    2
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    7,
+                    1
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "phase": {
+        "kind": "AwaitingPrincipal",
+        "side": "S0"
+      },
+      "sides": [
+        {
+          "posture": "CONTESTING",
+          "side": "S0"
+        },
+        {
+          "posture": "CONTESTING",
+          "side": "S1"
+        }
+      ]
+    },
+    "roots": [
+      {
+        "command": {
+          "kind": "OpenBattle",
+          "schema": "imperium.battle-command/1"
+        },
+        "cursor": 1,
+        "full_state_digest": "291cca2e6c7d6173dc7a702e5ec1153b972ac70b5ac0bae2daba7b8257c1e5ec"
+      },
+      {
+        "command": {
+          "direction": 4,
+          "group": "S0.G1",
+          "kind": "GroupMoveOrder",
+          "members": [
+            "S0.H1",
+            "S0.H2",
+            "S0.H5"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 2,
+        "full_state_digest": "e790a69fcedb892bba15c25102481d2264770ab1019508af478282e5b9dbc1d2"
+      },
+      {
+        "command": {
+          "direction": 1,
+          "group": "S1.G1",
+          "kind": "GroupMoveOrder",
+          "members": [
+            "S1.H1",
+            "S1.H2",
+            "S1.H5"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 3,
+        "full_state_digest": "040b0ab5df2e9436ead748a922f5adef68b82edadae920e175d2075ab64f6d17"
+      }
+    ]
+  },
+  "G6": {
+    "final": {
+      "clock": {
+        "completed_rounds": 0,
+        "event_cursor": 4
+      },
+      "formations": [
+        {
+          "cell": [
+            1,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.C1"
+        },
+        {
+          "cell": [
+            2,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H1"
+        },
+        {
+          "cell": [
+            3,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H2"
+        },
+        {
+          "cell": [
+            4,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H3"
+        },
+        {
+          "cell": [
+            5,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H4"
+        },
+        {
+          "cell": [
+            3,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H5"
+        },
+        {
+          "cell": [
+            4,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H6"
+        },
+        {
+          "cell": [
+            5,
+            4
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.L1"
+        },
+        {
+          "cell": [
+            9,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.C1"
+        },
+        {
+          "cell": [
+            8,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H1"
+        },
+        {
+          "cell": [
+            7,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H2"
+        },
+        {
+          "cell": [
+            6,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H3"
+        },
+        {
+          "cell": [
+            5,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H4"
+        },
+        {
+          "cell": [
+            7,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H5"
+        },
+        {
+          "cell": [
+            6,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H6"
+        },
+        {
+          "cell": [
+            6,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.L1"
+        }
+      ],
+      "ledger": {
+        "formations": [
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": false
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": false
+          }
+        ],
+        "uses": [
+          {
+            "group": "S0.G1",
+            "kind": "GROUP",
+            "members": [
+              "S0.H1",
+              "S0.H2",
+              "S0.H5"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    2,
+                    5
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    2,
+                    6
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    3,
+                    5
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    3,
+                    6
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    3,
+                    6
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    3,
+                    7
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "group": "S1.G1",
+            "kind": "GROUP",
+            "members": [
+              "S1.H1",
+              "S1.H2",
+              "S1.H5"
+            ],
+            "side": "S1",
+            "work": [
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    8,
+                    3
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    8,
+                    2
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    7,
+                    3
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    7,
+                    2
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    7,
+                    2
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    7,
+                    1
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "group": null,
+            "kind": "INDIVIDUAL",
+            "members": [
+              "S0.L1"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "declared": [
+                  [
+                    5,
+                    4
+                  ]
+                ],
+                "end": "COMPLETED",
+                "kind": "Move",
+                "legs": [
+                  {
+                    "destination": [
+                      5,
+                      4
+                    ],
+                    "facing": 4,
+                    "mode": "FOOT",
+                    "origin": [
+                      4,
+                      5
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "phase": {
+        "kind": "AwaitingPrincipal",
+        "side": "S1"
+      },
+      "sides": [
+        {
+          "posture": "CONTESTING",
+          "side": "S0"
+        },
+        {
+          "posture": "CONTESTING",
+          "side": "S1"
+        }
+      ]
+    },
+    "roots": [
+      {
+        "command": {
+          "kind": "OpenBattle",
+          "schema": "imperium.battle-command/1"
+        },
+        "cursor": 1,
+        "full_state_digest": "291cca2e6c7d6173dc7a702e5ec1153b972ac70b5ac0bae2daba7b8257c1e5ec"
+      },
+      {
+        "command": {
+          "direction": 4,
+          "group": "S0.G1",
+          "kind": "GroupMoveOrder",
+          "members": [
+            "S0.H1",
+            "S0.H2",
+            "S0.H5"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 2,
+        "full_state_digest": "e790a69fcedb892bba15c25102481d2264770ab1019508af478282e5b9dbc1d2"
+      },
+      {
+        "command": {
+          "direction": 1,
+          "group": "S1.G1",
+          "kind": "GroupMoveOrder",
+          "members": [
+            "S1.H1",
+            "S1.H2",
+            "S1.H5"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 3,
+        "full_state_digest": "040b0ab5df2e9436ead748a922f5adef68b82edadae920e175d2075ab64f6d17"
+      },
+      {
+        "command": {
+          "formation": "S0.L1",
+          "kind": "MoveOrder",
+          "path": [
+            [
+              5,
+              4
+            ]
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 4,
+        "decision": {
+          "kind": "DeclineResponse",
+          "schema": "imperium.battle-command/1",
+          "side": "S1",
+          "window_id": "fa0eee2eff4cfab31527cc69be7f4b94b527c46ff0323d314bafe64839e4f60c"
+        },
+        "full_state_digest": "b9814c7c32de3ec8a28ac4533dc57c612455b402505fdf636f887b05ee9f2fef",
+        "window_after": "r1:S0.o2:STEP1",
+        "window_option": {
+          "formation": "S1.L1",
+          "kind": "DEFENSIVE_MISSILE",
+          "target": "S0.L1"
+        }
+      }
+    ]
+  },
+  "G7": {
+    "final": {
+      "clock": {
+        "completed_rounds": 1,
+        "event_cursor": 7
+      },
+      "formations": [
+        {
+          "cell": [
+            1,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.C1"
+        },
+        {
+          "cell": [
+            2,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H1"
+        },
+        {
+          "cell": [
+            3,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H2"
+        },
+        {
+          "cell": [
+            4,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H3"
+        },
+        {
+          "cell": [
+            5,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H4"
+        },
+        {
+          "cell": [
+            3,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H5"
+        },
+        {
+          "cell": [
+            4,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H6"
+        },
+        {
+          "cell": [
+            4,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 2,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.L1"
+        },
+        {
+          "cell": [
+            9,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.C1"
+        },
+        {
+          "cell": [
+            8,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H1"
+        },
+        {
+          "cell": [
+            7,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H2"
+        },
+        {
+          "cell": [
+            6,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H3"
+        },
+        {
+          "cell": [
+            5,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 2,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H4"
+        },
+        {
+          "cell": [
+            7,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H5"
+        },
+        {
+          "cell": [
+            6,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H6"
+        },
+        {
+          "cell": [
+            6,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.L1"
+        }
+      ],
+      "ledger": {
+        "formations": [
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": false
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": {
+              "kind": "DEFENSIVE_PIVOT",
+              "target": "S0.L1"
+            },
+            "safe_latch": false
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          }
+        ],
+        "uses": [
+          {
+            "group": null,
+            "kind": "PASS",
+            "members": [],
+            "side": "S1",
+            "work": []
+          },
+          {
+            "group": null,
+            "kind": "INDIVIDUAL",
+            "members": [
+              "S0.L1"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "declared": [
+                  [
+                    4,
+                    3
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ],
+                "end": "STOPPED",
+                "kind": "Move",
+                "legs": [
+                  {
+                    "destination": [
+                      4,
+                      3
+                    ],
+                    "facing": 4,
+                    "mode": "FOOT",
+                    "origin": [
+                      4,
+                      4
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "phase": {
+        "kind": "AwaitingPrincipal",
+        "side": "S0"
+      },
+      "sides": [
+        {
+          "posture": "CONTESTING",
+          "side": "S0"
+        },
+        {
+          "posture": "CONTESTING",
+          "side": "S1"
+        }
+      ]
+    },
+    "roots": [
+      {
+        "command": {
+          "kind": "OpenBattle",
+          "schema": "imperium.battle-command/1"
+        },
+        "cursor": 1,
+        "full_state_digest": "291cca2e6c7d6173dc7a702e5ec1153b972ac70b5ac0bae2daba7b8257c1e5ec"
+      },
+      {
+        "command": {
+          "formation": "S0.L1",
+          "kind": "MoveOrder",
+          "path": [
+            [
+              4,
+              4
+            ]
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 2,
+        "full_state_digest": "c2a313ea297fdb456114a5c032a7a55688f8aa1f719f9740dd443882d1bf6a0f"
+      },
+      {
+        "command": {
+          "formation": "S1.H4",
+          "kind": "PivotOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1",
+          "steps": 1,
+          "turn": -1
+        },
+        "cursor": 3,
+        "full_state_digest": "0e4199080d933458a2a7a6140655229c01e07080b60eb673fee881e6e7838a5c"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 4,
+        "full_state_digest": "474120303f206a2bc6c411d165ab56e9055e1baa800ed29992fae5f88b36a565"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 5,
+        "full_state_digest": "9343cac57c4f98221af64f8042669ef1d95b8457471ea60de0622c1d4eb5f5f4"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 6,
+        "full_state_digest": "6d551427a946c11bb9885b8fb1ff48b1ce8630a75b01f823225008d571a9164b"
+      },
+      {
+        "command": {
+          "formation": "S0.L1",
+          "kind": "MoveOrder",
+          "path": [
+            [
+              4,
+              3
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 7,
+        "decision": {
+          "formation": "S1.H4",
+          "kind": "RespondPivot",
+          "schema": "imperium.battle-command/1",
+          "side": "S1",
+          "target": "S0.L1",
+          "window_id": "da7ede73546d34692fc70777f5484f2dabebd703e4ac0d3f92af549ad3579739"
+        },
+        "full_state_digest": "f826951c1895c096ea243b7a3f62d9bab71ff95300e2e1b658e0b82c44318690",
+        "window_after": "r2:S0.o1:STEP1",
+        "window_option": {
+          "formation": "S1.H4",
+          "kind": "DEFENSIVE_PIVOT",
+          "target": "S0.L1"
+        }
+      }
+    ]
+  },
+  "G8": {
+    "final": {
+      "clock": {
+        "completed_rounds": 0,
+        "event_cursor": 2
+      },
+      "formations": [
+        {
+          "cell": [
+            1,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.C1"
+        },
+        {
+          "cell": [
+            2,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 2,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H1"
+        },
+        {
+          "cell": [
+            3,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H2"
+        },
+        {
+          "cell": [
+            4,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H3"
+        },
+        {
+          "cell": [
+            5,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H4"
+        },
+        {
+          "cell": [
+            3,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H5"
+        },
+        {
+          "cell": [
+            4,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H6"
+        },
+        {
+          "cell": [
+            4,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.L1"
+        },
+        {
+          "cell": [
+            9,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.C1"
+        },
+        {
+          "cell": [
+            8,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H1"
+        },
+        {
+          "cell": [
+            7,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H2"
+        },
+        {
+          "cell": [
+            6,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H3"
+        },
+        {
+          "cell": [
+            5,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H4"
+        },
+        {
+          "cell": [
+            7,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H5"
+        },
+        {
+          "cell": [
+            6,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H6"
+        },
+        {
+          "cell": [
+            6,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.L1"
+        }
+      ],
+      "ledger": {
+        "formations": [
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          }
+        ],
+        "uses": [
+          {
+            "group": null,
+            "kind": "INDIVIDUAL",
+            "members": [
+              "S0.H1"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "kind": "Withdraw",
+                "leg": {
+                  "destination": [
+                    2,
+                    7
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    2,
+                    6
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "phase": {
+        "kind": "AwaitingPrincipal",
+        "side": "S1"
+      },
+      "sides": [
+        {
+          "posture": "CONTESTING",
+          "side": "S0"
+        },
+        {
+          "posture": "CONTESTING",
+          "side": "S1"
+        }
+      ]
+    },
+    "roots": [
+      {
+        "command": {
+          "kind": "OpenBattle",
+          "schema": "imperium.battle-command/1"
+        },
+        "cursor": 1,
+        "full_state_digest": "291cca2e6c7d6173dc7a702e5ec1153b972ac70b5ac0bae2daba7b8257c1e5ec"
+      },
+      {
+        "command": {
+          "destination": [
+            2,
+            7
+          ],
+          "formation": "S0.H1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 2,
+        "full_state_digest": "693821170c46d5d28ed8c05cab266271e7a5fdb175b8c20361f33ae0413adb32"
+      }
+    ]
+  },
+  "G9": {
+    "final": {
+      "clock": {
+        "completed_rounds": 7,
+        "event_cursor": 35
+      },
+      "formations": [
+        {
+          "cell": [
+            1,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 1,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.C1"
+        },
+        {
+          "cell": [
+            2,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 1,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.H1"
+        },
+        {
+          "cell": [
+            3,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 1,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.H2"
+        },
+        {
+          "cell": [
+            4,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 1,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.H3"
+        },
+        {
+          "cell": [
+            5,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 1,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.H4"
+        },
+        {
+          "cell": [
+            3,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 4,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.H5"
+        },
+        {
+          "cell": [
+            4,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 4,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.H6"
+        },
+        {
+          "cell": [
+            4,
+            8
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 2,
+            "fatigue": 1,
+            "morale": 0
+          },
+          "disposition": "WITHDRAWN",
+          "facing": 4,
+          "formation": "S0.L1"
+        },
+        {
+          "cell": [
+            9,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.C1"
+        },
+        {
+          "cell": [
+            8,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H1"
+        },
+        {
+          "cell": [
+            7,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H2"
+        },
+        {
+          "cell": [
+            6,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H3"
+        },
+        {
+          "cell": [
+            5,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H4"
+        },
+        {
+          "cell": [
+            7,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H5"
+        },
+        {
+          "cell": [
+            6,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H6"
+        },
+        {
+          "cell": [
+            6,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.L1"
+        }
+      ],
+      "ledger": null,
+      "phase": {
+        "kind": "Terminal",
+        "record": {
+          "charged_rounds": 8,
+          "defeat": [
+            "DEPARTURE",
+            null
+          ],
+          "exit_available": [
+            1640,
+            0
+          ],
+          "objective": {
+            "kind": "UNHELD",
+            "side": null
+          },
+          "onmap_available": [
+            0,
+            1640
+          ],
+          "point": "AFTER_ROOT",
+          "postures": [
+            "CONTESTING",
+            "CONTESTING"
+          ],
+          "reason": "ZERO_VIABILITY_UNILATERAL",
+          "result": "VICTORY",
+          "viable": [
+            0,
+            8
+          ],
+          "winner": "S1"
+        }
+      },
+      "sides": [
+        {
+          "posture": "CONTESTING",
+          "side": "S0"
+        },
+        {
+          "posture": "CONTESTING",
+          "side": "S1"
+        }
+      ]
+    },
+    "roots": [
+      {
+        "command": {
+          "kind": "OpenBattle",
+          "schema": "imperium.battle-command/1"
+        },
+        "cursor": 1,
+        "full_state_digest": "291cca2e6c7d6173dc7a702e5ec1153b972ac70b5ac0bae2daba7b8257c1e5ec"
+      },
+      {
+        "command": {
+          "destination": [
+            3,
+            8
+          ],
+          "formation": "S0.H5",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 2,
+        "full_state_digest": "2af884748adff1c74f2a3136e2715824f063b12cd4a44677c8c7af8a6d318b5b"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 3,
+        "full_state_digest": "be2329ff211aad560338470840d8bf27dee74ae395f2c9eb729de8fe8145ba20"
+      },
+      {
+        "command": {
+          "destination": [
+            4,
+            8
+          ],
+          "formation": "S0.H6",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 4,
+        "full_state_digest": "3e417e5f5590e0b96f74d0411a6a6b77125dff355b7f95a12bb345355d52e398"
+      },
+      {
+        "command": {
+          "destination": [
+            1,
+            7
+          ],
+          "formation": "S0.C1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 5,
+        "full_state_digest": "c57bc0b97e36056cf8c23645e67a5155a2ae9fe46a21e1567941d2ffedf24d14"
+      },
+      {
+        "command": {
+          "destination": [
+            2,
+            7
+          ],
+          "formation": "S0.H1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 6,
+        "full_state_digest": "a41bc270158d7d7a77638a75a202541fa782428c4eafe1ab90bdcb6b692cd100"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 7,
+        "full_state_digest": "13fede5530fed89829093879e0bcaa66b02ea2bc0b4e02c23c6ec8406727d4ac"
+      },
+      {
+        "command": {
+          "formation": "S0.H5",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 8,
+        "full_state_digest": "6e86db7f680fd4e944843c9ac04e9648f3f868a73825e30c5cb12a019deca721"
+      },
+      {
+        "command": {
+          "formation": "S0.H6",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 9,
+        "full_state_digest": "ec099b1ac6936953078adf6912171cb39247b16649f22879af15f7fb92440edf"
+      },
+      {
+        "command": {
+          "destination": [
+            3,
+            7
+          ],
+          "formation": "S0.H2",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 10,
+        "full_state_digest": "bffb17c537a242be92315e4a70ecdcee441e87cfcae986cc95c2b361553fb6a9"
+      },
+      {
+        "command": {
+          "destination": [
+            4,
+            7
+          ],
+          "formation": "S0.H3",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 11,
+        "full_state_digest": "c68effcb8a7038857fb86dbbb5a218d7b01cad53c7a4d4d2b19f3aaf5e6ff3d8"
+      },
+      {
+        "command": {
+          "destination": [
+            1,
+            8
+          ],
+          "formation": "S0.C1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 12,
+        "full_state_digest": "f23f00d1e40be2080214431614c71c0bdaa7a3bb3fe17e88c7486e7a713230e5"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 13,
+        "full_state_digest": "81fe4c3648c385640c4b346c0fcbebfb7471b7a1449af3b99ff2b7a142a7eec3"
+      },
+      {
+        "command": {
+          "destination": [
+            2,
+            8
+          ],
+          "formation": "S0.H1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 14,
+        "full_state_digest": "d4cf2d2e091e2f945100722f9f8d9ce60c9f88952d148753e9943a5d57443027"
+      },
+      {
+        "command": {
+          "destination": [
+            3,
+            8
+          ],
+          "formation": "S0.H2",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 15,
+        "full_state_digest": "319e166a84b54d07ecf104157e834efd8f3c14891d5daefc6a4cb545f0a0c9f8"
+      },
+      {
+        "command": {
+          "destination": [
+            4,
+            8
+          ],
+          "formation": "S0.H3",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 16,
+        "full_state_digest": "5da8abdba58fb8ec247ee13ca51aa21c651c87cfe6aa63ed6d65e9130c9caaf7"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 17,
+        "full_state_digest": "2558ded3ba59aa6141e26a124489fdb389f4417f450ba3c236a831b088288e5a"
+      },
+      {
+        "command": {
+          "formation": "S0.C1",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 18,
+        "full_state_digest": "e60fd3c883626a30cd2d84735766efa90018d63d5ec10a696cc51ed71d25ad3d"
+      },
+      {
+        "command": {
+          "formation": "S0.H1",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 19,
+        "full_state_digest": "1aa83df305e9ec413206cdcc171e3a2ce647d734cd0d4504bddc881a94d563d3"
+      },
+      {
+        "command": {
+          "formation": "S0.H2",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 20,
+        "full_state_digest": "0d5d8fc305135567b9cc3d23fa88454f9ac2b2f3ea64b8962f6707f6d1951444"
+      },
+      {
+        "command": {
+          "formation": "S0.H3",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 21,
+        "full_state_digest": "44e29b049cd841187779d41946a97129422242a5091df66a1946ff60febd7a53"
+      },
+      {
+        "command": {
+          "destination": [
+            5,
+            7
+          ],
+          "formation": "S0.H4",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 22,
+        "full_state_digest": "e5a41a19925d4d77c0d3a3cfe9fe0dfe197959a31c8896b5e9515b9d2b897ed8"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 23,
+        "full_state_digest": "cf8dae42bf17ec757e115094daf4627b021a72cec6139f64e2dbe3d19728c569"
+      },
+      {
+        "command": {
+          "destination": [
+            4,
+            6
+          ],
+          "formation": "S0.L1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 24,
+        "full_state_digest": "02ea91476f73bb973647ab34e97ed885ee99d45f593396e6caa08ebfb5215b61"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 25,
+        "full_state_digest": "9515df65a3af390e7291c460140582c6d7ff607d5d0185c4713b9f15fd8f06df"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 26,
+        "full_state_digest": "593f2fced639848fb22803debf3684e4b459d994a3639a2b41e7018a2a4fcd01"
+      },
+      {
+        "command": {
+          "destination": [
+            5,
+            8
+          ],
+          "formation": "S0.H4",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 27,
+        "full_state_digest": "6b131fc280ab5462e6fa17b08469b1156f0eadfdc394c57ba1b3cfb9b3b4bcf7"
+      },
+      {
+        "command": {
+          "destination": [
+            4,
+            7
+          ],
+          "formation": "S0.L1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 28,
+        "full_state_digest": "b7318b23182619f6b245ac2fac50170156ee222cf0af22ca66679dc8ff7dbba1"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 29,
+        "full_state_digest": "da305e78c1f92d8ee7630f39266a473042df0e877a4fa438cc995956fdf5ce1f"
+      },
+      {
+        "command": {
+          "formation": "S0.H4",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 30,
+        "full_state_digest": "6cfe5e1217f0dcfccc836314dd482c905ab627185cd4db0ed3571694f8aecd73"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 31,
+        "full_state_digest": "f053e267a3e288320abcacdb8a97bb7787521a4bc6a5e7b1cd473c9ef6435d5e"
+      },
+      {
+        "command": {
+          "destination": [
+            4,
+            8
+          ],
+          "formation": "S0.L1",
+          "kind": "WithdrawOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 32,
+        "full_state_digest": "bd01337b900a07a9995b39513b21a64a4eac8bcc58b1a5c48adf0e380a57d39d"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 33,
+        "full_state_digest": "b869df5e8b36b1b8c1d564e85cb78f0f235adb0a052b619a9a24646d8222b3e7"
+      },
+      {
+        "command": {
+          "kind": "PassOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 34,
+        "full_state_digest": "41fa089e676ce54a18cd5ba71d61dbc652724080b92f88ee33a8d5f5ac8b6e1e"
+      },
+      {
+        "command": {
+          "formation": "S0.L1",
+          "kind": "EvacuateOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 35,
+        "full_state_digest": "645aff7e3ea30c30a43f212d1ab1fc7250d5c2637b9af8506457461819609920"
+      }
+    ]
+  },
+  "GT15": {
+    "final": {
+      "clock": {
+        "completed_rounds": 1,
+        "event_cursor": 9
+      },
+      "formations": [
+        {
+          "cell": [
+            1,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.C1"
+        },
+        {
+          "cell": [
+            2,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H1"
+        },
+        {
+          "cell": [
+            3,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H2"
+        },
+        {
+          "cell": [
+            4,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 5,
+          "formation": "S0.H3"
+        },
+        {
+          "cell": [
+            5,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 5,
+          "formation": "S0.H4"
+        },
+        {
+          "cell": [
+            3,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H5"
+        },
+        {
+          "cell": [
+            4,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 5,
+          "formation": "S0.H6"
+        },
+        {
+          "cell": [
+            5,
+            4
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.L1"
+        },
+        {
+          "cell": [
+            9,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.C1"
+        },
+        {
+          "cell": [
+            8,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H1"
+        },
+        {
+          "cell": [
+            7,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H2"
+        },
+        {
+          "cell": [
+            6,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 2,
+          "formation": "S1.H3"
+        },
+        {
+          "cell": [
+            5,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 2,
+          "formation": "S1.H4"
+        },
+        {
+          "cell": [
+            7,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H5"
+        },
+        {
+          "cell": [
+            6,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 2,
+          "formation": "S1.H6"
+        },
+        {
+          "cell": [
+            6,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.L1"
+        }
+      ],
+      "ledger": {
+        "formations": [
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S0.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": false
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": false
+          }
+        ],
+        "uses": []
+      },
+      "phase": {
+        "kind": "AwaitingPrincipal",
+        "side": "S1"
+      },
+      "sides": [
+        {
+          "posture": "CONTESTING",
+          "side": "S0"
+        },
+        {
+          "posture": "CONTESTING",
+          "side": "S1"
+        }
+      ]
+    },
+    "pre_last_hold": {
+      "ammunition": [
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S0",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S0.H1",
+          "place": {
+            "formation": "S0.H1",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S0",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S0.H2",
+          "place": {
+            "formation": "S0.H2",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S0",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S0.H3",
+          "place": {
+            "formation": "S0.H3",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S0",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S0.H4",
+          "place": {
+            "formation": "S0.H4",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S0",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S0.H5",
+          "place": {
+            "formation": "S0.H5",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S0",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S0.H6",
+          "place": {
+            "formation": "S0.H6",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 4,
+          "custodian": "S0",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S0.L1",
+          "place": {
+            "formation": "S0.L1",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S1",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S1.H1",
+          "place": {
+            "formation": "S1.H1",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S1",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S1.H2",
+          "place": {
+            "formation": "S1.H2",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S1",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S1.H3",
+          "place": {
+            "formation": "S1.H3",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S1",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S1.H4",
+          "place": {
+            "formation": "S1.H4",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S1",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S1.H5",
+          "place": {
+            "formation": "S1.H5",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 2,
+          "custodian": "S1",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S1.H6",
+          "place": {
+            "formation": "S1.H6",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "carried": 4,
+          "custodian": "S1",
+          "custody": "OWN",
+          "expended": 0,
+          "formation": "S1.L1",
+          "place": {
+            "formation": "S1.L1",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE"
+        }
+      ],
+      "authority": [
+        [
+          "S0.G1",
+          "ACTIVE"
+        ],
+        [
+          "S0.G2",
+          "ACTIVE"
+        ],
+        [
+          "S1.G1",
+          "ACTIVE"
+        ],
+        [
+          "S1.G2",
+          "ACTIVE"
+        ]
+      ],
+      "clock": {
+        "completed_rounds": 0,
+        "event_cursor": 8
+      },
+      "contacts": [],
+      "formations": [
+        {
+          "cell": [
+            1,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.C1"
+        },
+        {
+          "cell": [
+            2,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H1"
+        },
+        {
+          "cell": [
+            3,
+            5
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H2"
+        },
+        {
+          "cell": [
+            4,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 5,
+          "formation": "S0.H3"
+        },
+        {
+          "cell": [
+            5,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 5,
+          "formation": "S0.H4"
+        },
+        {
+          "cell": [
+            3,
+            6
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.H5"
+        },
+        {
+          "cell": [
+            4,
+            7
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 5,
+          "formation": "S0.H6"
+        },
+        {
+          "cell": [
+            5,
+            4
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 4,
+          "formation": "S0.L1"
+        },
+        {
+          "cell": [
+            9,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.C1"
+        },
+        {
+          "cell": [
+            8,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H1"
+        },
+        {
+          "cell": [
+            7,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H2"
+        },
+        {
+          "cell": [
+            6,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 2,
+          "formation": "S1.H3"
+        },
+        {
+          "cell": [
+            5,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 2,
+          "formation": "S1.H4"
+        },
+        {
+          "cell": [
+            7,
+            2
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.H5"
+        },
+        {
+          "cell": [
+            6,
+            1
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 1,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 2,
+          "formation": "S1.H6"
+        },
+        {
+          "cell": [
+            6,
+            3
+          ],
+          "condition": {
+            "cohesion": 0,
+            "exertion": 0,
+            "fatigue": 0,
+            "morale": 0
+          },
+          "disposition": "ORGANIZED",
+          "facing": 1,
+          "formation": "S1.L1"
+        }
+      ],
+      "ledger": {
+        "formations": [
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S0.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": false
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.C1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H2",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H3",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H4",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H5",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": true,
+            "formation": "S1.H6",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": true
+          },
+          {
+            "displaced": false,
+            "displacement_attempted": false,
+            "exerted": false,
+            "formation": "S1.L1",
+            "incoming": false,
+            "incoming_since_rally": false,
+            "opened_eligible": true,
+            "response": null,
+            "safe_latch": false
+          }
+        ],
+        "uses": [
+          {
+            "group": "S0.G1",
+            "kind": "GROUP",
+            "members": [
+              "S0.H1",
+              "S0.H2",
+              "S0.H5"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    2,
+                    5
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    2,
+                    6
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    3,
+                    5
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    3,
+                    6
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    3,
+                    6
+                  ],
+                  "facing": 4,
+                  "mode": "FOOT",
+                  "origin": [
+                    3,
+                    7
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "group": "S1.G1",
+            "kind": "GROUP",
+            "members": [
+              "S1.H1",
+              "S1.H2",
+              "S1.H5"
+            ],
+            "side": "S1",
+            "work": [
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    8,
+                    3
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    8,
+                    2
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    7,
+                    3
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    7,
+                    2
+                  ]
+                }
+              },
+              {
+                "kind": "GroupStep",
+                "leg": {
+                  "destination": [
+                    7,
+                    2
+                  ],
+                  "facing": 1,
+                  "mode": "FOOT",
+                  "origin": [
+                    7,
+                    1
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "group": null,
+            "kind": "INDIVIDUAL",
+            "members": [
+              "S0.L1"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "declared": [
+                  [
+                    5,
+                    4
+                  ]
+                ],
+                "end": "COMPLETED",
+                "kind": "Move",
+                "legs": [
+                  {
+                    "destination": [
+                      5,
+                      4
+                    ],
+                    "facing": 4,
+                    "mode": "FOOT",
+                    "origin": [
+                      4,
+                      5
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": null,
+            "kind": "INDIVIDUAL",
+            "members": [
+              "S1.L1"
+            ],
+            "side": "S1",
+            "work": [
+              {
+                "kind": "Hold"
+              }
+            ]
+          },
+          {
+            "group": "S0.G2",
+            "kind": "GROUP",
+            "members": [
+              "S0.H3",
+              "S0.H4",
+              "S0.H6"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "facing_before": 4,
+                "kind": "GroupPivot",
+                "turn": 1
+              },
+              {
+                "facing_before": 4,
+                "kind": "GroupPivot",
+                "turn": 1
+              },
+              {
+                "facing_before": 4,
+                "kind": "GroupPivot",
+                "turn": 1
+              }
+            ]
+          },
+          {
+            "group": "S1.G2",
+            "kind": "GROUP",
+            "members": [
+              "S1.H3",
+              "S1.H4",
+              "S1.H6"
+            ],
+            "side": "S1",
+            "work": [
+              {
+                "facing_before": 1,
+                "kind": "GroupPivot",
+                "turn": 1
+              },
+              {
+                "facing_before": 1,
+                "kind": "GroupPivot",
+                "turn": 1
+              },
+              {
+                "facing_before": 1,
+                "kind": "GroupPivot",
+                "turn": 1
+              }
+            ]
+          },
+          {
+            "group": null,
+            "kind": "INDIVIDUAL",
+            "members": [
+              "S0.C1"
+            ],
+            "side": "S0",
+            "work": [
+              {
+                "declared": [
+                  [
+                    1,
+                    5
+                  ]
+                ],
+                "end": "COMPLETED",
+                "kind": "Move",
+                "legs": [
+                  {
+                    "destination": [
+                      1,
+                      5
+                    ],
+                    "facing": 4,
+                    "mode": "MOUNTED",
+                    "origin": [
+                      1,
+                      6
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "assignment": "ASSIGNED",
+          "count": 80,
+          "custodian": "S0",
+          "custody": "OWN",
+          "formation": "S0.C1",
+          "lot": "S0.C1:M0",
+          "place": {
+            "formation": "S0.C1",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE",
+          "serviceability": "SERVICEABLE"
+        },
+        {
+          "assignment": "ASSIGNED",
+          "count": 80,
+          "custodian": "S1",
+          "custody": "OWN",
+          "formation": "S1.C1",
+          "lot": "S1.C1:M0",
+          "place": {
+            "formation": "S1.C1",
+            "kind": "InFormation"
+          },
+          "recovery": "NOT_APPLICABLE",
+          "serviceability": "SERVICEABLE"
+        }
+      ],
+      "personnel": [
+        {
+          "captured": null,
+          "count": 80,
+          "custodian": "S0",
+          "lineage": "S0.C1",
+          "lot": "S0.C1:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.C1",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S0",
+          "lineage": "S0.H1",
+          "lot": "S0.H1:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.H1",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S0",
+          "lineage": "S0.H2",
+          "lot": "S0.H2:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.H2",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S0",
+          "lineage": "S0.H3",
+          "lot": "S0.H3:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.H3",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S0",
+          "lineage": "S0.H4",
+          "lot": "S0.H4:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.H4",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S0",
+          "lineage": "S0.H5",
+          "lot": "S0.H5:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.H5",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S0",
+          "lineage": "S0.H6",
+          "lot": "S0.H6:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.H6",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 120,
+          "custodian": "S0",
+          "lineage": "S0.L1",
+          "lot": "S0.L1:P0",
+          "origin": null,
+          "place": {
+            "formation": "S0.L1",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 80,
+          "custodian": "S1",
+          "lineage": "S1.C1",
+          "lot": "S1.C1:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.C1",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S1",
+          "lineage": "S1.H1",
+          "lot": "S1.H1:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.H1",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S1",
+          "lineage": "S1.H2",
+          "lot": "S1.H2:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.H2",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S1",
+          "lineage": "S1.H3",
+          "lot": "S1.H3:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.H3",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S1",
+          "lineage": "S1.H4",
+          "lot": "S1.H4:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.H4",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S1",
+          "lineage": "S1.H5",
+          "lot": "S1.H5:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.H5",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 240,
+          "custodian": "S1",
+          "lineage": "S1.H6",
+          "lot": "S1.H6:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.H6",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        },
+        {
+          "captured": null,
+          "count": 120,
+          "custodian": "S1",
+          "lineage": "S1.L1",
+          "lot": "S1.L1:P0",
+          "origin": null,
+          "place": {
+            "formation": "S1.L1",
+            "kind": "InFormation"
+          },
+          "status": "AVAILABLE"
+        }
+      ],
+      "phase": {
+        "kind": "AwaitingPrincipal",
+        "side": "S1"
+      },
+      "scenario": {
+        "board": {
+          "edges": [],
+          "height": 9,
+          "objective": [
+            5,
+            4
+          ],
+          "terrain": [
+            [
+              [
+                0,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                0,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                1,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                2,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                3,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                4,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                5,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                6,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                7,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                8,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                9,
+                8
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                0
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                1
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                2
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                3
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                4
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                5
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                6
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                7
+              ],
+              "OPEN"
+            ],
+            [
+              [
+                10,
+                8
+              ],
+              "OPEN"
+            ]
+          ],
+          "width": 11
+        },
+        "first_side": "S0",
+        "groups": [
+          {
+            "group": "S0.G1",
+            "members": [
+              "S0.H1",
+              "S0.H2",
+              "S0.H5"
+            ],
+            "side": "S0"
+          },
+          {
+            "group": "S0.G2",
+            "members": [
+              "S0.H3",
+              "S0.H4",
+              "S0.H6"
+            ],
+            "side": "S0"
+          },
+          {
+            "group": "S1.G1",
+            "members": [
+              "S1.H1",
+              "S1.H2",
+              "S1.H5"
+            ],
+            "side": "S1"
+          },
+          {
+            "group": "S1.G2",
+            "members": [
+              "S1.H3",
+              "S1.H4",
+              "S1.H6"
+            ],
+            "side": "S1"
+          }
+        ],
+        "profile": {
+          "displacement_attempts": 1,
+          "effort": 3,
+          "exertion_carry": true,
+          "exertion_cleared_by": "COMPLETED_REST",
+          "exertion_threshold": 6,
+          "hex_pitch_m": 65,
+          "opportunities": 4,
+          "packet": {
+            "allocation": "B",
+            "exposure": "E1",
+            "fatal_share": "1/4",
+            "injury": "B1",
+            "melee_a_ref": 24,
+            "melee_p0": "1/10",
+            "melee_pressure": [
+              "1/5",
+              "3/20"
+            ],
+            "missile_a_ref": 40,
+            "missile_p0": "1/20",
+            "missile_pressure": [
+              "3/25",
+              "1/10"
+            ],
+            "pressure": "I1"
+          },
+          "principal_per_round": 1,
+          "profile_id": "D4-RP-0.1",
+          "responses_per_root": 1,
+          "responses_per_round": 1,
+          "round_minutes": 10,
+          "rounds": 12,
+          "templates": [
+            {
+              "ammunition": 2,
+              "edge_capacity": 24,
+              "foot_fallback": null,
+              "frontage_dm": 600,
+              "kind": "HEAVY",
+              "max_steps": 2,
+              "melee_capable": true,
+              "missile_range": 1,
+              "mounts": 0,
+              "open_cost": 1,
+              "personnel": 240,
+              "pitch_dm": 15,
+              "rough_cost": 2
+            },
+            {
+              "ammunition": 4,
+              "edge_capacity": 18,
+              "foot_fallback": null,
+              "frontage_dm": 450,
+              "kind": "LIGHT",
+              "max_steps": 2,
+              "melee_capable": true,
+              "missile_range": 2,
+              "mounts": 0,
+              "open_cost": 1,
+              "personnel": 120,
+              "pitch_dm": 20,
+              "rough_cost": 1
+            },
+            {
+              "ammunition": 0,
+              "edge_capacity": 12,
+              "foot_fallback": "HEAVY",
+              "frontage_dm": 600,
+              "kind": "MOUNTED",
+              "max_steps": 3,
+              "melee_capable": true,
+              "missile_range": null,
+              "mounts": 80,
+              "open_cost": 1,
+              "personnel": 80,
+              "pitch_dm": 30,
+              "rough_cost": 3
+            }
+          ]
+        },
+        "provenance": {
+          "fixture_class": "CANONICAL_OPENING",
+          "fixture_id": "F01-v1-open-standard",
+          "orientation": "STANDARD",
+          "origin_digest": "84b518d2f83581d2c410cf40dc68764d2415a27384ee179075ee285b1155ced5",
+          "profile_id": "D4-RP-0.1",
+          "rules_baseline": "D3-v0.2+A01-A25",
+          "scenario_id": "F01",
+          "scenario_version": "F01-v1",
+          "sources": [
+            "6a831d4a08db660e0e6cd15e0d023fd585e83bd7d1387cac6405d4981e382da5",
+            "d01c2bb10f0f1074f7f18f0270e434fb9548867a4e007215b6daefcc73a72534",
+            "a89fea614e1b9e76c7b5add120a4b0359aef2cf87a0938c5e0dc133162b70e7e"
+          ],
+          "variant": "OPEN"
+        },
+        "roster": [
+          {
+            "formation": "S0.C1",
+            "side": "S0",
+            "template": "MOUNTED"
+          },
+          {
+            "formation": "S0.H1",
+            "side": "S0",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S0.H2",
+            "side": "S0",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S0.H3",
+            "side": "S0",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S0.H4",
+            "side": "S0",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S0.H5",
+            "side": "S0",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S0.H6",
+            "side": "S0",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S0.L1",
+            "side": "S0",
+            "template": "LIGHT"
+          },
+          {
+            "formation": "S1.C1",
+            "side": "S1",
+            "template": "MOUNTED"
+          },
+          {
+            "formation": "S1.H1",
+            "side": "S1",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S1.H2",
+            "side": "S1",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S1.H3",
+            "side": "S1",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S1.H4",
+            "side": "S1",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S1.H5",
+            "side": "S1",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S1.H6",
+            "side": "S1",
+            "template": "HEAVY"
+          },
+          {
+            "formation": "S1.L1",
+            "side": "S1",
+            "template": "LIGHT"
+          }
+        ]
+      },
+      "schema": "imperium.battle-state/1",
+      "sides": [
+        {
+          "posture": "CONTESTING",
+          "side": "S0"
+        },
+        {
+          "posture": "CONTESTING",
+          "side": "S1"
+        }
+      ]
+    },
+    "roots": [
+      {
+        "command": {
+          "kind": "OpenBattle",
+          "schema": "imperium.battle-command/1"
+        },
+        "cursor": 1,
+        "full_state_digest": "291cca2e6c7d6173dc7a702e5ec1153b972ac70b5ac0bae2daba7b8257c1e5ec"
+      },
+      {
+        "command": {
+          "direction": 4,
+          "group": "S0.G1",
+          "kind": "GroupMoveOrder",
+          "members": [
+            "S0.H1",
+            "S0.H2",
+            "S0.H5"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 2,
+        "full_state_digest": "e790a69fcedb892bba15c25102481d2264770ab1019508af478282e5b9dbc1d2"
+      },
+      {
+        "command": {
+          "direction": 1,
+          "group": "S1.G1",
+          "kind": "GroupMoveOrder",
+          "members": [
+            "S1.H1",
+            "S1.H2",
+            "S1.H5"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 3,
+        "full_state_digest": "040b0ab5df2e9436ead748a922f5adef68b82edadae920e175d2075ab64f6d17"
+      },
+      {
+        "command": {
+          "formation": "S0.L1",
+          "kind": "MoveOrder",
+          "path": [
+            [
+              5,
+              4
+            ]
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 4,
+        "decision": {
+          "kind": "DeclineResponse",
+          "schema": "imperium.battle-command/1",
+          "side": "S1",
+          "window_id": "fa0eee2eff4cfab31527cc69be7f4b94b527c46ff0323d314bafe64839e4f60c"
+        },
+        "full_state_digest": "b9814c7c32de3ec8a28ac4533dc57c612455b402505fdf636f887b05ee9f2fef",
+        "window_after": "r1:S0.o2:STEP1",
+        "window_option": {
+          "formation": "S1.L1",
+          "kind": "DEFENSIVE_MISSILE",
+          "target": "S0.L1"
+        }
+      },
+      {
+        "command": {
+          "formation": "S1.L1",
+          "kind": "HoldOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 5,
+        "full_state_digest": "c92e7fc31ef8571c28558ea08015129b5e1e3c50d124eebc6f813369e274bcc4"
+      },
+      {
+        "command": {
+          "group": "S0.G2",
+          "kind": "GroupPivotOrder",
+          "members": [
+            "S0.H3",
+            "S0.H4",
+            "S0.H6"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0",
+          "turn": 1
+        },
+        "cursor": 6,
+        "full_state_digest": "3293e41877b91a36e7bee30e6052778d683607ec7ab55f4cd9d5c2232bceb17d"
+      },
+      {
+        "command": {
+          "group": "S1.G2",
+          "kind": "GroupPivotOrder",
+          "members": [
+            "S1.H3",
+            "S1.H4",
+            "S1.H6"
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S1",
+          "turn": 1
+        },
+        "cursor": 7,
+        "full_state_digest": "80abd320d4ef004b77fa539b0d83a2630c15fa7717c1ded4507051b8eeeb1007"
+      },
+      {
+        "command": {
+          "formation": "S0.C1",
+          "kind": "MoveOrder",
+          "path": [
+            [
+              1,
+              5
+            ]
+          ],
+          "schema": "imperium.battle-command/1",
+          "side": "S0"
+        },
+        "cursor": 8,
+        "full_state_digest": "88df9cef7e676fce85850d83fa7d3b1d5c4673885fbad2d888ffc9ceb1837da4"
+      },
+      {
+        "command": {
+          "formation": "S1.C1",
+          "kind": "HoldOrder",
+          "schema": "imperium.battle-command/1",
+          "side": "S1"
+        },
+        "cursor": 9,
+        "full_state_digest": "480fc91f0c2fe2e636daedebc06dff2f9e074e531cd8525e0d863a2254cf7bff"
+      }
+    ]
+  }
+}

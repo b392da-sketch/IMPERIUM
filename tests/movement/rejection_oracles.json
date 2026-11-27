@@ -1,0 +1,193 @@
+{
+  "BAD_VALUE": {
+    "detail": "invalid command value",
+    "paths": [
+      "/turn",
+      "/steps",
+      "/direction",
+      "/path",
+      "/members",
+      "/window_id"
+    ]
+  },
+  "CONDITION": {
+    "detail": "group member exceeds the condition gate",
+    "paths": [
+      "/members/i"
+    ]
+  },
+  "ENGAGED": {
+    "detail": "formation is engaged",
+    "paths": [
+      "/formation",
+      "/members/i"
+    ]
+  },
+  "EXIT_UNSAFE": {
+    "detail": "exit is not recovery-safe",
+    "paths": [
+      "/formation"
+    ]
+  },
+  "IMPASSABLE": {
+    "detail": "directed entry is not traversable",
+    "paths": [
+      "/path/i",
+      "/destination",
+      "/members/i"
+    ]
+  },
+  "NOT_ADJACENT": {
+    "detail": "cell is not adjacent",
+    "paths": [
+      "/path/i",
+      "/destination"
+    ]
+  },
+  "NOT_CONNECTED": {
+    "detail": "selected members are not connected",
+    "paths": [
+      "/members"
+    ]
+  },
+  "NOT_FRONT": {
+    "detail": "step is not in the front directions",
+    "paths": [
+      "/path/i",
+      "/members/i"
+    ]
+  },
+  "NOT_IN_GROUP": {
+    "detail": "formation is not a member of the group",
+    "paths": [
+      "/members/i"
+    ]
+  },
+  "NOT_OFFERED": {
+    "detail": "decision is not an offered option",
+    "paths": [
+      "/formation"
+    ]
+  },
+  "NOT_ON_EXIT": {
+    "detail": "formation is not on its exit row",
+    "paths": [
+      "/formation"
+    ]
+  },
+  "NOT_ORGANIZED": {
+    "detail": "formation is not organized",
+    "paths": [
+      "/formation",
+      "/members/i"
+    ]
+  },
+  "NOT_OWN_GROUP": {
+    "detail": "group does not belong to the command side",
+    "paths": [
+      "/group"
+    ]
+  },
+  "NOT_REAR": {
+    "detail": "step is not in the rear directions",
+    "paths": [
+      "/destination"
+    ]
+  },
+  "NO_AUTHORITY": {
+    "detail": "group authority is not active",
+    "paths": [
+      "/group"
+    ]
+  },
+  "NO_EXIT_PROGRESS": {
+    "detail": "step does not reduce exit distance",
+    "paths": [
+      "/path/i",
+      "/members/i"
+    ]
+  },
+  "OCCUPIED": {
+    "detail": "cell is occupied",
+    "paths": [
+      "/path/i",
+      "/destination",
+      "/members/i"
+    ]
+  },
+  "OFF_BOARD": {
+    "detail": "cell is not on the board",
+    "paths": [
+      "/path/i",
+      "/destination",
+      "/members/i"
+    ]
+  },
+  "OVER_CAP": {
+    "detail": "path exceeds the step cap",
+    "paths": [
+      "/path"
+    ]
+  },
+  "OVER_EFFORT": {
+    "detail": "planned debit exceeds remaining effort",
+    "paths": [
+      "/path",
+      "/steps",
+      "/destination",
+      "/formation",
+      "/members/i"
+    ]
+  },
+  "PAST_STOP": {
+    "detail": "path continues past a predicted stop",
+    "paths": [
+      "/path/i"
+    ]
+  },
+  "PENDING_WINDOW": {
+    "detail": "a response window is pending",
+    "paths": [
+      ""
+    ]
+  },
+  "PIVOT_RESTRICTED": {
+    "detail": "pivot restricted by hostile threat",
+    "paths": [
+      "/formation",
+      "/steps",
+      "/members/i"
+    ]
+  },
+  "REPEATED_CELL": {
+    "detail": "path repeats a cell",
+    "paths": [
+      "/path/i"
+    ]
+  },
+  "STALE_WINDOW": {
+    "detail": "decision is bound to another window",
+    "paths": [
+      "/window_id"
+    ]
+  },
+  "THREATENED_DESTINATION": {
+    "detail": "destination is in hostile threat",
+    "paths": [
+      "/destination"
+    ]
+  },
+  "THREATENED_ORIGIN": {
+    "detail": "formation starts in hostile threat",
+    "paths": [
+      "/formation",
+      "/members/i"
+    ]
+  },
+  "UNKNOWN_GROUP": {
+    "detail": "group is not in the scenario",
+    "paths": [
+      "/group"
+    ]
+  }
+}
