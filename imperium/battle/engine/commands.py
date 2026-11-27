@@ -10,9 +10,10 @@ import json
 from dataclasses import dataclass
 from enum import Enum
 
-from imperium.battle import BattleState, FixtureId, FormationId, InvalidValue, Side
+from imperium.battle import BattleState, FixtureId, FormationId, GroupId, InvalidValue, Side
 from imperium.battle.canon import canonical_bytes_of, sha256_hex
-from imperium.battle.values import EnumK, IdK, Int, Str
+from imperium.battle.ids import valid_token
+from imperium.battle.values import EnumK, Hex, IdK, Int, Str
 
 COMMAND_SCHEMA = "imperium.battle-command/1"
 
@@ -28,6 +29,25 @@ class Stage(Enum):
     END_CHECK = "END_CHECK"
     OPEN_ROUND = "OPEN_ROUND"
     TERMINAL = "TERMINAL"
+    # P4 principal-root kinds (contract rev 0.2 section 10.1); never draw-bearing.
+    STEP1 = "STEP1"
+    STEP2 = "STEP2"
+    STEP3 = "STEP3"
+    WITHDRAW = "WITHDRAW"
+    GROUP_STEP = "GROUP_STEP"
+    PIVOT = "PIVOT"
+    GROUP_PIVOT = "GROUP_PIVOT"
+    EVACUATE = "EVACUATE"
+    WINDOW = "WINDOW"
+    RESPONSE = "RESPONSE"
+
+
+P2_STAGES = (Stage.INITIAL_CHECK, Stage.ROOT, Stage.IMMEDIATE_CHECK, Stage.CLOSURE_DISPLACEMENT,
+             Stage.CLOSURE_CHECK, Stage.RECOVERY, Stage.ADVANCE, Stage.END_CHECK,
+             Stage.OPEN_ROUND, Stage.TERMINAL)
+P4_STAGES = (Stage.STEP1, Stage.STEP2, Stage.STEP3, Stage.WITHDRAW, Stage.GROUP_STEP,
+             Stage.PIVOT, Stage.GROUP_PIVOT, Stage.EVACUATE, Stage.WINDOW, Stage.RESPONSE)
+STEP_STAGES = (Stage.STEP1, Stage.STEP2, Stage.STEP3)
 
 
 class RejectCode(Enum):
@@ -38,6 +58,35 @@ class RejectCode(Enum):
     NOT_READY = "NOT_READY"
     ALREADY_WITHDRAWING = "ALREADY_WITHDRAWING"
     NO_ONMAP_AVAILABLE = "NO_ONMAP_AVAILABLE"
+    # P4 (contract rev 0.2 section 4.5, E06)
+    NOT_ORGANIZED = "NOT_ORGANIZED"
+    CONDITION = "CONDITION"
+    ENGAGED = "ENGAGED"
+    THREATENED_ORIGIN = "THREATENED_ORIGIN"
+    PIVOT_RESTRICTED = "PIVOT_RESTRICTED"
+    BAD_VALUE = "BAD_VALUE"
+    OFF_BOARD = "OFF_BOARD"
+    REPEATED_CELL = "REPEATED_CELL"
+    NOT_ADJACENT = "NOT_ADJACENT"
+    NOT_FRONT = "NOT_FRONT"
+    NOT_REAR = "NOT_REAR"
+    IMPASSABLE = "IMPASSABLE"
+    OCCUPIED = "OCCUPIED"
+    THREATENED_DESTINATION = "THREATENED_DESTINATION"
+    OVER_CAP = "OVER_CAP"
+    OVER_EFFORT = "OVER_EFFORT"
+    PAST_STOP = "PAST_STOP"
+    NO_EXIT_PROGRESS = "NO_EXIT_PROGRESS"
+    NOT_ON_EXIT = "NOT_ON_EXIT"
+    EXIT_UNSAFE = "EXIT_UNSAFE"
+    UNKNOWN_GROUP = "UNKNOWN_GROUP"
+    NOT_OWN_GROUP = "NOT_OWN_GROUP"
+    NO_AUTHORITY = "NO_AUTHORITY"
+    NOT_IN_GROUP = "NOT_IN_GROUP"
+    NOT_CONNECTED = "NOT_CONNECTED"
+    PENDING_WINDOW = "PENDING_WINDOW"
+    STALE_WINDOW = "STALE_WINDOW"
+    NOT_OFFERED = "NOT_OFFERED"
 
 
 # Fixed (path, detail) of every rejection except NOT_READY, whose detail is
@@ -51,6 +100,39 @@ REJECT_TEXT = {
     RejectCode.NO_ONMAP_AVAILABLE: ("/side", "side has no on-map available personnel"),
 }
 NOT_READY_PATH = "/formation"
+
+# Exact P4 details (REJECTION_ORACLES.json, E06); the path varies by field
+# and index and is chosen at admission.
+P4_DETAIL = {
+    RejectCode.NOT_ORGANIZED: "formation is not organized",
+    RejectCode.CONDITION: "group member exceeds the condition gate",
+    RejectCode.ENGAGED: "formation is engaged",
+    RejectCode.THREATENED_ORIGIN: "formation starts in hostile threat",
+    RejectCode.PIVOT_RESTRICTED: "pivot restricted by hostile threat",
+    RejectCode.BAD_VALUE: "invalid command value",
+    RejectCode.OFF_BOARD: "cell is not on the board",
+    RejectCode.REPEATED_CELL: "path repeats a cell",
+    RejectCode.NOT_ADJACENT: "cell is not adjacent",
+    RejectCode.NOT_FRONT: "step is not in the front directions",
+    RejectCode.NOT_REAR: "step is not in the rear directions",
+    RejectCode.IMPASSABLE: "directed entry is not traversable",
+    RejectCode.OCCUPIED: "cell is occupied",
+    RejectCode.THREATENED_DESTINATION: "destination is in hostile threat",
+    RejectCode.OVER_CAP: "path exceeds the step cap",
+    RejectCode.OVER_EFFORT: "planned debit exceeds remaining effort",
+    RejectCode.PAST_STOP: "path continues past a predicted stop",
+    RejectCode.NO_EXIT_PROGRESS: "step does not reduce exit distance",
+    RejectCode.NOT_ON_EXIT: "formation is not on its exit row",
+    RejectCode.EXIT_UNSAFE: "exit is not recovery-safe",
+    RejectCode.UNKNOWN_GROUP: "group is not in the scenario",
+    RejectCode.NOT_OWN_GROUP: "group does not belong to the command side",
+    RejectCode.NO_AUTHORITY: "group authority is not active",
+    RejectCode.NOT_IN_GROUP: "formation is not a member of the group",
+    RejectCode.NOT_CONNECTED: "selected members are not connected",
+    RejectCode.PENDING_WINDOW: "a response window is pending",
+    RejectCode.STALE_WINDOW: "decision is bound to another window",
+    RejectCode.NOT_OFFERED: "decision is not an offered option",
+}
 
 
 def _check(kind, value, path):
@@ -106,26 +188,192 @@ class Capitulate:
         _check(_SIDE, self.side, "side")
 
 
-COMMAND_CLASSES = (OpenBattle, HoldOrder, PassOrder, DeclareWithdrawal, Capitulate)
-Command = OpenBattle | HoldOrder | PassOrder | DeclareWithdrawal | Capitulate
+# --------------------------------------------------------------------------
+# P4 principal orders and window decisions (contract rev 0.2 sections 4.1,
+# 4.2). Constructors check exact types only, T15 at the field or
+# ``field/index``; ranges and order are admission rules (BAD_VALUE).
 
-# Variant keys of the command document, in declaration order (3.1).
+
+def _t15(path, detail):
+    raise InvalidValue("T15", path, detail)
+
+
+def _exact(value, cls, path):
+    if type(value) is not cls:
+        _t15(path, f"expected {cls.__name__}")
+
+
+def _exact_tuple(value, cls, path):
+    if type(value) is not tuple:
+        _t15(path, "expected tuple")
+    for i, item in enumerate(value):
+        if type(item) is not cls:
+            _t15(f"{path}/{i}", f"expected {cls.__name__}")
+
+
+@dataclass(frozen=True, slots=True)
+class MoveOrder:
+    side: Side
+    formation: FormationId
+    path: tuple
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.formation, FormationId, "formation")
+        _exact_tuple(self.path, Hex, "path")
+
+
+@dataclass(frozen=True, slots=True)
+class PivotOrder:
+    side: Side
+    formation: FormationId
+    turn: int
+    steps: int
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.formation, FormationId, "formation")
+        _exact(self.turn, int, "turn")
+        _exact(self.steps, int, "steps")
+
+
+@dataclass(frozen=True, slots=True)
+class WithdrawOrder:
+    side: Side
+    formation: FormationId
+    destination: Hex
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.formation, FormationId, "formation")
+        _exact(self.destination, Hex, "destination")
+
+
+@dataclass(frozen=True, slots=True)
+class EvacuateOrder:
+    side: Side
+    formation: FormationId
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.formation, FormationId, "formation")
+
+
+@dataclass(frozen=True, slots=True)
+class GroupMoveOrder:
+    side: Side
+    group: GroupId
+    members: tuple
+    direction: int
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.group, GroupId, "group")
+        _exact_tuple(self.members, FormationId, "members")
+        _exact(self.direction, int, "direction")
+
+
+@dataclass(frozen=True, slots=True)
+class GroupPivotOrder:
+    side: Side
+    group: GroupId
+    members: tuple
+    turn: int
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.group, GroupId, "group")
+        _exact_tuple(self.members, FormationId, "members")
+        _exact(self.turn, int, "turn")
+
+
+@dataclass(frozen=True, slots=True)
+class RespondPivot:
+    side: Side
+    window_id: str
+    formation: FormationId
+    target: FormationId
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.window_id, str, "window_id")
+        _exact(self.formation, FormationId, "formation")
+        _exact(self.target, FormationId, "target")
+
+
+@dataclass(frozen=True, slots=True)
+class RespondMissile:
+    side: Side
+    window_id: str
+    formation: FormationId
+    target: FormationId
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.window_id, str, "window_id")
+        _exact(self.formation, FormationId, "formation")
+        _exact(self.target, FormationId, "target")
+
+
+@dataclass(frozen=True, slots=True)
+class DeclineResponse:
+    side: Side
+    window_id: str
+
+    def __post_init__(self):
+        _exact(self.side, Side, "side")
+        _exact(self.window_id, str, "window_id")
+
+
+P2_COMMAND_CLASSES = (OpenBattle, HoldOrder, PassOrder, DeclareWithdrawal, Capitulate)
+P4_PRINCIPAL_CLASSES = (MoveOrder, PivotOrder, WithdrawOrder, EvacuateOrder, GroupMoveOrder,
+                        GroupPivotOrder)
+DECISION_CLASSES = (RespondPivot, RespondMissile, DeclineResponse)
+PRINCIPAL_CLASSES = P2_COMMAND_CLASSES + P4_PRINCIPAL_CLASSES
+COMMAND_CLASSES = PRINCIPAL_CLASSES + DECISION_CLASSES
+Command = (OpenBattle | HoldOrder | PassOrder | DeclareWithdrawal | Capitulate | MoveOrder
+           | PivotOrder | WithdrawOrder | EvacuateOrder | GroupMoveOrder | GroupPivotOrder
+           | RespondPivot | RespondMissile | DeclineResponse)
+GROUP_CLASSES = (GroupMoveOrder, GroupPivotOrder)
+
+# Variant keys of the command document, in declaration order (3.1; P4 10.4).
 _COMMAND_KEYS = (
     (OpenBattle, ()),
     (HoldOrder, ("side", "formation")),
     (PassOrder, ("side",)),
     (DeclareWithdrawal, ("side",)),
     (Capitulate, ("side",)),
+    (MoveOrder, ("side", "formation", "path")),
+    (PivotOrder, ("side", "formation", "turn", "steps")),
+    (WithdrawOrder, ("side", "formation", "destination")),
+    (EvacuateOrder, ("side", "formation")),
+    (GroupMoveOrder, ("side", "group", "members", "direction")),
+    (GroupPivotOrder, ("side", "group", "members", "turn")),
+    (RespondPivot, ("side", "window_id", "formation", "target")),
+    (RespondMissile, ("side", "window_id", "formation", "target")),
+    (DeclineResponse, ("side", "window_id")),
 )
 
 
 def check_command(command):
-    """Raise T15 at ``command`` unless it is exactly one of the five classes."""
+    """Raise T15 at ``command`` unless it is exactly one of the fourteen classes."""
     t = type(command)
     for cls in COMMAND_CLASSES:
         if t is cls:
             return
-    raise InvalidValue("T15", "command", "not a P2 command")
+    raise InvalidValue("T15", "command", "not a command")
+
+
+def is_p4_principal(command):
+    return type(command) in P4_PRINCIPAL_CLASSES
+
+
+def is_decision(command):
+    return type(command) in DECISION_CLASSES
+
+
+def is_state(value):
+    return type(value) is BattleState
 
 
 def check_state(state):
@@ -135,8 +383,15 @@ def check_state(state):
 
 
 def _token(value):
-    if type(value) is Side:
+    t = type(value)
+    if t is Side:
         return value.name
+    if t is Hex:
+        return [value.q, value.r]
+    if t is tuple:
+        return [_token(v) for v in value]
+    if t is int or t is str:
+        return value
     return value.token
 
 
@@ -208,22 +463,60 @@ def decode_command(data):
         bad("wrong command keys")
     args = {}
     for name in keys:
-        value = doc[name]
-        if type(value) is not str:
-            bad(f"{name} must be a string")
-        if name == "side":
-            if value not in Side.__members__:
-                bad("unknown side")
-            args[name] = Side[value]
-        else:
-            try:
-                args[name] = FormationId(value)
-            except InvalidValue:
-                bad("invalid formation token")
+        args[name] = _decode_field(name, doc[name], bad)
     command = cls(**args)
     if command_bytes(command) != data:
         bad("not the canonical command bytes")
     return command
+
+
+_HEX_DIGITS = frozenset("0123456789abcdef")
+
+
+def window_token_ok(text):
+    """Exactly 64 lowercase ASCII hex characters (ER02)."""
+    return type(text) is str and len(text) == 64 and all(c in _HEX_DIGITS for c in text)
+
+
+def _decode_cell(value, bad):
+    if type(value) is not list or len(value) != 2 or any(type(v) is not int for v in value):
+        bad("a cell is a two-element integer array")
+    return Hex(value[0], value[1])
+
+
+def _decode_field(name, value, bad):
+    if name in ("turn", "steps", "direction"):
+        if type(value) is not int:
+            bad(f"{name} must be an integer")
+        return value
+    if name == "path":
+        if type(value) is not list:
+            bad("path must be an array")
+        return tuple(_decode_cell(v, bad) for v in value)
+    if name == "destination":
+        return _decode_cell(value, bad)
+    if name == "members":
+        if type(value) is not list:
+            bad("members must be an array")
+        out = []
+        for v in value:
+            if not valid_token(v):
+                bad("invalid member token")
+            out.append(FormationId(v))
+        return tuple(out)
+    if type(value) is not str:
+        bad(f"{name} must be a string")
+    if name == "side":
+        if value not in Side.__members__:
+            bad("unknown side")
+        return Side[value]
+    if name == "window_id":
+        if not window_token_ok(value):
+            bad("malformed window token")
+        return value
+    if not valid_token(value):
+        bad(f"invalid {name} token")
+    return GroupId(value) if name == "group" else FormationId(value)
 
 
 # --------------------------------------------------------------------------

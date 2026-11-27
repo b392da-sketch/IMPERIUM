@@ -7,11 +7,12 @@ and it re-derives the rules it checks in ``rules``. Refold is structural:
 replay is the rule-equivalence check.
 """
 
+from imperium.battle.board import entry_cost
 from imperium.battle.canon import canonical_bytes_of, sha256_hex
 from imperium.battle.codec import decode_bytes, digest, encode_state
 from imperium.battle.errors import DomainError
 from imperium.battle.fixtures import f01_opening, f01_supplied
-from imperium.battle.values import FixtureClass
+from imperium.battle.values import FixtureClass, Hex, TemplateKind
 
 from . import rules, wire
 from .errors import AuditError, AuditReport
@@ -76,7 +77,11 @@ class _Verifier:
         self.terminal = False
         self.roots = 0
         self.ids = set()
+        self.version = 1
+        self.stage_names = rules.STAGES
         self.counts = dict.fromkeys(rules.STAGES, 0)
+        self.p4_roots = 0
+        self.board = None
         self.trailer = False
         self.header = None
         self.line = 0
@@ -91,7 +96,16 @@ class _Verifier:
             self.fail("AU02", "/kind", "the first line is the header")
         if set(tree) != HEADER_KEYS:
             self.fail("AU02", "", "header keys")
-        for key, value in HEADER.items():
+        # ER05/E04: the envelope version is selected by ``schema`` before
+        # anything else is interpreted; the event schema must pair with it.
+        expected = dict(HEADER)
+        if tree["schema"] == rules.AUDIT_SCHEMA_V2 and type(tree["schema"]) is str:
+            expected["schema"] = rules.AUDIT_SCHEMA_V2
+            expected["event_schema"] = rules.EVENT_SCHEMA_V2
+            self.version = 2
+            self.stage_names = rules.STAGES_V2
+            self.counts = dict.fromkeys(rules.STAGES_V2, 0)
+        for key, value in expected.items():
             if tree[key] != value or type(tree[key]) is not str:
                 self.fail("AU02", f"/{key}", "unsupported schema token")
         token = tree["fixture"]
@@ -109,6 +123,7 @@ class _Verifier:
                     or any(not _exact_int(run[k]) or not 0 <= run[k] <= RUN_MAX for k in run)):
                 self.fail("AU02", "/run", "malformed run")
         self.header = tree
+        self.board = state.scenario.board
         self.doc = encode_state(state)
         self.digest = full
         self.cursor = state.clock.event_cursor
@@ -123,7 +138,7 @@ class _Verifier:
         if not _exact_int(cursor) or cursor != self.cursor + 1:
             self.fail("AU04", "/cursor", "wrong root cursor")
         command = tree["command"]
-        bad = rules.command_shape(command)
+        bad = rules.command_shape(command) if self.version == 1 else rules.command_shape_v2(command)
         if bad is not None:
             self.fail("AU04", bad, "malformed command")
         if tree["command_digest"] != sha256_hex(canonical_bytes_of(command)):
@@ -159,13 +174,19 @@ class _Verifier:
         stages = [e["stage"] for e in events]
         self.identities(pre, command, events, stages)
         trace = tuple(stages)
-        if trace not in rules.traces_for(kind) or rules.TRACES[trace][0] != phase["kind"]:
-            self.fail("AU09", "/events", "stage sequence is not a P2 trace")
-        doc = pre
-        for i, e in enumerate(events):
-            nxt = stages[i + 1] if i + 1 < len(stages) else None
-            doc = self.event(i, e, doc, pre, command, trace, nxt, cursor)
-        if _get(doc, "phase", "kind") != rules.TRACES[trace][1]:
+        p4 = kind in rules.P4_ORDERS
+        if p4:
+            successor = self.p4_trace(command, events, stages)
+            doc = self.p4_root(tree, events, stages, pre, command, cursor)
+        else:
+            if trace not in rules.traces_for(kind) or rules.TRACES[trace][0] != phase["kind"]:
+                self.fail("AU09", "/events", "stage sequence is not a P2 trace")
+            successor = rules.TRACES[trace][1]
+            doc = pre
+            for i, e in enumerate(events):
+                nxt = stages[i + 1] if i + 1 < len(stages) else None
+                doc = self.event(i, e, doc, pre, command, trace, nxt, cursor)
+        if _get(doc, "phase", "kind") != successor:
             self.fail("AU09", "/events", "successor phase disagrees with the trace")
         if _lots(doc) is None or _lots(doc) != _lots(pre):
             self.fail("AU12", "/events", "personnel lot ids or origins changed")
@@ -183,16 +204,19 @@ class _Verifier:
         self.cursor = cursor
         self.terminal = doc["phase"]["kind"] == "Terminal"
         self.roots += 1
+        if p4:
+            self.p4_roots += 1
 
     def identities(self, pre, command, events, stages):
         expected = None
+        id_kind = rules.p2_id_kind if self.version == 1 else rules.id_kind_v2
         for i, e in enumerate(events):
             stage, sid = e["stage"], e["id"]
-            if stage not in rules.STAGES:
+            if stage not in self.stage_names:
                 self.fail("AU05", f"/events/{i}/stage", "unknown stage")
             if rules.packet_id(sid) is not None:
                 self.fail("AU05", f"/events/{i}/id", "reserved packet id in audit v1")
-            if rules.p2_id_kind(sid) != stage:
+            if id_kind(sid) != stage:
                 self.fail("AU05", f"/events/{i}/id", "malformed id or kind disagreement")
             if sid in self.ids or sid in (x["id"] for x in events[:i]):
                 self.fail("AU05", f"/events/{i}/id", "repeated stage id")
@@ -204,9 +228,10 @@ class _Verifier:
 
     # ----------------------------------------------------------------- event
 
-    def event(self, i, e, before, pre, command, trace, nxt, cursor):
+    def event(self, i, e, before, pre, command, trace, nxt, cursor, ctx=None):
         base = f"/events/{i}"
         stage = e["stage"]
+        p4 = ctx is not None and stage in ctx["p4_stages"]
         typed_paths = []
         for j, eff in enumerate(e["effects"]):
             at = f"{base}/effects/{j}"
@@ -220,7 +245,11 @@ class _Verifier:
                 prev = typed_paths[-1]
                 if not rules.order_key(prev) < rules.order_key(typed) or typed[:len(prev)] == prev:
                     self.fail("AU07", f"{at}/path", "effects unordered or overlapping")
-            if not rules.permitted(stage, typed, trace, command, pre):
+            if p4:
+                ok = rules.p4_permitted(stage, typed, ctx)
+            else:
+                ok = rules.permitted(stage, typed, trace, command, pre)
+            if not ok:
                 self.fail("AU07", f"{at}/path", "path not permitted for this stage and command")
             typed_paths.append(typed)
         # ER01 step 4: typed old-value agreement precedes any no-op or diff judgement.
@@ -239,7 +268,17 @@ class _Verifier:
                       for t, a, b in rules.canonical_diff(before, after)]
         if listed != recomputed:
             self.fail("AU07", f"{base}/effects", "not the canonical diff")
-        self.facts(i, e, before, after, pre, command, nxt, cursor, typed_paths)
+        # E03 step 3: forbidden value transitions (no flag restoration).
+        for j, (eff, typed) in enumerate(zip(e["effects"], typed_paths)):
+            leaf = typed[-1] if typed else None
+            if p4 and leaf == "safe_latch" and eff["new"] is not False:
+                self.fail("AU07", f"{base}/effects/{j}/path", "safe latch may only turn false")
+            if p4 and leaf == "exerted" and eff["new"] is not True:
+                self.fail("AU07", f"{base}/effects/{j}/path", "exerted may only turn true")
+        if p4:
+            self.p4_facts(i, e, before, after, ctx)
+        else:
+            self.facts(i, e, before, after, pre, command, nxt, cursor, typed_paths)
         if e["draws"]:
             self.fail("AU13", f"{base}/draws", "audit v1 events carry no draws")
         return after
@@ -260,7 +299,9 @@ class _Verifier:
             kind = command["kind"]
             want = {"kind": kind, "side": command["side"],
                     "formation": command.get("formation"), "use": rules.USE_KIND[kind]}
-            if kind == "Capitulate":
+            if kind in rules.P4_ORDERS:
+                pass  # ER01: the cursor is the only effect (whitelist)
+            elif kind == "Capitulate":
                 if rules.cbytes(after["ledger"]) != rules.cbytes(before["ledger"]):
                     self.fail("AU10", f"{base}/effects", "Capitulate records no ledger use")
             else:
@@ -300,6 +341,358 @@ class _Verifier:
         if rules.cbytes(data) != rules.cbytes(want):
             self.fail("AU10", f"{base}/data", "event data disagrees")
 
+    # ------------------------------------------------------------- P4 roots
+
+    def p4_trace(self, command, events, stages):
+        """Static AU09 (E03): the selected family and the decision branch."""
+        if not rules.p4_family(command["kind"], stages):
+            self.fail("AU09", "/events", "stage sequence is not a P4 trace")
+        if command["kind"] == "MoveOrder" and \
+                sum(s in rules.STEPS for s in stages) > len(command["path"]):
+            self.fail("AU09", "/events", "a STEP beyond the declared path")
+        for i, s in enumerate(stages):
+            if s != "WINDOW":
+                continue
+            decision = _get(events[i]["data"], "decision")
+            responded = i + 1 < len(stages) and stages[i + 1] == "RESPONSE"
+            pivot = type(decision) is dict and decision.get("kind") == "RespondPivot"
+            if responded != pivot:
+                self.fail("AU09", "/events", "RESPONSE must follow exactly a RespondPivot")
+        return rules.TAILS[tuple(stages[stages.index("IMMEDIATE_CHECK"):])]
+
+    def p4_root(self, tree, events, stages, pre, command, cursor):
+        kind = command["kind"]
+        side = command["side"]
+        members = command.get("members") or [command["formation"]]
+        formations = pre["formations"]
+        rounds = pre["ledger"]["formations"]
+        lots = pre["personnel"]
+        ctx = {
+            "p4_stages": frozenset(("ROOT",) + rules.P4_STAGE_NAMES),
+            "first": rules.FIRST_PHYSICAL[kind],
+            "use_index": len(pre["ledger"]["uses"]),
+            "formation_at": lambda i: formations[i]["formation"] if i < len(formations) else None,
+            "round_at": lambda j: rounds[j]["formation"] if j < len(rounds) else None,
+            "command": command, "side": side, "members": members, "tree": tree, "pre": pre,
+            "events": events,
+        }
+        actors = frozenset(members)
+
+        def evacuable(container, k, field):
+            if container == "personnel":
+                lot = lots[k] if k < len(lots) else None
+                return (field == "place" and lot is not None and lot["lineage"] in actors
+                        and lot["status"] == "AVAILABLE")
+            items = pre[container]
+            return (k < len(items) and items[k]["formation"] in actors
+                    and field in ("assignment", "place", "custodian", "custody", "recovery"))
+
+        ctx["evacuable"] = evacuable
+        continuation = stages[-1] == "IMMEDIATE_CHECK"
+        doc = pre
+        stopped = False
+        for i, e in enumerate(events):
+            stage = e["stage"]
+            if stage in rules.STEPS and stopped:
+                # ER06: a recorded threatened entry is a forced stop.
+                self.fail("AU09", "/events", "a STEP after a recorded entry stop")
+            if stage == "RESPONSE":
+                decision = _get(events[i - 1]["data"], "decision")
+                who = decision.get("formation") if type(decision) is dict else None
+                ctx["actors"] = frozenset((who,)) if type(who) is str else frozenset()
+                ctx["decision"] = decision
+            else:
+                ctx["actors"] = actors
+            nxt = stages[i + 1] if i + 1 < len(stages) else None
+            trace = rules.T_ROOT if continuation else None
+            doc = self.event(i, e, doc, pre, command, trace, nxt, cursor, ctx)
+            if stage in rules.STEPS:
+                stopped = e["data"]["threatened"] is True
+            if stage == "IMMEDIATE_CHECK":
+                self._p4_suffix(doc, nxt)
+        return doc
+
+    def _p4_suffix(self, doc, nxt):
+        """ER06 closure: the reconstructed ledger at IMMEDIATE_CHECK selects
+        continuation, closure or (with precedence) an immediate terminal."""
+        if nxt == "TERMINAL":
+            return
+        uses = doc["ledger"]["uses"]
+        opportunities = doc["scenario"]["profile"]["opportunities"]
+        done = all(rules.side_finished(uses, s, opportunities) for s in ("S0", "S1"))
+        if done != (nxt is not None):
+            self.fail("AU09", "/events", "round closure disagrees with the ledger")
+        if nxt is None:
+            first = "S0" if (doc["clock"]["completed_rounds"] + 1) % 2 == 1 else "S1"
+            if doc["phase"]["side"] != rules.next_to_move(first, uses, opportunities):
+                self.fail("AU09", "/events", "successor side disagrees with the ledger")
+
+    def _index(self, doc, token):
+        for i, f in enumerate(doc["formations"]):
+            if f["formation"] == token:
+                return i
+        self.fail("AU10", "", "unknown formation")
+
+    def _round(self, doc, token):
+        for fr in doc["ledger"]["formations"]:
+            if fr["formation"] == token:
+                return fr
+        self.fail("AU10", "", "unknown ledger formation")
+
+    @staticmethod
+    def _template(doc, token):
+        for entry in doc["scenario"]["roster"]:
+            if entry["formation"] == token:
+                return entry["template"]
+        return None
+
+    @staticmethod
+    def _side_of(doc, token):
+        for entry in doc["scenario"]["roster"]:
+            if entry["formation"] == token:
+                return entry["side"]
+        return None
+
+    def _mode(self, doc, token):
+        """Present movement mode re-derived from the document (P1 8.3)."""
+        if self._template(doc, token) != "MOUNTED":
+            return "FOOT"
+        avail = sum(p["count"] for p in doc["personnel"]
+                    if p["lineage"] == token and p["status"] == "AVAILABLE")
+        mounts = sum(m["count"] for m in doc["mounts"] if m["formation"] == token
+                     and m["serviceability"] == "SERVICEABLE" and m["assignment"] == "ASSIGNED")
+        return "MOUNTED" if avail <= mounts else "MIXED_FOOT"
+
+    def _entry(self, doc, token, origin, destination):
+        template = self._template(doc, token)
+        mode = self._mode(doc, token)
+        kind = {"FOOT": template, "MOUNTED": "MOUNTED", "MIXED_FOOT": "HEAVY"}[mode]
+        return entry_cost(self.board, Hex(*origin), Hex(*destination), TemplateKind[kind])
+
+    def _marked(self, base, before, after, token, marks):
+        i = self._index(before, token)
+        c0 = before["formations"][i]["condition"]
+        c1 = after["formations"][i]["condition"]
+        if not all(_exact_int(c[k]) for c in (c0, c1) for k in ("fatigue", "exertion")):
+            self.fail("AU10", f"{base}/effects", "exertion or fatigue is not an exact integer")
+        f, e = rules.map_marks(c0, marks, before["scenario"]["profile"]["exertion_threshold"])
+        if (c1["fatigue"], c1["exertion"]) != (f, e):
+            self.fail("AU10", f"{base}/effects", "exertion marks disagree with MP21")
+        if self._round(after, token)["exerted"] is not True:
+            self.fail("AU10", f"{base}/effects", "exerted flag not set")
+
+    @staticmethod
+    def _step(cell, direction):
+        dq, dr = rules.DIRS[direction]
+        return [cell[0] + dq, cell[1] + dr]
+
+    @staticmethod
+    def _direction(a, b):
+        delta = (b[0] - a[0], b[1] - a[1])
+        return rules.DIRS.index(delta) if delta in rules.DIRS else None
+
+    def p4_facts(self, i, e, before, after, ctx):
+        base = f"/events/{i}"
+        stage, data = e["stage"], e["data"]
+        command = ctx["command"]
+        side = command["side"]
+        uses_before = _get(before, "ledger", "uses")
+        uses_after = _get(after, "ledger", "uses")
+        bad = lambda detail: self.fail("AU10", f"{base}/effects", detail)  # noqa: E731
+        if stage == "ROOT":
+            # The cursor delta (AU10) is checked at i == 0 by the P3 rule.
+            moves = [eff for eff in e["effects"] if eff["path"] == "/clock/event_cursor"]
+            if len(moves) != 1 or moves[0]["new"] != ctx["tree"]["cursor"]:
+                bad("missing or wrong cursor delta")
+            kind = command["kind"]
+            want = {"kind": kind, "side": side,
+                    "formation": command.get("formation"), "use": rules.USE_KIND[kind]}
+        elif stage in rules.STEPS or stage == "WITHDRAW":
+            fid = command["formation"]
+            k = rules.STEPS.index(stage) + 1 if stage in rules.STEPS else 1
+            f = before["formations"][self._index(before, fid)]
+            origin = f["cell"]
+            dest = command["path"][k - 1] if stage in rules.STEPS else command["destination"]
+            d = self._direction(origin, dest)
+            first = 3 if stage == "WITHDRAW" else 0   # rear pair f+3, f+4; front f, f+1
+            allowed = ((f["facing"] + first) % 6, (f["facing"] + first + 1) % 6)
+            if d is None or d not in allowed:
+                bad("leg is not a legal unit step")
+            entry = self._entry(before, fid, origin, dest)
+            if entry is None:
+                bad("directed entry is not traversable")
+            mode = self._mode(before, fid)
+            leg = {"origin": origin, "destination": dest, "facing": f["facing"], "mode": mode}
+            if stage == "WITHDRAW":
+                work = {"kind": "Withdraw", "leg": leg}
+                cost, marks = 2 + (entry - 1), 2
+            else:
+                path = command["path"]
+                end = "COMPLETED" if k == len(path) else "STOPPED"
+                cost, marks = entry, 1
+                if k == 1:
+                    work = {"kind": "Move", "declared": path, "legs": [leg], "end": end}
+                else:
+                    prior = uses_before[-1]["work"][0]
+                    work = dict(prior, legs=prior["legs"] + [leg], end=end)
+            if stage in ("STEP1", "WITHDRAW"):
+                want_uses = uses_before + [{"side": side, "kind": "INDIVIDUAL", "group": None,
+                                            "members": [fid], "work": [work]}]
+            else:
+                want_uses = uses_before[:-1] + [dict(uses_before[-1], work=[work])]
+            if rules.cbytes(uses_after) != rules.cbytes(want_uses):
+                bad("ledger work does not match the initiated step")
+            if after["formations"][self._index(after, fid)]["cell"] != dest:
+                bad("mover not on the declared cell")
+            self._marked(base, before, after, fid, marks)
+            threatened = data.get("threatened") if type(data) is dict else None
+            if type(threatened) is not bool:
+                self.fail("AU10", f"{base}/data", "event data disagrees")
+            want = {"formation": fid, "from": origin, "to": dest, "mode": mode, "cost": cost,
+                    "marks": marks, "threatened": threatened}
+        elif stage == "GROUP_STEP":
+            direction = command["direction"]
+            members = command["members"]
+            work, moves = [], []
+            occupied = {tuple(g["cell"]) for g in before["formations"]
+                        if g["disposition"] in ("ORGANIZED", "REFORMING", "ROUTING")
+                        and g["formation"] not in members}
+            for fid in members:
+                f = before["formations"][self._index(before, fid)]
+                dest = self._step(f["cell"], direction)
+                entry = self._entry(before, fid, f["cell"], dest)
+                if direction not in (f["facing"], (f["facing"] + 1) % 6) or entry is None:
+                    bad("group leg is not a legal unit step")
+                if tuple(dest) in occupied:
+                    bad("group step enters a stationary primary")
+                mode = self._mode(before, fid)
+                work.append({"kind": "GroupStep", "leg": {"origin": f["cell"], "destination": dest,
+                                                          "facing": f["facing"], "mode": mode}})
+                moves.append({"formation": fid, "from": f["cell"], "to": dest, "mode": mode,
+                              "cost": entry})
+                if after["formations"][self._index(after, fid)]["cell"] != dest:
+                    bad("member not on its translated cell")
+                self._marked(base, before, after, fid, 1)
+            want_uses = uses_before + [{"side": side, "kind": "GROUP", "group": command["group"],
+                                        "members": members, "work": work}]
+            if rules.cbytes(uses_after) != rules.cbytes(want_uses):
+                bad("ledger work does not match the group step")
+            want = {"direction": direction, "moves": moves}
+        elif stage in ("PIVOT", "GROUP_PIVOT"):
+            members = ctx["members"]
+            turn = command["turn"]
+            steps = command.get("steps", 1)
+            work = []
+            for fid in members:
+                f0 = before["formations"][self._index(before, fid)]["facing"]
+                f1 = after["formations"][self._index(after, fid)]["facing"]
+                if f1 != (f0 + turn * steps) % 6:
+                    bad("pivot facing disagrees with the order")
+                if stage == "PIVOT":
+                    work.append({"kind": "Pivot", "facing_before": f0, "turn": turn,
+                                 "steps": steps})
+                    want = {"formation": fid, "from": f0, "to": f1, "steps": steps}
+                else:
+                    work.append({"kind": "GroupPivot", "facing_before": f0, "turn": turn})
+                self._marked(base, before, after, fid, steps)
+            if stage == "GROUP_PIVOT":
+                want = {"turn": turn, "members": members}
+            group = command.get("group")
+            want_uses = uses_before + [{"side": side, "kind": "GROUP" if group else "INDIVIDUAL",
+                                        "group": group, "members": members, "work": work}]
+            if rules.cbytes(uses_after) != rules.cbytes(want_uses):
+                bad("ledger work does not match the pivot")
+        elif stage == "EVACUATE":
+            fid = command["formation"]
+            i0 = self._index(before, fid)
+            f = before["formations"][i0]
+            mirrored = before["scenario"]["provenance"]["orientation"] == "MIRRORED"
+            red = (side == "S0") != mirrored
+            row = 8 if red else 0
+            if f["cell"][1] != row or f["disposition"] != "ORGANIZED":
+                bad("evacuation off the own exit row")
+            if after["formations"][i0]["disposition"] != "WITHDRAWN":
+                bad("evacuated formation not withdrawn")
+            at_exit = {"kind": "AtExit", "side": side}
+            for k, lot in enumerate(before["personnel"]):
+                if lot["lineage"] == fid and lot["status"] == "AVAILABLE" \
+                        and after["personnel"][k]["place"] != at_exit:
+                    bad("available lot not transferred to the own exit")
+            for name in ("mounts", "ammunition"):
+                for k, item in enumerate(before[name]):
+                    if item["formation"] != fid:
+                        continue
+                    got = after[name][k]
+                    if (got["assignment"], got["place"], got["custodian"], got["custody"],
+                            got["recovery"]) != ("ASSIGNED", at_exit, side, "OWN",
+                                                 "NOT_APPLICABLE"):
+                        bad("asset record disagrees with table 8.5")
+            self._marked(base, before, after, fid, 2)
+            want_uses = uses_before + [{"side": side, "kind": "INDIVIDUAL", "group": None,
+                                        "members": [fid],
+                                        "work": [{"kind": "Evacuate", "cell": f["cell"]}]}]
+            if rules.cbytes(uses_after) != rules.cbytes(want_uses):
+                bad("ledger work does not match the evacuation")
+            want = {"formation": fid, "cell": f["cell"], "exit_side": side, "exit_row": row,
+                    "round": before["clock"]["completed_rounds"] + 1}
+        elif stage == "WINDOW":
+            want = self._window_want(i, e, before, ctx)
+        else:  # RESPONSE
+            decision = ctx["decision"]
+            fid, target = decision["formation"], decision["target"]
+            i0 = self._index(before, fid)
+            f0 = before["formations"][i0]["facing"]
+            f1 = after["formations"][i0]["facing"]
+            d = self._direction(before["formations"][i0]["cell"],
+                                before["formations"][self._index(before, target)]["cell"])
+            if f1 not in ((f0 + 1) % 6, (f0 - 1) % 6) or d is None \
+                    or d not in (f1, (f1 + 1) % 6) or d in (f0, (f0 + 1) % 6):
+                bad("defensive pivot geometry disagrees")
+            if self._round(before, fid)["response"] is not None or self._round(after, fid)[
+                    "response"] != {"kind": "DEFENSIVE_PIVOT", "target": target}:
+                bad("response not recorded exactly once")
+            self._marked(base, before, after, fid, 1)
+            want = {"formation": fid, "kind": "DEFENSIVE_PIVOT", "target": target,
+                    "from": f0, "to": f1}
+        if rules.cbytes(data) != rules.cbytes(want):
+            self.fail("AU10", f"{base}/data", "event data disagrees")
+
+    def _window_want(self, i, e, before, ctx):
+        """WINDOW (ER02, ER06): context hash, canonical options, bound decision."""
+        at = f"/events/{i}/data"
+        data = e["data"]
+        command = ctx["command"]
+        if set(data) != {"after", "window_id", "options", "decision"}:
+            self.fail("AU10", at, "event data disagrees")
+        after_id = ctx["events"][i - 1]["id"]
+        token = rules.window_id(ctx["tree"]["previous"], command, after_id)
+        defender = "S1" if command["side"] == "S0" else "S0"
+        trigger = ctx["events"][i - 1]["stage"]
+        movers = command["members"] if trigger == "GROUP_STEP" else [command["formation"]]
+        options = data["options"]
+        if (type(options) is not list or not options
+                or any(type(o) is not dict or set(o) != {"formation", "kind", "target"}
+                       for o in options)):
+            self.fail("AU10", at, "malformed window options")
+        keys = [(o["formation"], o["kind"], o["target"]) for o in options]
+        if any(type(x) is not str for key in keys for x in key) \
+                or any(a >= b for a, b in zip(keys, keys[1:])):
+            self.fail("AU10", at, "window options not canonical")
+        for f, kind, target in keys:
+            if (self._side_of(before, f) != defender or target not in movers
+                    or kind not in ("DEFENSIVE_PIVOT", "DEFENSIVE_MISSILE")):
+                self.fail("AU10", at, "window option outside the window")
+        decision = data["decision"]
+        if rules.decision_shape(decision) is not None or decision["side"] != defender:
+            self.fail("AU10", at, "malformed window decision")
+        if decision["kind"] == "RespondMissile":
+            self.fail("AU10", at, "an accepted journal carries no missile decision")
+        if decision["kind"] == "RespondPivot" and \
+                (decision["formation"], "DEFENSIVE_PIVOT", decision["target"]) not in keys:
+            self.fail("AU10", at, "decision is not an offered option")
+        return {"after": after_id, "window_id": token, "options": options,
+                "decision": dict(decision, window_id=token)}
+
     # --------------------------------------------------------------- trailer
 
     def trailer_line(self, tree):
@@ -311,9 +704,9 @@ class _Verifier:
             if type(tree[key]) is not type(value) or tree[key] != value:
                 self.fail("AU16", f"/{key}", "trailer count disagrees")
         stages = tree["stages"]
-        if type(stages) is not dict or set(stages) != set(rules.STAGES):
+        if type(stages) is not dict or set(stages) != set(self.stage_names):
             self.fail("AU16", "/stages", "trailer stage keys")
-        for name in rules.STAGE_ORDER:
+        for name in sorted(self.stage_names):
             if not _exact_int(stages[name]) or stages[name] != self.counts[name]:
                 self.fail("AU16", f"/stages/{name}", "trailer stage count disagrees")
         self.trailer = True
@@ -342,6 +735,10 @@ class _Verifier:
         if self.require_sealed and not self.trailer:
             self.line += 1
             self.fail("AU16", "", "sealed journal required: no trailer")
+        if self.version == 2 and self.p4_roots == 0:
+            # ER05/E04: v2 is selected only by a completed P4 root.
+            self.line += 1
+            self.fail("AU16", "", "audit v2 without a completed P4 root")
         if expected_chain is not None and expected_chain != self.chain:
             self.fail("AU17", "", "final chain differs from the trusted commitment")
         run = self.header["run"]
@@ -350,7 +747,7 @@ class _Verifier:
             run=None if run is None else (run["seed"], run["replicate"]),
             sealed=self.trailer, roots=self.roots, cursor=self.cursor, final=self.digest,
             terminal=self.terminal,
-            stages=tuple((name, self.counts[name]) for name in rules.STAGE_ORDER),
+            stages=tuple((name, self.counts[name]) for name in sorted(self.stage_names)),
             draws=0, final_chain=self.chain)
 
 

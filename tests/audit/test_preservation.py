@@ -28,6 +28,10 @@ ALLOWED = (
     "imperium/battle/engine/commands.py", "imperium/battle/engine/step.py",
     "imperium/battle/engine/session.py", "imperium/battle/engine/__init__.py",
     "tests/engine/test_architecture.py", "tests/engine/test_session.py",
+    # P4 (contract rev 0.2 section 3, ER09)
+    "imperium/battle/engine/geometry.py", "imperium/battle/engine/exertion.py",
+    "imperium/battle/engine/movement.py", "imperium/battle/engine/window.py",
+    "tests/movement/*",
 )
 
 

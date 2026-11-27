@@ -18,12 +18,13 @@ from imperium.battle.records import STATE_FIELDS
 from imperium.battle.values import INT_DOMAIN, TerminationPoint
 
 from .commands import (
-    Accepted, Capitulate, DeclareWithdrawal, HoldOrder, OpenBattle, PassOrder, Stage,
-    check_command, command_digest,
+    GROUP_CLASSES, P4_PRINCIPAL_CLASSES, P4_STAGES, Accepted, Capitulate, DeclareWithdrawal,
+    HoldOrder, OpenBattle, PassOrder, Stage, check_command, command_digest,
 )
-from .draws import INDEX_MAX, NUMERATOR_LIMIT, Channel, parse_stage_id
+from .draws import INDEX_MAX, NUMERATOR_LIMIT, ORDINALS, ROUNDS, Channel, parse_stage_id
 
 EVENT_SCHEMA = "imperium.battle-event/1"
+EVENT_SCHEMA_V2 = "imperium.battle-event/2"
 
 CHECK_POINTS = {
     Stage.INITIAL_CHECK: TerminationPoint.INITIAL_CHECK,
@@ -36,6 +37,9 @@ CLOSURE_KINDS = (Stage.CLOSURE_DISPLACEMENT, Stage.CLOSURE_CHECK, Stage.RECOVERY
                  Stage.ADVANCE, Stage.END_CHECK)
 USE_OF = {HoldOrder: "INDIVIDUAL", PassOrder: "PASS", DeclareWithdrawal: "POSTURE_WITHDRAWAL",
           Capitulate: None}
+for _cls in P4_PRINCIPAL_CLASSES:
+    USE_OF[_cls] = "GROUP" if _cls in GROUP_CLASSES else "INDIVIDUAL"
+del _cls
 
 
 def _fail(code, path, detail):
@@ -223,16 +227,40 @@ class DrawRecord:
                 _fail("T10", name, f"outside 0..{high}")
 
 
+_P4_ID = re.compile(r"r([1-9][0-9]*):S[01]\.o([1-9][0-9]*):([A-Z_0-9]+)")
+
+
+def stage_kind_of(stage_id):
+    """The stage kind of a valid event id, or None (E04 event classifier).
+
+    The ten P4 kinds are accepted only on the principal form
+    ``r{R}:{S}.o{K}:{KIND}`` without suffix; every other id must be a legal
+    BK-1 v1 id, read by the unchanged ``parse_stage_id``.
+    """
+    if type(stage_id) is not str or len(stage_id) > 64 or not stage_id.isascii():
+        return None
+    m = _P4_ID.fullmatch(stage_id)
+    if m is not None and m.group(3) in Stage.__members__ \
+            and Stage[m.group(3)] in P4_STAGES:
+        if 1 <= int(m.group(1)) <= ROUNDS and 1 <= int(m.group(2)) <= ORDINALS:
+            return m.group(3)
+        return None
+    try:
+        key = parse_stage_id(stage_id)
+    except InvalidValue:
+        return None
+    return key.kind
+
+
 def _check_id(stage, stage_id):
     if type(stage) is not Stage:
         _fail("T15", "stage", "expected Stage")
     if type(stage_id) is not str:
         _fail("T15", "stage_id", "expected str")
-    try:
-        key = parse_stage_id(stage_id)
-    except InvalidValue:
+    kind = stage_kind_of(stage_id)
+    if kind is None:
         _fail("T16", "stage_id", "malformed stage id")
-    if key.kind != stage.name:
+    if kind != stage.name:
         _fail("T16", "stage_id", "stage and id disagree")
 
 
@@ -376,8 +404,9 @@ def _data(stage, command, after, next_stage):
                "result": "TERMINAL" if next_stage is Stage.TERMINAL else "CONTINUE"}
     elif stage is Stage.ROOT:
         t = type(command)
+        individual = t is HoldOrder or (t in P4_PRINCIPAL_CLASSES and t not in GROUP_CLASSES)
         doc = {"kind": t.__name__, "side": command.side.name,
-               "formation": command.formation.token if t is HoldOrder else None,
+               "formation": command.formation.token if individual else None,
                "use": USE_OF[t]}
     elif stage in NO_OP_STAGES:
         doc = {"applied": []}
@@ -410,11 +439,13 @@ class _Projector:
         return doc
 
 
-def build_root(before, command, stages, stage_values, previous, current):
+def build_root(before, command, stages, stage_values, previous, current, stage_data=None):
     """The ``RootRecord`` and snapshots of one accepted root.
 
     ``before`` and every ``stage_values`` entry are dicts of the eleven
     field values; every stage value already carries the new cursor.
+    ``stage_data`` optionally supplies the primitive data tree of P4
+    stages (None entries keep the P3 derivation).
     """
     ids = stage_ids(before, command, stages)
     projector = _Projector()
@@ -425,7 +456,9 @@ def build_root(before, command, stages, stage_values, previous, current):
         effects = tuple(Effect(pointer(seg), canonical_bytes_of(old), canonical_bytes_of(new))
                         for seg, old, new in diff(prev_doc, doc))
         nxt = stages[i + 1] if i + 1 < len(stages) else None
-        events.append(StageEvent(stage, sid, _data(stage, command, values, nxt), effects, ()))
+        given = None if stage_data is None else stage_data[i]
+        data = canonical_bytes_of(given) if given is not None else _data(stage, command, values, nxt)
+        events.append(StageEvent(stage, sid, data, effects, ()))
         snapshots.append(StageSnapshot(stage, sid, tuple(values[n] for n in STATE_FIELDS)))
         prev_doc = doc
     record = RootRecord(

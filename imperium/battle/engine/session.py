@@ -10,6 +10,13 @@ P3 (contract rev 0.3 sections 6, 7): ``submit`` resolves once and installs
 the successor, its journal entry and its ``RootRecord`` together;
 ``export_audit`` writes the canonical audit journal without changing the
 session.
+
+P4 (contract rev 0.2 section 4.4, ER02, ER05, E02): a suspended movement
+root is held as ``pending`` while the stable state, journal and exports are
+unchanged; a principal command then gives PENDING_WINDOW. Final publication
+installs the successor, journal entry and root record and clears
+``pending`` at one boundary. The export uses audit/event v2 once any P4 root
+has completed, and stays byte-identical v1 otherwise.
 """
 
 from imperium.battle import (
@@ -19,17 +26,22 @@ from imperium.battle import (
 from imperium.battle.canon import canonical_bytes_of, sha256_hex
 from imperium.battle.records import Terminal
 
-from .commands import COMMAND_SCHEMA, JournalEntry, check_fixture_id, encode_command
+from .commands import (
+    COMMAND_SCHEMA, P4_STAGES, JournalEntry, check_fixture_id, encode_command, is_p4_principal,
+)
 from .draws import REGISTRY, RNG_VERSION, RunKey, fixture_pair
-from .events import EVENT_SCHEMA, Resolved, canonical_tree
+from .events import EVENT_SCHEMA, EVENT_SCHEMA_V2, Resolved, canonical_tree
 from .step import resolve
+from .window import Suspended
 
 AUDIT_SCHEMA = "imperium.battle-audit/1"
+AUDIT_SCHEMA_V2 = "imperium.battle-audit/2"
 STATE_SCHEMA = "imperium.battle-state/1"
 STAGE_NAMES = (
     "ADVANCE", "CLOSURE_CHECK", "CLOSURE_DISPLACEMENT", "END_CHECK", "IMMEDIATE_CHECK",
     "INITIAL_CHECK", "OPEN_ROUND", "RECOVERY", "ROOT", "TERMINAL",
 )
+STAGE_NAMES_V2 = tuple(sorted(STAGE_NAMES + tuple(s.name for s in P4_STAGES)))
 
 
 def _genesis(d):
@@ -41,7 +53,7 @@ def _genesis(d):
 class BattleSession:
     """One registered battle: a read-only current state and its journal."""
 
-    __slots__ = ("_state", "_journal", "_digest", "_records", "_descriptor", "_run")
+    __slots__ = ("_state", "_journal", "_digest", "_records", "_descriptor", "_run", "_pending")
 
     def __init__(self, *args, **kwargs):
         raise TypeError("BattleSession is opened only through BattleSession.open")
@@ -65,6 +77,7 @@ class BattleSession:
         object.__setattr__(session, "_records", ())
         object.__setattr__(session, "_descriptor", d)
         object.__setattr__(session, "_run", run)
+        object.__setattr__(session, "_pending", None)
         return session
 
     def __setattr__(self, name, value):
@@ -81,8 +94,17 @@ class BattleSession:
     def journal(self):
         return self._journal
 
+    @property
+    def pending(self):
+        """The suspended root awaiting its window decision, or None."""
+        return self._pending
+
     def submit(self, command):
-        result = resolve(self._state, command)
+        held = self._pending
+        result = resolve(self._state if held is None else held, command)
+        if type(result) is Suspended:
+            object.__setattr__(self, "_pending", result.root)
+            return result
         if type(result) is not Resolved:
             return result
         accepted, record = result.accepted, result.record
@@ -98,10 +120,12 @@ class BattleSession:
         )
         journal = self._journal + (entry,)
         records = self._records + (record,)
+        # One publication boundary: nothing above has changed the session.
         object.__setattr__(self, "_state", new)
         object.__setattr__(self, "_journal", journal)
         object.__setattr__(self, "_records", records)
         object.__setattr__(self, "_digest", current)
+        object.__setattr__(self, "_pending", None)
         return accepted
 
     def export_audit(self, seal=True):
@@ -131,10 +155,15 @@ def _event_tree(event):
 
 
 def audit_bytes(d, run, records, final_state, seal):
-    """Serialize a header, the root lines and, if sealed, the trailer."""
+    """Serialize a header, the root lines and, if sealed, the trailer.
+
+    The envelope is v2 iff at least one completed root is a P4 order (ER05).
+    """
+    v2 = any(is_p4_principal(r.command) for r in records)
     header = {
-        "kind": "header", "schema": AUDIT_SCHEMA, "state_schema": STATE_SCHEMA,
-        "command_schema": COMMAND_SCHEMA, "event_schema": EVENT_SCHEMA, "rng": RNG_VERSION,
+        "kind": "header", "schema": AUDIT_SCHEMA_V2 if v2 else AUDIT_SCHEMA,
+        "state_schema": STATE_SCHEMA, "command_schema": COMMAND_SCHEMA,
+        "event_schema": EVENT_SCHEMA_V2 if v2 else EVENT_SCHEMA, "rng": RNG_VERSION,
         "registry": REGISTRY, "fixture": d.fixture_id.token, "pair": fixture_pair(d),
         "genesis": d.full_genesis_digest,
         "run": None if run is None else {"seed": run.seed, "replicate": run.replicate},
@@ -142,7 +171,7 @@ def audit_bytes(d, run, records, final_state, seal):
     chunks = []
     data, chain = _line(header, None)
     chunks.append(data)
-    counts = dict.fromkeys(STAGE_NAMES, 0)
+    counts = dict.fromkeys(STAGE_NAMES_V2 if v2 else STAGE_NAMES, 0)
     for r in records:
         tree = {
             "kind": "root", "cursor": r.cursor, "command": encode_command(r.command),
