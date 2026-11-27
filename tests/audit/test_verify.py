@@ -215,7 +215,7 @@ class Corruption(Base):
             ("pair", "F01-v1-rough", "/pair"),
             ("pair", "F01-v1-open-standard", "/pair"),
             ("genesis", "0" * 64, "/genesis"),
-            ("schema", "imperium.battle-audit/2", "/schema"),
+            ("schema", "imperium.battle-audit/3", "/schema"),
             ("state_schema", "imperium.battle-state/2", "/state_schema"),
             ("rng", "D4-SHA256-v2", "/rng"),
             ("registry", "IMPERIUM-BK-2", "/registry"),

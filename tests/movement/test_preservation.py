@@ -21,6 +21,8 @@ ACCEPTED_TESTS = {
     "tests/engine/test_architecture.py", "tests/audit/test_keys.py",
     "tests/audit/test_journal.py", "tests/audit/test_review_pr6.py",
     "tests/audit/test_preservation.py",
+    # Owner-approved with Codex's PR #8 review: one literal only (see below).
+    "tests/audit/test_verify.py",
 }
 
 
@@ -58,6 +60,13 @@ class M01Diff(unittest.TestCase):
             if p.startswith("imperium/battle/") and not p.startswith(
                     ("imperium/battle/engine/", "imperium/battle/audit/")):
                 self.fail(p)
+
+    def test_legacy_header_literal_only(self):
+        diff = git("diff", "-U0", BASE, "--", "tests/audit/test_verify.py")
+        minus = [l for l in diff.splitlines() if l.startswith("-") and not l.startswith("---")]
+        plus = [l for l in diff.splitlines() if l.startswith("+") and not l.startswith("+++")]
+        self.assertEqual(minus, ['-            ("schema", "imperium.battle-audit/2", "/schema"),'])
+        self.assertEqual(plus, ['+            ("schema", "imperium.battle-audit/3", "/schema"),'])
 
     def test_audit_exports_unchanged(self):
         self.assertEqual(git("diff", BASE, "--", "imperium/battle/audit/__init__.py"), "")
